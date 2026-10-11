@@ -166,7 +166,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Pine', hex: C.pine },
       { name: 'Teak', hex: '#9a6b47' },
     ],
-    summary: 'Planters of mountain pine and birch along the edge, two teak loungers and a small round table, and in the sheltered corner a compact thermo-wood sauna with a teak ice bath beside it.',
+    summary: 'Planters of mountain pine and birch along the edge, two teak loungers and a small round table, and in the sheltered corner a two-person cabin sauna with a black frame, a glass front and a dark wood interior, with a teak ice bath beside it.',
   },
   {
     room: 'bastelraum-1',
@@ -366,7 +366,7 @@ const roofTerrace: FurnitureItem[] = [
   item('roof-terrace', 'lounger-1', 'Teak lounger', 'lounger', 2.2, 1.0, 0.65, 1.9, 0.4, { rot: -90, colour: C.oat }),
   item('roof-terrace', 'lounger-2', 'Teak lounger', 'lounger', 2.2, 2.0, 0.65, 1.9, 0.4, { rot: -90, colour: C.oat }),
   item('roof-terrace', 'table', 'Small round teak table', 'sideTable', 3.4, 1.5, 0.45, 0.45, 0.45, { variant: 'teak' }),
-  item('roof-terrace', 'sauna', 'Compact outdoor sauna, thermo-wood, 160 x 160 cm', 'sauna', 1.2, 4.8, 1.6, 1.6, 2.15, { rot: 90 }),
+  item('roof-terrace', 'sauna', 'Two-person cabin sauna, black frame, glass front, dark wood inside', 'sauna', 1.2, 4.8, 1.25, 1.05, 1.95, { rot: 90 }),
   item('roof-terrace', 'ice-bath', 'Ice bath, teak tub, 100 cm', 'iceBath', 2.75, 5.05, 1.0, 1.0, 0.9),
 ];
 

@@ -4,6 +4,7 @@ import type { FurnitureItem } from '../../furniture/types';
 import { rng } from '../textures';
 import {
   art,
+  cached,
   bulb,
   ceramic,
   cylinder,
@@ -917,33 +918,70 @@ function Lounger({ it }: { it: FurnitureItem }) {
 }
 
 /**
- * A compact outdoor cube sauna in dark thermo-wood: vertical cladding, a flat roof with a
- * small overhang, and a full-height glass door on the front with a long oak handle.
+ * A two-person cabin sauna after the photo Dennis chose: a black frame with a full glass
+ * front and a glass door, and a dark wood interior with a bench, slatted backrests, infrared
+ * panels, low cabinets in the front corners and a warm light strip under the ceiling.
+ * The front faces +z.
  */
-function Sauna({ it }: { it: FurnitureItem }) {
+function Sauna({ it, lit }: { it: FurnitureItem; lit: boolean }) {
   const { w, d, h } = it;
-  const thermo = wood('teak');
-  const dark = lacquer('#3a2e25', 0.8);
-  const slats = Math.round(w / 0.09);
+  const black = metal('#161616', 0.55);
+  const lining = wood('teak');
+  const dark = lacquer('#3b2a20', 0.7);
+  const t = 0.05;
+  const iw = w - 2 * t;
+  const back = -d / 2 + t;
+  const boards = Math.round((h - 0.1) / 0.11);
+  const mullion = -w / 2 + w * 0.3;
   return (
     <group>
-      <Box w={w - 0.04} h={h - 0.12} d={d - 0.04} y={0.04} m={dark} r={0.004} />
-      {[-1, 1].map((side) =>
-        Array.from({ length: slats }, (_, i) => (
-          <Box key={`${side}${i}`} w={0.012} h={h - 0.14} d={(d - 0.06) / slats - 0.012} x={side * (w / 2 - 0.02)} y={0.05} z={-d / 2 + 0.03 + ((d - 0.06) * (i + 0.5)) / slats} m={thermo} r={0.003} grain />
+      {/* Black shell */}
+      <Box w={w} h={t} d={d} m={black} r={0.004} />
+      <Box w={w} h={t} d={d} y={h - t} m={black} r={0.004} />
+      {[-1, 1].map((sx) => (
+        <Box key={sx} w={t} h={h} d={d} x={sx * (w / 2 - t / 2)} m={black} r={0.004} />
+      ))}
+      <Box w={w} h={h} d={t} z={-d / 2 + t / 2} m={black} r={0.004} />
+      {/* Horizontal boards on the back and side walls, a slatted ceiling */}
+      {Array.from({ length: boards }, (_, i) => (
+        <Box key={`b${i}`} w={iw} h={0.105} d={0.015} y={t + i * 0.11} z={back + 0.008} m={lining} r={0.002} grain />
+      ))}
+      {[-1, 1].map((sx) => (
+        <Box key={`s${sx}`} w={0.015} h={h - 2 * t} d={d - t - 0.04} x={sx * (iw / 2 - 0.008)} y={t} z={t / 2 - 0.02} m={lining} r={0.002} grain />
+      ))}
+      <Box w={iw} h={0.015} d={d - t - 0.04} y={h - t - 0.015} z={t / 2 - 0.02} m={lining} r={0.002} grain />
+      {/* Bench and slatted floor */}
+      <Box w={iw} h={0.05} d={0.45} y={0.42} z={back + 0.225} m={lining} r={0.006} grain />
+      <Box w={iw - 0.04} h={0.37} d={0.02} y={t} z={back + 0.44} m={dark} r={0.002} />
+      {Array.from({ length: 6 }, (_, i) => (
+        <Box key={`f${i}`} w={iw - 0.02} h={0.02} d={0.06} y={t} z={back + 0.48 + i * 0.075} m={dark} r={0.003} />
+      ))}
+      {/* Two slatted backrests with an infrared panel between them */}
+      {[-1, 1].map((sx) =>
+        Array.from({ length: 6 }, (_, i) => (
+          <Box key={`r${sx}${i}`} w={0.3} h={0.035} d={0.03} x={sx * iw * 0.25} y={0.55 + i * 0.075} z={back + 0.05} m={lining} r={0.004} />
         )),
       )}
-      {Array.from({ length: slats }, (_, i) => (
-        <Box key={`b${i}`} w={(w - 0.06) / slats - 0.012} h={h - 0.14} d={0.012} x={-w / 2 + 0.03 + ((w - 0.06) * (i + 0.5)) / slats} y={0.05} z={-d / 2 + 0.02} m={thermo} r={0.003} grain />
+      <Box w={0.06} h={0.42} d={0.012} y={0.6} z={back + 0.022} m={cached('ir-panel', () => new THREE.MeshStandardMaterial({ color: '#2a0d08', emissive: '#c8321c', emissiveIntensity: 0.45 }))} r={0.002} />
+      {/* Low cabinets in the front corners */}
+      {[-1, 1].map((sx) => (
+        <Box key={`c${sx}`} w={0.27} h={0.85} d={0.1} x={sx * (iw / 2 - 0.15)} y={t} z={d / 2 - t - 0.08} m={dark} r={0.004} grain />
       ))}
-      {/* Front: cladding either side of a glass door */}
-      {[-1, 1].map((side) => (
-        <Box key={`f${side}`} w={w / 2 - 0.32} h={h - 0.14} d={0.03} x={side * (w / 4 + 0.16)} y={0.05} z={d / 2 - 0.02} m={thermo} r={0.003} grain />
+      {/* Warm light strip under the ceiling, front and sides */}
+      <Box w={iw - 0.04} h={0.015} d={0.015} y={h - t - 0.06} z={d / 2 - t - 0.06} m={cached('sauna-led', () => new THREE.MeshStandardMaterial({ color: '#ffd28a', emissive: '#ffb347', emissiveIntensity: 3 }))} r={0} />
+      {lit && <pointLight position={[0, h - 0.3, 0]} color="#ffb347" intensity={1.2} distance={2.5} decay={2} />}
+      {/* Front: black frame, a fixed pane and a glass door with a long black handle */}
+      <Box w={w} h={t} d={t} y={h - t} z={d / 2 - t / 2} m={black} r={0.004} />
+      <Box w={w} h={t} d={t} z={d / 2 - t / 2} m={black} r={0.004} />
+      <Box w={0.03} h={h - 2 * t} d={0.04} x={mullion} y={t} z={d / 2 - 0.02} m={black} r={0.004} />
+      <Box w={w - 2 * t} h={h - 2 * t} d={0.008} y={t} z={d / 2 - 0.025} m={cached('sauna-glass', () => new THREE.MeshPhysicalMaterial({ color: '#2c2a26', roughness: 0.04, transparent: true, opacity: 0.32, metalness: 0.1 }))} r={0} />
+      <M g={cylinder(0.011, 0.011, 0.95, 12)} m={black} p={[mullion + 0.07, h * 0.52, d / 2 + 0.035]} />
+      {[0.38, h - 0.45].map((y) => (
+        <Box key={y} w={0.035} h={0.07} d={0.02} x={mullion + 0.07} y={y} z={d / 2 + 0.01} m={black} r={0.003} />
       ))}
-      <Box w={0.62} h={h - 0.3} d={0.012} y={0.08} z={d / 2 - 0.02} m={lacquer('#2a2d2c', 0.05)} r={0.003} />
-      <Box w={0.03} h={0.6} d={0.04} x={0.24} y={0.8} z={d / 2 + 0.01} m={wood()} r={0.008} />
-      <Box w={w + 0.1} h={0.1} d={d + 0.1} y={h - 0.1} m={thermo} r={0.008} />
-      <Box w={w - 0.1} h={0.04} d={d - 0.1} y={0} m={dark} r={0.004} />
+      {[h * 0.25, h * 0.85].map((y) => (
+        <Box key={`h${y}`} w={0.04} h={0.08} d={0.02} x={w / 2 - t - 0.05} y={y} z={d / 2 - 0.005} m={black} r={0.003} />
+      ))}
     </group>
   );
 }
@@ -1148,7 +1186,7 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
     case 'dryingRack':
       return <DryingRack it={it} />;
     case 'sauna':
-      return <Sauna it={it} />;
+      return <Sauna it={it} lit={lit} />;
     case 'iceBath':
       return <IceBath it={it} />;
   }
