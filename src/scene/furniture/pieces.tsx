@@ -10,6 +10,8 @@ import {
   fabric,
   foliage,
   lacquer,
+  mat4,
+  merged,
   lathe,
   metal,
   mirrorGlass,
@@ -626,18 +628,50 @@ function Pot({ r, h, m }: { r: number; h: number; m: Mat }) {
 
 /** Leaves as clusters of flattened spheres, seeded so each plant is irregular but stable. */
 function LeafCloud({ count, spread, height, base, size, kind, seed, flat = 0.55 }: { count: number; spread: number; height: number; base: number; size: number; kind: Foliage; seed: number; flat?: number }) {
-  const rand = rng(seed);
-  return (
-    <>
-      {Array.from({ length: count }, (_, i) => {
-        const a = rand() * Math.PI * 2;
-        const t = rand();
-        const rr = spread * Math.sqrt(rand()) * (0.6 + 0.4 * (1 - Math.abs(t - 0.5) * 2));
-        const s = size * (0.7 + rand() * 0.6);
-        return <M key={i} g={sphere(s, 1)} m={foliage(kind)} p={[Math.cos(a) * rr, base + t * height, Math.sin(a) * rr]} s={[1, flat, 1]} r={[rand(), rand() * 3, rand()]} />;
-      })}
-    </>
-  );
+  const g = merged(`leaves${count},${spread},${height},${base},${size},${seed},${flat}`, () => {
+    const rand = rng(seed);
+    return Array.from({ length: count }, () => {
+      const a = rand() * Math.PI * 2;
+      const t = rand();
+      const rr = spread * Math.sqrt(rand()) * (0.6 + 0.4 * (1 - Math.abs(t - 0.5) * 2));
+      const sz = size * (0.7 + rand() * 0.6);
+      return { g: sphere(sz, 1), m: mat4([Math.cos(a) * rr, base + t * height, Math.sin(a) * rr], [rand(), rand() * 3, rand()], [1, flat, 1]) };
+    });
+  });
+  return <M g={g} m={foliage(kind)} />;
+}
+
+/** Arching fronds of paired leaflets that droop towards the tips, merged into one mesh. */
+function Fronds({ count, height, base, seed }: { count: number; height: number; base: number; seed: number }) {
+  const g = merged(`fronds${count},${height},${base},${seed}`, () => {
+    const rand = rng(seed);
+    const parts: { g: THREE.BufferGeometry; m: THREE.Matrix4 }[] = [];
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * Math.PI * 2 + rand() * 0.4;
+      const len = height * (0.75 + rand() * 0.35);
+      const lift = 1.15 - rand() * 0.45;
+      const n = 11;
+      const frond = mat4([0, base, 0], [0, a, 0]);
+      for (let k = 0; k < n; k++) {
+        const t = (k + 0.5) / n;
+        // integrate the arc to find where along it this leaflet sits
+        let px = 0;
+        let py = 0;
+        for (let q = 0; q < 6; q++) {
+          const tq = (t * (q + 0.5)) / 6;
+          px += (Math.cos(lift - tq * 1.5) * len * t) / 6;
+          py += (Math.sin(lift - tq * 1.5) * len * t) / 6;
+        }
+        const leaflet = 0.07 * (1 - t * 0.7) * Math.max(0.6, len / 0.8);
+        const pair = frond.clone().multiply(mat4([px, py, 0], [0, 0, lift - t * 1.5]));
+        for (const sd of [-1, 1]) {
+          parts.push({ g: sphere(1, 1), m: pair.clone().multiply(mat4([0, 0, sd * leaflet * 0.85], [0, sd * 0.35, 0], [(len / n) * 0.55, 0.006, leaflet])) });
+        }
+      }
+    }
+    return parts;
+  });
+  return <M g={g} m={foliage('leaf')} />;
 }
 
 function Plant({ it }: { it: FurnitureItem }) {
@@ -682,44 +716,11 @@ function Plant({ it }: { it: FurnitureItem }) {
         </group>
       );
     default: {
-      // fern: arching fronds of paired leaflets, drooping towards the tips
       const potH = Math.min(0.35, it.h * 0.35);
-      const fronds = 14;
-      const rand = rng(seed);
       return (
         <group>
           <Pot r={r * 0.65} h={potH} m={potM} />
-          {Array.from({ length: fronds }, (_, i) => {
-            const a = (i / fronds) * Math.PI * 2 + rand() * 0.4;
-            const len = (it.h - potH) * (0.75 + rand() * 0.35);
-            const lift = 1.15 - rand() * 0.45;
-            const n = 11;
-            return (
-              <group key={i} position={[0, potH - 0.02, 0]} rotation={[0, a, 0]}>
-                {Array.from({ length: n }, (_, k) => {
-                  const t = (k + 0.5) / n;
-                  const el = lift - t * 1.5;
-                  // integrate the arc: horizontal distance and height at t
-                  const steps = 6;
-                  let px = 0;
-                  let py = 0;
-                  for (let q = 0; q < steps; q++) {
-                    const tq = (t * (q + 0.5)) / steps;
-                    px += (Math.cos(lift - tq * 1.5) * len * t) / steps;
-                    py += (Math.sin(lift - tq * 1.5) * len * t) / steps;
-                  }
-                  const leaflet = 0.07 * (1 - t * 0.7) * Math.max(0.6, len / 0.8);
-                  return (
-                    <group key={k} position={[px, py, 0]} rotation={[0, 0, el]}>
-                      {[-1, 1].map((sd) => (
-                        <M key={sd} g={sphere(1, 1)} m={foliage('leaf')} p={[0, 0, sd * leaflet * 0.85]} s={[(len / n) * 0.55, 0.006, leaflet]} r={[0, sd * 0.35, 0]} shadow={k % 2 === 0} />
-                      ))}
-                    </group>
-                  );
-                })}
-              </group>
-            );
-          })}
+          <Fronds count={14} height={it.h - potH} base={potH - 0.02} seed={seed} />
         </group>
       );
     }

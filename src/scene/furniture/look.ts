@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Artwork } from '../../furniture/types';
 import {
   birchPrint,
@@ -79,6 +80,19 @@ export function torus(r: number, tube: number, arc = Math.PI * 2) {
 
 export function plane(w: number, h: number) {
   return cachedGeo(`pl${r3(w)},${r3(h)}`, () => new THREE.PlaneGeometry(w, h));
+}
+
+/** A transform from position, Euler rotation and scale. */
+export function mat4(p: [number, number, number], r: [number, number, number] = [0, 0, 0], s: [number, number, number] = [1, 1, 1]) {
+  return new THREE.Matrix4().compose(new THREE.Vector3(...p), new THREE.Quaternion().setFromEuler(new THREE.Euler(...r)), new THREE.Vector3(...s));
+}
+
+/**
+ * Many small parts with one material (leaves, leaflets) merged into a single geometry, so a
+ * plant is one draw call instead of hundreds. Cached by `key`.
+ */
+export function merged(key: string, parts: () => { g: THREE.BufferGeometry; m: THREE.Matrix4 }[]) {
+  return cachedGeo(`mg${key}`, () => mergeGeometries(parts().map(({ g, m }) => g.clone().applyMatrix4(m)), false)!);
 }
 
 /** A round lampshade or pot: open lathe profile from radius list. */

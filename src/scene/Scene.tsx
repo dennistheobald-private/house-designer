@@ -4,7 +4,8 @@ import { Bloom, EffectComposer, N8AO, SMAA, ToneMapping, Vignette } from '@react
 import { ToneMappingMode } from 'postprocessing';
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import { WebGLPathTracer } from 'three-gpu-pathtracer';
+import { DenoiseMaterial, WebGLPathTracer } from 'three-gpu-pathtracer';
+import { FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js';
 import type { House } from '../house/types';
 import { lampMaterials } from './furniture/look';
 import { HouseModel } from './HouseModel';
@@ -116,6 +117,22 @@ function PhotoRender({ onProgress }: { onProgress: (samples: number) => void }) 
     pt.fadeDuration = 300;
     pt.tiles.set(2, 2);
     pt.renderScale = Math.min(1, 1600 / Math.max(size.width, 1));
+    // An edge-aware denoise over the result: strong for the first, grainy passes, then
+    // easing off as the image converges so fine detail comes back.
+    const denoise = new FullScreenQuad(new DenoiseMaterial({ premultipliedAlpha: gl.getContextAttributes()?.premultipliedAlpha }));
+    const dm = denoise.material as DenoiseMaterial & { map: THREE.Texture; sigma: number; threshold: number; kSigma: number; opacity: number };
+    pt.renderToCanvasCallback = (target, renderer, quad) => {
+      dm.map = target.texture;
+      dm.sigma = Math.max(1.2, 4.5 - pt.samples / 60);
+      dm.threshold = Math.max(0.02, 0.09 - pt.samples / 2000);
+      dm.kSigma = 1.5;
+      dm.opacity = (quad.material as THREE.ShaderMaterial & { opacity: number }).opacity;
+      dm.blending = (quad.material as THREE.Material).blending;
+      const autoClear = renderer.autoClear;
+      renderer.autoClear = false;
+      denoise.render(renderer);
+      renderer.autoClear = autoClear;
+    };
     // Building the scene's BVH takes a moment; let the "preparing" note paint first.
     const start = window.setTimeout(() => {
       pt.setScene(scene, camera);
@@ -126,6 +143,8 @@ function PhotoRender({ onProgress }: { onProgress: (samples: number) => void }) 
       window.clearTimeout(start);
       tracer.current = null;
       pt.dispose();
+      denoise.dispose();
+      denoise.material.dispose();
       hidden.forEach((o) => (o.visible = true));
       scene.background = background;
     };
@@ -202,7 +221,8 @@ export function Scene({
     >
       <Lighting time={time} />
       <LampShades on={evening} />
-      <Exposure value={walking ? (evening ? 1.3 : 1.0) : evening ? 1.2 : 0.85} />
+      {/* The path tracer lights rooms only through their windows, as a camera sees them, so it needs the exposure a photographer would use indoors. */}
+      <Exposure value={photo ? (evening ? 1.8 : 2.6) : walking ? (evening ? 1.3 : 1.0) : evening ? 1.2 : 0.85} />
       <HouseModel house={house} visibleFloors={visible} showRoof={walking} showSurroundings={walking} furnished={furnished} litFloors={lit} />
       {walking ? (
         <WalkControls house={house} target={walkTarget} onMove={onWalk} furnished={furnished} frozen={photo} />
