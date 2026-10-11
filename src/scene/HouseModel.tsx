@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
+import { furnitureByFloor } from '../furniture/proposals';
 import { fixturesByFloor } from '../house/fixtures';
 import { runsAlongX, stairTreads, STAIR_TURN_X, wallBlocks } from '../house/geometry';
 import type { Floor, House, Opening, Wall } from '../house/types';
+import { Furnishings } from './furniture/Furnishings';
 import { BlockMesh, FloorPlane, PlanSlab, rectOutline } from './meshes';
 
 const SLAB = 0.33;
@@ -128,11 +130,17 @@ export function HouseModel({
   visibleFloors,
   showRoof,
   showSurroundings,
+  furnished = true,
+  litFloors = [],
 }: {
   house: House;
   visibleFloors: number[];
   showRoof: boolean;
   showSurroundings: boolean;
+  /** Show the furnished proposal. */
+  furnished?: boolean;
+  /** Floors whose lamps are switched on. */
+  litFloors?: number[];
 }) {
   const highest = Math.max(...visibleFloors);
   return (
@@ -140,6 +148,10 @@ export function HouseModel({
       {visibleFloors.map((i) => (
         <FloorStructure key={house.floors[i].id} house={house} floor={house.floors[i]} index={i} />
       ))}
+      {furnished &&
+        visibleFloors.map((i) => (
+          <Furnishings key={`furniture-${i}`} items={furnitureByFloor[house.floors[i].id] ?? []} level={house.floors[i].level} lit={litFloors.includes(i)} />
+        ))}
       {visibleFloors
         .filter((i) => i < house.floors.length - 1)
         .map((i) => (

@@ -3,6 +3,8 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { collisionRects, contains, moveWithCollisions, stairHeight, stairLengths, stairProgress } from '../house/geometry';
+import { furnitureByFloor } from '../furniture/proposals';
+import { BLOCKING, footprint } from '../furniture/types';
 import type { House } from '../house/types';
 
 export const EYE_HEIGHT = 1.65;
@@ -27,7 +29,21 @@ export interface WalkPosition {
 /** Camera yaw that looks along plan direction `facing` (radians, 0 = towards the street). */
 export const yawFor = (facing: number) => Math.atan2(-Math.cos(facing), -Math.sin(facing));
 
-export function WalkControls({ house, target, onMove }: { house: House; target: WalkTarget; onMove: (p: WalkPosition) => void }) {
+export function WalkControls({
+  house,
+  target,
+  onMove,
+  furnished = false,
+  frozen = false,
+}: {
+  house: House;
+  target: WalkTarget;
+  onMove: (p: WalkPosition) => void;
+  /** Furniture blocks the way too. */
+  furnished?: boolean;
+  /** Hold still (while a photo renders). */
+  frozen?: boolean;
+}) {
   const camera = useThree((s) => s.camera);
   const keys = useRef(new Set<string>());
   const state = useRef({ x: target.x, y: target.y, floor: target.floor, flight: null as number | null, eye: 0 });
@@ -35,11 +51,13 @@ export function WalkControls({ house, target, onMove }: { house: House; target: 
 
   const rects = useMemo(() => {
     const last = house.floors.length - 1;
+    const furniture = (floorId: string) =>
+      furnished ? (furnitureByFloor[floorId] ?? []).filter((it) => BLOCKING.has(it.kind) && !it.z).map(footprint) : [];
     return {
-      onFloor: house.floors.map((f, i) => collisionRects(f, house.stair, { top: i === last, bottom: i === 0 })),
+      onFloor: house.floors.map((f, i) => [...collisionRects(f, house.stair, { top: i === last, bottom: i === 0 }), ...furniture(f.id)]),
       onFlight: house.floors.map((f) => collisionRects(f, house.stair)),
     };
-  }, [house]);
+  }, [house, furnished]);
 
   useEffect(() => {
     const s = state.current;
@@ -75,7 +93,7 @@ export function WalkControls({ house, target, onMove }: { house: House; target: 
     const fwd = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
     const side = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
 
-    if (fwd || side) {
+    if ((fwd || side) && !frozen) {
       camera.getWorldDirection(forward);
       const len = Math.hypot(forward.x, forward.z) || 1;
       const fx = forward.x / len;
@@ -117,5 +135,5 @@ export function WalkControls({ house, target, onMove }: { house: House; target: 
     }
   });
 
-  return <PointerLockControls />;
+  return <PointerLockControls enabled={!frozen} />;
 }
