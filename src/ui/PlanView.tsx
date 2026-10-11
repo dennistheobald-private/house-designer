@@ -12,6 +12,7 @@ const FINISH_FILL: Record<FloorFinish, string> = {
   stair: '#cdc3b7',
   terrace: '#e9e9e5',
   pebble: '#bdbab4',
+  lawn: '#cfe0c0',
 };
 
 const SCALE = 60; // pixels per metre
@@ -19,7 +20,7 @@ const SCALE = 60; // pixels per metre
 export function PlanView({ house, floorIndex, marker }: { house: House; floorIndex: number; marker?: { x: number; y: number } }) {
   const floor = house.floors[floorIndex];
   const walls = useMemo(
-    () => floor.walls.flatMap((w) => wallBlocks(w, floor.openings, floor.clearHeight).map((b) => ({ b, h: w.height ?? floor.clearHeight }))),
+    () => floor.walls.flatMap((w) => wallBlocks(w, floor.openings, floor.clearHeight).map((b) => ({ b, h: w.height ?? floor.clearHeight, hedge: !!w.hedge }))),
     [floor],
   );
   const treads = useMemo(() => stairTreads(house.stair), [house.stair]);
@@ -53,7 +54,9 @@ export function PlanView({ house, floorIndex, marker }: { house: House; floorInd
       {fixturesByFloor[floor.id]
         ?.filter((f) => f.material !== 'light' && f.z1 - f.z0 > 0.03)
         .map((f, i) => rect(f, { fill: f.material === 'glass' ? '#9cc3d6' : 'rgba(120,110,100,0.18)', stroke: '#7b7068', strokeWidth: 0.012 }, `fx-${i}`))}
-      {walls.map(({ b, h }, i) => {
+      {walls.map(({ b, h, hedge }, i) => {
+        if (hedge) return rect(b, { fill: '#6f9460' }, i);
+        if (h < 1) return rect(b, { fill: '#8a857e' }, i); // garden wall
         const fullHeight = b.z0 === 0 && b.z1 >= Math.min(h, 2.0);
         if (fullHeight) return rect(b, { fill: '#2f2c29' }, i);
         if (b.z0 === 0) return rect(b, { fill: '#9cc3d6', stroke: '#5a8aa3', strokeWidth: 0.01 }, i); // window sill

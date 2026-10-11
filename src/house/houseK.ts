@@ -11,6 +11,11 @@ import type { Floor, House, Rect } from './types';
  * the kitchen is open to the dining area, 3.58 m long, with the tall units in a niche
  * that reaches 0.35 m into the entrance hall.
  *
+ * The plot comes from the site plan ("Situation", brochure page 9, 1:200): parcel 126.78 m²,
+ * garden 32.54 m². It runs between the party-wall centre lines (5.95 m wide), from the back
+ * boundary, which has a 0.4 m garden wall, to the shared front path. The garden's depth is set
+ * so its area matches the plan; the front strip takes up the rest of the parcel's area.
+ *
  * Assumptions to confirm: the basement sits under the garden side (its stair lines up
  * with the stair above), floor-to-floor height 2.83 m, clear height 2.50 m, and the
  * window sill and head heights, which the plans do not give.
@@ -20,6 +25,16 @@ const r = (x0: number, y0: number, x1: number, y1: number): Rect => ({ x0, y0, x
 
 const STOREY = 2.83;
 const CLEAR = 2.5;
+
+// Plot, from the site plan. Party lines run along the middle of the party walls.
+const PARTY_N = -0.125;
+const PARTY_S = 5.825;
+const PLOT_WIDTH = PARTY_S - PARTY_N;
+const TERRACE_EDGE = -2.95;
+const GARDEN_EDGE = TERRACE_EDGE - 32.54 / PLOT_WIDTH;
+const PLOT_AREA = 126.78;
+const FRONT_EDGE = GARDEN_EDGE + PLOT_AREA / PLOT_WIDTH;
+const HEDGE = 0.2; // half the hedge's thickness
 
 const basement: Floor = {
   id: 'basement',
@@ -75,6 +90,10 @@ const mainFloor: Floor = {
     { id: 'm-niche-side', rect: r(6.45, 2.91, 6.57, 3.51) },
     { id: 'm-niche-end', rect: r(8.48, 2.79, 8.6, 3.26) },
     { id: 'm-kitchen-hall', rect: r(8.48, 3.11, 10.15, 3.26) },
+    // Garden boundaries: hedges to the neighbours, a low wall at the back.
+    { id: 'm-hedge-n', rect: r(GARDEN_EDGE, PARTY_N - HEDGE, TERRACE_EDGE, PARTY_N + HEDGE), height: 1.2, hedge: true },
+    { id: 'm-hedge-s', rect: r(GARDEN_EDGE, PARTY_S - HEDGE, TERRACE_EDGE, PARTY_S + HEDGE), height: 1.2, hedge: true },
+    { id: 'm-garden-wall', rect: r(GARDEN_EDGE - 0.2, PARTY_N - HEDGE, GARDEN_EDGE, PARTY_S + HEDGE), height: 0.4, exterior: true },
   ],
   openings: [
     { wall: 'm-garden', kind: 'glassDoor', from: 0.7, to: 5.0, sill: 0, head: 2.3 },
@@ -91,8 +110,14 @@ const mainFloor: Floor = {
     { id: 'wc', name: 'WC', planArea: 1.8, rects: [r(8.95, 0, 10.15, 1.62)], finish: 'tile', spawn: { x: 9.3, y: 0.9, facing: 0 } },
   ],
   outdoor: [
-    { id: 'garden-terrace', name: 'Garden terrace', planArea: 14.8, rects: [r(-2.95, 0, -0.35, 5.7)], finish: 'terrace', spawn: { x: -1.8, y: 2.8, facing: 0 } },
+    { id: 'garden-terrace', name: 'Garden terrace', planArea: 14.8, rects: [r(TERRACE_EDGE, 0, -0.35, 5.7)], finish: 'terrace', spawn: { x: -1.8, y: 2.8, facing: 0 } },
+    { id: 'garden', name: 'Garden', planArea: 32.54, rects: [r(GARDEN_EDGE, PARTY_N, TERRACE_EDGE, PARTY_S)], finish: 'lawn', spawn: { x: -6.5, y: 2.8, facing: 0 } },
+    // In front of the WC: a planted bed; the rest of the front strip is the path to the door.
+    { id: 'front-garden', name: 'Front garden', rects: [r(10.5, PARTY_N, FRONT_EDGE, 1.9)], finish: 'lawn' },
+    { id: 'front-path', name: 'Entrance path', rects: [r(10.5, 1.9, FRONT_EDGE, PARTY_S)], finish: 'terrace', spawn: { x: 11.4, y: 2.4, facing: Math.PI } },
   ],
+  // The basement reaches under the terrace to x = -3.63; beyond it, and in front, is earth.
+  ground: [r(GARDEN_EDGE - 0.2, PARTY_N - HEDGE, -3.63, PARTY_S + HEDGE), r(10.5, PARTY_N, FRONT_EDGE, PARTY_S)],
 };
 
 const firstFloor: Floor = {
@@ -167,6 +192,7 @@ const topFloor: Floor = {
 
 export const houseK: House = {
   name: 'House K',
+  plot: { rect: r(GARDEN_EDGE, PARTY_N, FRONT_EDGE, PARTY_S), planArea: PLOT_AREA },
   storeyHeight: STOREY,
   floors: [basement, mainFloor, firstFloor, topFloor],
   stair: {

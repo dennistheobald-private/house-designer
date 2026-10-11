@@ -42,9 +42,14 @@ y from the north party wall (0) to the south party wall (5.70 m).
 - Sales plans at 1:50 (basement, main, first and top floor) and the construction description.
 - Kitchen: Inform Möbelsysteme plan for House K, model 1000 Topas+, 4 March 2026.
 - Bathrooms: Dennis's layout sketches for the first-floor bathroom and the top-floor en-suite.
+- Plot: the site plan ("Situation", brochure page 9, 1:200): House K's parcel is 126.78 m²,
+  its garden 32.54 m², with hedges to the neighbours and a 0.4 m wall at the back boundary.
 
 ## Assumptions to confirm
 
 - The basement lies under the garden side, so that its stair lines up with the stair above.
 - Floor-to-floor height 2.83 m and clear room height 2.50 m.
 - Window sill and head heights, which the plans do not give.
+- The garden's depth (5.47 m behind the terrace) is set so its area matches the site plan;
+  measured off the 1:200 drawing it looks about 0.3 m shorter. The front strip (2.39 m deep)
+  takes the rest of the parcel's area, with a planted bed in front of the WC.

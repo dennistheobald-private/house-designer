@@ -129,6 +129,7 @@ function build() {
     stair: std({ map: speckle([150, 138, 124], 0.15, 9), roughness: 1 }),
     terrace: std({ map: tiles([178, 176, 170], 0.5, 'rgba(110,108,104,0.9)', 0.08), roughness: 0.85 }),
     pebble: std({ map: pebbles(), roughness: 0.6 }),
+    lawn: std({ map: speckle([104, 138, 82], 0.2, 13), roughness: 1 }),
     // Fixtures
     taupe: std({ color: '#b39f92', roughness: 0.6 }),
     plinth: std({ color: '#8e7d72', roughness: 0.7 }),
@@ -150,11 +151,13 @@ function build() {
     slab: std({ color: '#f6f4ef', roughness: 0.95 }),
     frame: std({ color: '#4a4744', roughness: 0.5, metalness: 0.3 }),
     neighbour: std({ color: '#e9e6e0', roughness: 0.95 }),
-    grass: std({ map: speckle([104, 138, 82], 0.2, 13), roughness: 1 }),
+    hedge: std({ map: speckle([62, 92, 56], 0.35, 17), roughness: 1 }),
+    soil: std({ color: '#8a7663', roughness: 1 }),
+    ground: std({ map: speckle([196, 192, 182], 0.1, 19), roughness: 1 }),
   } satisfies Record<string, THREE.Material>;
 }
 
-export type MaterialKey = FloorFinish | FixtureMaterial | 'facade' | 'slab' | 'frame' | 'neighbour' | 'grass';
+export type MaterialKey = FloorFinish | FixtureMaterial | 'facade' | 'slab' | 'frame' | 'neighbour' | 'hedge' | 'soil' | 'ground';
 
 export function material(key: MaterialKey): THREE.Material {
   cache ??= build();

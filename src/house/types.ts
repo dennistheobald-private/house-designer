@@ -8,7 +8,7 @@ export interface Rect {
   y1: number;
 }
 
-export type FloorFinish = 'parquet' | 'tile' | 'stoneTile' | 'screed' | 'carpet' | 'stair' | 'terrace' | 'pebble';
+export type FloorFinish = 'parquet' | 'tile' | 'stoneTile' | 'screed' | 'carpet' | 'stair' | 'terrace' | 'pebble' | 'lawn';
 
 export interface Wall {
   id: string;
@@ -16,6 +16,8 @@ export interface Wall {
   /** Height above the floor level. Defaults to the floor's clear height. */
   height?: number;
   exterior?: boolean;
+  /** A planted hedge rather than masonry. */
+  hedge?: boolean;
 }
 
 export type OpeningKind = 'door' | 'window' | 'glassDoor';
@@ -52,8 +54,10 @@ export interface Floor {
   walls: Wall[];
   openings: Opening[];
   rooms: Room[];
-  /** Areas outside the envelope that you can stand on (terraces). */
+  /** Areas outside the envelope that you can stand on (terraces, garden). */
   outdoor: Room[];
+  /** Ground under outdoor areas that no building slab covers, drawn as a block of earth. */
+  ground?: Rect[];
 }
 
 export interface Stair {
@@ -64,8 +68,17 @@ export interface Stair {
   steps: number;
 }
 
+/** The land that belongs to the house, from the site plan. */
+export interface Plot {
+  /** The whole parcel, from party line to party line and from the front path to the back boundary. */
+  rect: Rect;
+  /** Area printed on the site plan (PF). */
+  planArea: number;
+}
+
 export interface House {
   name: string;
+  plot: Plot;
   floors: Floor[];
   stair: Stair;
   storeyHeight: number;

@@ -29,7 +29,7 @@ function Window({ wall, opening, level }: { wall: Wall; opening: Opening; level:
 
 function FloorStructure({ house, floor, index }: { house: House; floor: Floor; index: number }) {
   const blocks = useMemo(
-    () => floor.walls.flatMap((w) => wallBlocks(w, floor.openings, floor.clearHeight).map((b) => ({ b, exterior: !!w.exterior }))),
+    () => floor.walls.flatMap((w) => wallBlocks(w, floor.openings, floor.clearHeight).map((b) => ({ b, mat: w.hedge ? ('hedge' as const) : w.exterior ? ('facade' as const) : ('wall' as const) }))),
     [floor],
   );
   const { shaft, core } = house.stair;
@@ -44,8 +44,11 @@ function FloorStructure({ house, floor, index }: { house: House; floor: Floor; i
       {[...floor.rooms, ...floor.outdoor].flatMap((room) =>
         room.rects.map((rect, i) => <FloorPlane key={`${room.id}-${i}`} rect={rect} height={floor.level + 0.004} mat={room.finish} />),
       )}
-      {blocks.map(({ b, exterior }, i) => (
-        <BlockMesh key={i} block={b} level={floor.level} mat={exterior ? 'facade' : 'wall'} />
+      {floor.ground?.map((g, i) => (
+        <PlanSlab key={`ground-${i}`} outline={rectOutline(g)} top={floor.level} thickness={SLAB} mat="soil" />
+      ))}
+      {blocks.map(({ b, mat }, i) => (
+        <BlockMesh key={i} block={b} level={floor.level} mat={mat} />
       ))}
       {floor.openings
         .filter((o) => o.kind !== 'door')
@@ -86,8 +89,14 @@ function Roof({ house }: { house: House }) {
   return <PlanSlab outline={outline} top={top.level + top.clearHeight + SLAB} thickness={SLAB} mat="facade" />;
 }
 
-/** The neighbouring row houses J and L, as plain volumes, for daylight and views. */
-function Neighbours() {
+/**
+ * The neighbouring row houses J and L as plain volumes, their gardens, and the ground around
+ * the plots, for daylight and views. The ground leaves out the plot and the house, so it never
+ * covers the stairwell or the basement.
+ */
+function Neighbours({ house }: { house: House }) {
+  const { plot } = house;
+  const width = plot.rect.y1 - plot.rect.y0;
   const blocks = [-1, 1].flatMap((side) => {
     const y0 = side < 0 ? -6.2 : 5.95;
     const y1 = side < 0 ? -0.25 : 11.9;
@@ -96,11 +105,20 @@ function Neighbours() {
       { x0: 4.07, x1: 9.04, y0, y1, z0: 5.66, z1: 8.49 },
     ];
   });
+  const gardens = [-1, 1].map((side) => ({ x0: plot.rect.x0, x1: -0.35, y0: plot.rect.y0 + side * width, y1: plot.rect.y1 + side * width }));
+  const ground = useMemo(
+    () => ({ outline: rectOutline({ x0: -40, y0: -40, x1: 50, y1: 46 }), holes: [rectOutline({ ...plot.rect, x0: plot.rect.x0 - 0.2 }).reverse()] }),
+    [plot],
+  );
   return (
     <>
       {blocks.map((b, i) => (
         <BlockMesh key={i} block={b} level={0} mat="neighbour" />
       ))}
+      {gardens.map((g, i) => (
+        <FloorPlane key={`garden-${i}`} rect={g} height={-0.01} mat="lawn" />
+      ))}
+      <PlanSlab outline={ground.outline} holes={ground.holes} top={-0.02} thickness={0.1} mat="ground" />
     </>
   );
 }
@@ -128,8 +146,7 @@ export function HouseModel({
           <Flight key={`flight-${i}`} house={house} flight={i} />
         ))}
       {showRoof && highest === house.floors.length - 1 && <Roof house={house} />}
-      {highest >= 1 && <FloorPlane rect={{ x0: -40, y0: -40, x1: 50, y1: 46 }} height={-0.08} mat="grass" />}
-      {showSurroundings && <Neighbours />}
+      {showSurroundings && <Neighbours house={house} />}
     </group>
   );
 }

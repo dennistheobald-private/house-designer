@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { houseK } from './houseK';
 import {
   collisionRects,
+  contains,
   moveWithCollisions,
   roomArea,
   stairHeight,
@@ -32,6 +33,36 @@ describe('House K tracing', () => {
         expect(o.to).toBeLessThanOrEqual(end + 1e-9);
       }
     }
+  });
+});
+
+describe('plot', () => {
+  const { plot } = houseK;
+  const main = houseK.floors[1];
+
+  it('matches the parcel area on the site plan', () => {
+    expect(roomArea([plot.rect])).toBeCloseTo(plot.planArea, 1);
+  });
+
+  it('keeps the garden, terrace and front strip inside the parcel', () => {
+    for (const room of main.outdoor) {
+      for (const r of room.rects) {
+        expect(r.x0, room.id).toBeGreaterThanOrEqual(plot.rect.x0 - 1e-9);
+        expect(r.x1, room.id).toBeLessThanOrEqual(plot.rect.x1 + 1e-9);
+        expect(r.y0, room.id).toBeGreaterThanOrEqual(plot.rect.y0 - 1e-9);
+        expect(r.y1, room.id).toBeLessThanOrEqual(plot.rect.y1 + 1e-9);
+      }
+    }
+  });
+
+  it('fences the garden in, so you cannot walk out of it', () => {
+    const rects = collisionRects(main, houseK.stair);
+    let p = { x: -6.5, y: 2.8 };
+    for (let i = 0; i < 40; i++) p = moveWithCollisions(p.x, p.y, -0.1, 0, rects);
+    expect(p.x).toBeGreaterThan(plot.rect.x0);
+    p = { x: -6.5, y: 2.8 };
+    for (let i = 0; i < 60; i++) p = moveWithCollisions(p.x, p.y, 0, 0.1, rects);
+    expect(p.y).toBeLessThan(plot.rect.y1);
   });
 });
 
@@ -79,6 +110,29 @@ describe('stair', () => {
   it('climbs exactly one storey per flight', () => {
     expect(stairHeight(houseK, 1, 6.16, 1.77)).toBeCloseTo(0);
     expect(stairHeight(houseK, 1, 4.93, 1.77)).toBeCloseTo(houseK.storeyHeight);
+  });
+
+  it('leads from the basement corridor up to the main floor', () => {
+    const basement = houseK.floors[0];
+    expect(stairHeight(houseK, 0, 6.16, 1.77)).toBeCloseTo(basement.level);
+    expect(stairHeight(houseK, 0, 4.93, 1.77)).toBeCloseTo(houseK.floors[1].level);
+    // The corridor reaches the foot of the stair, and the main floor the top of it.
+    const corridor = basement.rooms.find((r) => r.id === 'basement-corridor')!;
+    expect(corridor.rects.some((r) => contains(r, 6.16, 1.8))).toBe(true);
+    const living = houseK.floors[1].rooms.find((r) => r.id === 'living')!;
+    expect(living.rects.some((r) => contains(r, 4.93, 1.8))).toBe(true);
+  });
+
+  it('keeps the stairwell open on every floor above the basement', () => {
+    const { shaft } = stair;
+    for (const floor of houseK.floors.slice(1)) {
+      for (const room of [...floor.rooms, ...floor.outdoor]) {
+        for (const r of room.rects) {
+          const overlaps = r.x0 < shaft.x1 - 1e-9 && r.x1 > shaft.x0 + 1e-9 && r.y0 < shaft.y1 - 1e-9 && r.y1 > shaft.y0 + 1e-9;
+          expect(overlaps, `${floor.id}: ${room.id}`).toBe(false);
+        }
+      }
+    }
   });
 
   it('draws one or more tread pieces for every step', () => {
