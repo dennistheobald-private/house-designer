@@ -3,8 +3,11 @@
 A browser tool for designing the interior of House K (Am Kapuzinerberg, Rheinfelden):
 a 2D plan, a 3D dollhouse view and a first-person walkthrough of all four floors.
 
-This is phase 1 of the plan: the house itself, built to the plans, with the fixed
-kitchen and bathrooms. Furniture, chat placement and realistic lighting come next.
+Phase 1 built the house itself to the plans, with the fixed kitchen and bathrooms. On top
+of it, every room now carries a furnished proposal from the Nature Design Concept (forest
+bedroom, mountain living room, lake, meadow and birch rooms, the Rhine at the entrance),
+with physically based materials, a day and evening light, and a path-traced Photo mode.
+Chat placement comes next.
 
 ## Run it
 
@@ -18,11 +21,27 @@ npm test        # checks the traced rooms against the plan areas, the stair and 
 
 - **3D**: pick a floor, drag to orbit, scroll to zoom. Upper floors are hidden so you can look in.
 - **Plan**: the floor plan with room names and areas.
-- **Walk**: click into the view, then W A S D to walk, mouse to look, Shift to run, Esc to stop.
+- **Walk**: the arrow keys walk and step sideways, W A S D turn and look up or down, and
+  Shift runs. The mouse stays free for the buttons and menus.
+  Walk starts in the room you were looking at: the room of the last piece you clicked, or
+  the largest room of the floor shown. Switching back to 3D or Plan shows the floor you were on.
+- **Sizes**: click any piece of furniture, in 3D, Walk or the plan, to see its width, depth
+  and height (and how high it hangs). Esc or a click elsewhere closes the card.
   The stairs are walkable between all floors, and "Go to" jumps to any room.
+- **Furnished / Empty** switches between the design proposal and the bare rooms. In 3D a
+  panel lists each room's landscape, palette and pieces; in Walk the card shows the room
+  you are in, and "Go to" puts you at a viewpoint that shows the furnished room well.
+- **Day / Evening**: daylight from the sky and sun, or blue hour with the lamps on (only the
+  floor you are on, to keep it fast).
+- **Photo** (or P): renders the current view with a progressive path tracer, so light
+  bounces, shadows soften and reflections are real. It needs a few seconds to prepare and
+  sharpens for about a minute on a desktop graphics card; moving the view starts it over.
+  "Save image" downloads it as a PNG.
 
 Links can open a view directly: `?mode=walk&room=kitchen`, `?mode=plan&floor=2`,
-`?mode=dollhouse&floor=3`. Floors are numbered 0 (basement) to 3 (top floor).
+`?mode=dollhouse&floor=3`, `&time=evening`, `&furnished=0`, `&photo=1`, and `&at=x,y,facing` to stand at a plan
+point in that room's floor, facing in degrees (0 looks towards the street, 90 south). Floors are numbered
+0 (basement) to 3 (top floor).
 
 ## Where things are
 
@@ -31,7 +50,11 @@ Links can open a view directly: `?mode=walk&room=kitchen`, `?mode=plan&floor=2`,
 | `src/house/houseK.ts` | Walls, openings and rooms for each floor, in metres |
 | `src/house/fixtures.ts` | Kitchen units and bathroom fittings |
 | `src/house/geometry.ts` | Wall splitting, collisions and the winding stair |
-| `src/scene/` | The 3D scene, materials and walk controls |
+| `src/furniture/proposals.ts` | The furnished proposal: themes, palettes and every piece's place |
+| `src/furniture/types.ts` | Furniture items and their footprints |
+| `src/scene/` | The 3D scene, materials, lighting, photo mode and walk controls |
+| `src/scene/furniture/` | Parametric furniture and its materials |
+| `src/scene/textures.ts` | Procedural wood, fabric, stone and plaster maps, and the nature prints |
 | `src/ui/PlanView.tsx` | The 2D plan |
 
 Plan coordinates: x runs from the garden facade (0) to the street facade (10.15 m),
@@ -44,6 +67,16 @@ y from the north party wall (0) to the south party wall (5.70 m).
 - Bathrooms: Dennis's layout sketches for the first-floor bathroom and the top-floor en-suite.
 - Plot: the site plan ("Situation", brochure page 9, 1:200): House K's parcel is 126.78 m²,
   its garden 32.54 m², with hedges to the neighbours and a 0.4 m wall at the back boundary.
+
+## How realistic it is
+
+The live view is a real-time render: physically based materials, an image-based sky light,
+sun shadows, ambient occlusion and neutral tone mapping, but no bounced light, so rooms read
+a little flat. Photo mode traces light properly and gets close to an architectural
+visualisation. What still gives it away: furniture is built from simple parametric shapes
+rather than scanned product models, textures are generated rather than photographed (so
+fabrics, plants and the prints read as good models, not photographs), and the denoiser is a
+simple edge-aware blur, so a photo still needs to run until the grain clears.
 
 ## Assumptions to confirm
 

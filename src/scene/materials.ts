@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { FloorFinish } from '../house/types';
 import type { FixtureMaterial } from '../house/fixtures';
+import { parquetMaps, plasterMaps } from './textures';
 
 /*
  * Procedural textures, so the app needs no image downloads. Each texture covers
@@ -119,10 +120,13 @@ let cache: Record<string, THREE.Material> | null = null;
 
 function build() {
   const std = (params: THREE.MeshStandardMaterialParameters) => new THREE.MeshStandardMaterial(params);
+  const plaster = plasterMaps(4);
   return {
     // Floors
-    parquet: std({ map: parquet(), roughness: 0.55 }),
+    parquet: new THREE.MeshPhysicalMaterial({ ...parquetMaps(), roughness: 1, clearcoat: 0.12, clearcoatRoughness: 0.45 }),
     tile: std({ map: tiles([214, 210, 202], 0.4, 'rgba(150,145,138,0.8)'), roughness: 0.35 }),
+    // Light beige 60 x 60 cm porcelain in both bathrooms.
+    bathTile: std({ map: tiles([228, 216, 196], 0.6, 'rgba(196,184,166,0.9)', 0.025), roughness: 0.3 }),
     stoneTile: std({ map: tiles([205, 199, 188], 0.6, 'rgba(160,152,140,0.7)', 0.03), roughness: 0.4 }),
     screed: std({ map: speckle([168, 166, 160], 0.12, 3), roughness: 0.9 }),
     carpet: std({ map: speckle([190, 182, 168], 0.18, 5), roughness: 1 }),
@@ -144,9 +148,11 @@ function build() {
     mirror: std({ color: '#e4e8ea', roughness: 0.05, metalness: 0.9, envMapIntensity: 2.5 }),
     light: std({ color: '#fff4dc', emissive: '#ffe2b0', emissiveIntensity: 2 }),
     slate: std({ map: tiles([92, 96, 98], 0.6, 'rgba(60,62,64,0.9)', 0.08), roughness: 0.5 }),
+    beige: std({ map: tiles([232, 220, 200], 0.3, 'rgba(200,188,170,0.9)', 0.03), roughness: 0.25 }),
+    roseGold: new THREE.MeshPhysicalMaterial({ color: '#e9bba8', roughness: 0.28, metalness: 1 }),
     forest: std({ map: tiles([52, 82, 64], 0.25, 'rgba(30,45,36,0.9)', 0.12), roughness: 0.3 }),
     // Building
-    wall: std({ color: '#f3f0e8', roughness: 0.95 }),
+    wall: std({ color: '#f3f0e8', ...plaster, normalScale: new THREE.Vector2(0.35, 0.35), roughness: 1 }),
     facade: std({ color: '#ebe7df', roughness: 0.95 }),
     slab: std({ color: '#f6f4ef', roughness: 0.95 }),
     frame: std({ color: '#4a4744', roughness: 0.5, metalness: 0.3 }),

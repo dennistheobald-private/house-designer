@@ -1,8 +1,11 @@
 import { useMemo } from 'react';
-import { fixturesByFloor } from '../house/fixtures';
+import { furnitureByFloor } from '../furniture/proposals';
+import { fixturesByFloor, showersByFloor } from '../house/fixtures';
 import { runsAlongX, stairTreads, STAIR_TURN_X, wallBlocks } from '../house/geometry';
 import type { Floor, House, Opening, Wall } from '../house/types';
+import { Furnishings, type PickHandler } from './furniture/Furnishings';
 import { BlockMesh, FloorPlane, PlanSlab, rectOutline } from './meshes';
+import { Shower } from './Shower';
 
 const SLAB = 0.33;
 const TREAD = 0.06;
@@ -64,6 +67,9 @@ function FloorStructure({ house, floor, index }: { house: House; floor: Floor; i
       )}
       {fixturesByFloor[floor.id]?.map((fx, i) => (
         <BlockMesh key={`fx-${i}`} block={fx} level={floor.level} mat={fx.material} shadows={fx.material !== 'glass' && fx.material !== 'light'} />
+      ))}
+      {showersByFloor[floor.id]?.map((s, i) => (
+        <Shower key={`shower-${i}`} shower={s} level={floor.level} />
       ))}
     </group>
   );
@@ -128,11 +134,20 @@ export function HouseModel({
   visibleFloors,
   showRoof,
   showSurroundings,
+  furnished = true,
+  litFloors = [],
+  onPick,
 }: {
   house: House;
   visibleFloors: number[];
   showRoof: boolean;
   showSurroundings: boolean;
+  /** Show the furnished proposal. */
+  furnished?: boolean;
+  /** Floors whose lamps are switched on. */
+  litFloors?: number[];
+  /** Called when a piece of furniture is clicked. */
+  onPick?: PickHandler;
 }) {
   const highest = Math.max(...visibleFloors);
   return (
@@ -140,6 +155,10 @@ export function HouseModel({
       {visibleFloors.map((i) => (
         <FloorStructure key={house.floors[i].id} house={house} floor={house.floors[i]} index={i} />
       ))}
+      {furnished &&
+        visibleFloors.map((i) => (
+          <Furnishings key={`furniture-${i}`} items={furnitureByFloor[house.floors[i].id] ?? []} level={house.floors[i].level} lit={litFloors.includes(i)} onPick={onPick} />
+        ))}
       {visibleFloors
         .filter((i) => i < house.floors.length - 1)
         .map((i) => (

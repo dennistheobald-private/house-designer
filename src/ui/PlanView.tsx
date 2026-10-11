@@ -1,4 +1,6 @@
 import { useMemo } from 'react';
+import { furnitureByFloor } from '../furniture/proposals';
+import type { FurnitureItem } from '../furniture/types';
 import { fixturesByFloor } from '../house/fixtures';
 import { roomArea, stairTreads, wallBlocks } from '../house/geometry';
 import type { FloorFinish, House, Rect } from '../house/types';
@@ -7,6 +9,7 @@ const FINISH_FILL: Record<FloorFinish, string> = {
   parquet: '#e8d6bb',
   tile: '#e4e2dd',
   stoneTile: '#ddd6ca',
+  bathTile: '#e6dccb',
   screed: '#d7d5d0',
   carpet: '#e1dacd',
   stair: '#cdc3b7',
@@ -17,7 +20,49 @@ const FINISH_FILL: Record<FloorFinish, string> = {
 
 const SCALE = 60; // pixels per metre
 
-export function PlanView({ house, floorIndex, marker }: { house: House; floorIndex: number; marker?: { x: number; y: number } }) {
+/** Wall pieces and things on tables stay off the plan. */
+const onPlan = (it: FurnitureItem) =>
+  (it.z ?? 0) < 0.5 && !['print', 'mural', 'paint', 'slats', 'mirror', 'hooks', 'tv', 'pendant', 'blind', 'curtain'].includes(it.kind);
+
+function FurnitureShape({ it, onPick }: { it: FurnitureItem; onPick?: (item: FurnitureItem, screen: { x: number; y: number }) => void }) {
+  const rug = it.kind === 'rug';
+  const props = {
+    fill: rug ? (it.colour ?? '#ddd') : '#fffdf9',
+    fillOpacity: rug ? 0.45 : 0.85,
+    stroke: rug ? 'none' : '#7b7068',
+    strokeWidth: 0.012,
+  };
+  const round = it.variant === 'round' || ['coffeeTable', 'sideTable', 'pouf', 'stool', 'plant', 'floorLamp'].includes(it.kind);
+  return (
+    <g
+      transform={`translate(${it.x} ${it.y}) rotate(${-(it.rot ?? 0)})`}
+      className={onPick ? 'pickable' : undefined}
+      onClick={onPick && ((e) => (e.stopPropagation(), onPick(it, { x: e.clientX, y: e.clientY })))}
+    >
+      {!onPick && <title>{it.name}</title>}
+      {round ? (
+        <ellipse rx={it.w / 2} ry={it.d / 2} {...props} />
+      ) : (
+        <rect x={-it.w / 2} y={-it.d / 2} width={it.w} height={it.d} rx={['sofa', 'bed', 'loungeChair'].includes(it.kind) ? 0.06 : 0.01} {...props} />
+      )}
+    </g>
+  );
+}
+
+export function PlanView({
+  house,
+  floorIndex,
+  marker,
+  furnished = false,
+  onPick,
+}: {
+  house: House;
+  floorIndex: number;
+  marker?: { x: number; y: number };
+  furnished?: boolean;
+  /** Called when a piece of furniture is clicked. */
+  onPick?: (item: FurnitureItem, screen: { x: number; y: number }) => void;
+}) {
   const floor = house.floors[floorIndex];
   const walls = useMemo(
     () => floor.walls.flatMap((w) => wallBlocks(w, floor.openings, floor.clearHeight).map((b) => ({ b, h: w.height ?? floor.clearHeight, hedge: !!w.hedge }))),
@@ -70,6 +115,16 @@ export function PlanView({ house, floorIndex, marker }: { house: House; floorInd
           const r = alongX ? { ...wall.rect, x0: o.from, x1: o.to } : { ...wall.rect, y0: o.from, y1: o.to };
           return rect(r, { fill: '#9cc3d6', stroke: '#5a8aa3', strokeWidth: 0.01 }, `g-${i}`);
         })}
+      {furnished && (
+        <g className="plan-furniture">
+          {(furnitureByFloor[floor.id] ?? [])
+            .filter(onPlan)
+            .sort((a, b) => Number(b.kind === 'rug') - Number(a.kind === 'rug'))
+            .map((it) => (
+              <FurnitureShape key={it.id} it={it} onPick={onPick} />
+            ))}
+        </g>
+      )}
       {[...floor.rooms, ...floor.outdoor].map((room) => {
         const main = room.rects.reduce((a, b) => ((b.x1 - b.x0) * (b.y1 - b.y0) > (a.x1 - a.x0) * (a.y1 - a.y0) ? b : a));
         const cx = (main.x0 + main.x1) / 2;
