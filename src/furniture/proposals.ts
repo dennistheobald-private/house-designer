@@ -146,7 +146,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Mushroom', hex: C.mushroom },
     ],
     summary:
-      'A misty spruce-forest mural on the wall behind a 180 cm oak bed with an oak headboard, bark linen and a moss wool throw, oak bedside tables with paper lamps, a 30 cm deep L-shaped oak wardrobe in the street-side corner, an oak chest of drawers between the stair and bathroom doors, heavy linen curtains and a large fern.',
+      'A misty spruce-forest mural on the wall behind a 160 cm oak bed set towards the window with an oak headboard, bark linen and a moss wool throw, oak bedside tables with paper lamps, a 30 cm deep L-shaped oak wardrobe in the street-side corner, an oak chest of drawers between the stair and bathroom doors, heavy linen curtains and a large fern.',
   },
   {
     room: 'ensuite',
@@ -333,23 +333,23 @@ const bathroom: FurnitureItem[] = [
 
 const bedroom: FurnitureItem[] = [
   item('bedroom', 'mural', 'Forest-in-fog mural', 'mural', 6.255, 5.695, 3.67, 0.01, 2.5, { rot: 180, art: 'forestMist' }),
-  item('bedroom', 'bed', 'Bed, brushed oak, 180 x 200 cm, oak headboard', 'bed', 6.69, 4.625, 1.9, 2.15, 1.05, { rot: 180, colour: C.bark, accent: C.moss, variant: 'oak' }),
-  ...[5.51, 7.865].flatMap((x, i) => [
+  item('bedroom', 'bed', 'Bed, brushed oak, 160 x 200 cm, oak headboard', 'bed', 5.88, 4.625, 1.7, 2.15, 1.05, { rot: 180, colour: C.bark, accent: C.moss, variant: 'oak' }),
+  ...[4.8, 6.96].flatMap((x, i) => [
     item('bedroom', `bedside-${i}`, 'Bedside table, oak', 'bedsideTable', x, 5.48, 0.45, 0.4, 0.5, { rot: 180 }),
     item('bedroom', `lamp-${i}`, 'Paper table lamp', 'tableLamp', x, 5.5, 0.3, 0.3, 0.45, { z: 0.5, colour: '#f6f1e6', accent: C.bark, variant: 'paper' }),
   ]),
   // L-shaped wardrobe, 30 cm deep: along the street wall from the glass door to the corner,
-  // then along the bed wall until the bedside table, 60 cm from the street wall.
+  // then 60 cm along the bed wall.
   item('bedroom', 'wardrobe', 'Wardrobe, oak, 30 cm deep', 'wardrobe', 8.54, 4.75, 1.3, 0.3, 2.3, { rot: -90, variant: 'oak' }),
   item('bedroom', 'wardrobe-corner', 'Wardrobe, oak, 30 cm deep, corner leg', 'wardrobe', 8.39, 5.55, 0.6, 0.3, 2.3, { rot: 180, variant: 'oak' }),
   item('bedroom', 'dresser', 'Chest of drawers, oak, 120 cm', 'dresser', 6.14, 2.64, 1.2, 0.45, 0.8),
   item('bedroom', 'dresser-vase', 'Stoneware vase with fern fronds', 'vase', 5.75, 2.62, 0.14, 0.14, 0.35, { z: 0.8, colour: C.mushroom, variant: 'sprigs' }),
-  item('bedroom', 'rug', 'Wool rug, mushroom', 'rug', 6.69, 4.05, 2.6, 1.9, 0.015, { colour: C.mushroom }),
+  item('bedroom', 'rug', 'Wool rug, mushroom', 'rug', 5.95, 4.05, 2.6, 1.9, 0.015, { colour: C.mushroom }),
   item('bedroom', 'curtain', 'Heavy linen curtain, moss', 'curtain', 4.5, 5.4, 0.55, 0.12, 2.45, { rot: 90, colour: C.moss }),
   item('bedroom', 'curtain-2', 'Heavy linen curtain, moss', 'curtain', 8.6, 2.6, 0.38, 0.12, 2.45, { rot: -90, colour: C.moss }),
-  item('bedroom', 'fern', 'Large fern', 'plant', 4.75, 4.55, 0.55, 0.55, 1.3, { variant: 'fern', accent: C.bark }),
+  item('bedroom', 'fern', 'Large fern', 'plant', 7.65, 5.4, 0.55, 0.55, 1.3, { variant: 'fern', accent: C.bark }),
   item('bedroom', 'print', 'Forest print', 'print', 6.14, 2.425, 0.7, 0.03, 0.9, { z: 1.15, art: 'forest', accent: '#c8a97e' }),
-  item('bedroom', 'pendant', 'Wood veneer pendant', 'pendant', 6.69, 3.6, 0.45, 0.45, 0.35, { z: 2.0, variant: 'veneer', colour: '#d9b98c' }),
+  item('bedroom', 'pendant', 'Wood veneer pendant', 'pendant', 5.88, 3.6, 0.45, 0.45, 0.35, { z: 2.0, variant: 'veneer', colour: '#d9b98c' }),
 ];
 
 const ensuite: FurnitureItem[] = [
