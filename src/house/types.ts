@@ -1,0 +1,72 @@
+/** Plan coordinates in metres. x runs from the garden facade (0) to the street facade (10.15),
+ *  y runs from the north party wall (0) to the south party wall (5.70). Heights are metres
+ *  above the floor's own level unless noted. */
+export interface Rect {
+  x0: number;
+  y0: number;
+  x1: number;
+  y1: number;
+}
+
+export type FloorFinish = 'parquet' | 'tile' | 'stoneTile' | 'screed' | 'carpet' | 'stair' | 'terrace' | 'pebble';
+
+export interface Wall {
+  id: string;
+  rect: Rect;
+  /** Height above the floor level. Defaults to the floor's clear height. */
+  height?: number;
+  exterior?: boolean;
+}
+
+export type OpeningKind = 'door' | 'window' | 'glassDoor';
+
+/** A gap in a wall. `from`/`to` are absolute coordinates along the wall's long axis. */
+export interface Opening {
+  wall: string;
+  kind: OpeningKind;
+  from: number;
+  to: number;
+  sill: number;
+  head: number;
+}
+
+export interface Room {
+  id: string;
+  name: string;
+  /** Area printed on the plans, for checking the tracing. */
+  planArea?: number;
+  rects: Rect[];
+  finish: FloorFinish;
+  /** Where the walkthrough places you when you jump to this room. */
+  spawn?: { x: number; y: number; facing: number };
+}
+
+export interface Floor {
+  id: string;
+  name: string;
+  /** Floor level relative to the main floor, metres. */
+  level: number;
+  clearHeight: number;
+  /** Outline of the slab this floor stands on. */
+  slab: Rect;
+  walls: Wall[];
+  openings: Opening[];
+  rooms: Room[];
+  /** Areas outside the envelope that you can stand on (terraces). */
+  outdoor: Room[];
+}
+
+export interface Stair {
+  /** The stairwell, identical on every floor. */
+  shaft: Rect;
+  /** Central spine wall the winding stair turns around. */
+  core: Rect;
+  steps: number;
+}
+
+export interface House {
+  name: string;
+  floors: Floor[];
+  stair: Stair;
+  storeyHeight: number;
+}
