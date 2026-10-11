@@ -1,0 +1,121 @@
+import { PointerLockControls } from '@react-three/drei';
+import { useFrame, useThree } from '@react-three/fiber';
+import { useEffect, useMemo, useRef } from 'react';
+import * as THREE from 'three';
+import { collisionRects, contains, moveWithCollisions, stairHeight, stairLengths, stairProgress } from '../house/geometry';
+import type { House } from '../house/types';
+
+export const EYE_HEIGHT = 1.65;
+const WALK_SPEED = 1.4;
+const RUN_SPEED = 3.0;
+
+export interface WalkTarget {
+  floor: number;
+  x: number;
+  y: number;
+  facing: number;
+  /** Changes on every request, so the same room can be jumped to twice. */
+  nonce: number;
+}
+
+export interface WalkPosition {
+  floor: number;
+  x: number;
+  y: number;
+}
+
+/** Camera yaw that looks along plan direction `facing` (radians, 0 = towards the street). */
+export const yawFor = (facing: number) => Math.atan2(-Math.cos(facing), -Math.sin(facing));
+
+export function WalkControls({ house, target, onMove }: { house: House; target: WalkTarget; onMove: (p: WalkPosition) => void }) {
+  const camera = useThree((s) => s.camera);
+  const keys = useRef(new Set<string>());
+  const state = useRef({ x: target.x, y: target.y, floor: target.floor, flight: null as number | null, eye: 0 });
+  const lastReport = useRef(0);
+
+  const rects = useMemo(() => {
+    const last = house.floors.length - 1;
+    return {
+      onFloor: house.floors.map((f, i) => collisionRects(f, house.stair, { top: i === last, bottom: i === 0 })),
+      onFlight: house.floors.map((f) => collisionRects(f, house.stair)),
+    };
+  }, [house]);
+
+  useEffect(() => {
+    const s = state.current;
+    s.x = target.x;
+    s.y = target.y;
+    s.floor = target.floor;
+    s.flight = null;
+    s.eye = house.floors[target.floor].level + EYE_HEIGHT;
+    camera.position.set(s.x, s.eye, s.y);
+    camera.rotation.set(0, yawFor(target.facing), 0, 'YXZ');
+  }, [target, camera, house]);
+
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => keys.current.add(e.code);
+    const up = (e: KeyboardEvent) => keys.current.delete(e.code);
+    const clear = () => keys.current.clear();
+    window.addEventListener('keydown', down);
+    window.addEventListener('keyup', up);
+    window.addEventListener('blur', clear);
+    return () => {
+      window.removeEventListener('keydown', down);
+      window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', clear);
+    };
+  }, []);
+
+  const forward = useMemo(() => new THREE.Vector3(), []);
+
+  useFrame((_, rawDt) => {
+    const dt = Math.min(rawDt, 0.05);
+    const s = state.current;
+    const k = keys.current;
+    const fwd = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
+    const side = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
+
+    if (fwd || side) {
+      camera.getWorldDirection(forward);
+      const len = Math.hypot(forward.x, forward.z) || 1;
+      const fx = forward.x / len;
+      const fz = forward.z / len;
+      const speed = (k.has('ShiftLeft') || k.has('ShiftRight') ? RUN_SPEED : WALK_SPEED) * dt;
+      const norm = Math.hypot(fwd, side);
+      const dx = ((fwd * fx - side * fz) / norm) * speed;
+      const dy = ((fwd * fz + side * fx) / norm) * speed;
+      const walls = s.flight !== null ? rects.onFlight[s.flight] : rects.onFloor[s.floor];
+      const next = moveWithCollisions(s.x, s.y, dx, dy, walls);
+      s.x = next.x;
+      s.y = next.y;
+    }
+
+    // Stairs: work out which flight you are on from where you stepped into the stairwell.
+    const { shaft } = house.stair;
+    const half = stairLengths(house.stair).total / 2;
+    let ground = house.floors[s.floor].level;
+    if (contains(shaft, s.x, s.y)) {
+      if (s.flight === null) {
+        const goingUp = stairProgress(house.stair, s.x, s.y) < half;
+        s.flight = goingUp ? s.floor : s.floor - 1;
+      }
+      if (s.flight >= 0 && s.flight < house.floors.length - 1) ground = stairHeight(house, s.flight, s.x, s.y);
+    } else if (s.flight !== null) {
+      s.floor = stairProgress(house.stair, s.x, s.y) > half ? s.flight + 1 : s.flight;
+      s.flight = null;
+      ground = house.floors[s.floor].level;
+    }
+
+    const eyeTarget = ground + EYE_HEIGHT;
+    s.eye += (eyeTarget - s.eye) * Math.min(1, dt * 12);
+    camera.position.set(s.x, s.eye, s.y);
+
+    lastReport.current += dt;
+    if (lastReport.current > 0.2) {
+      lastReport.current = 0;
+      onMove({ floor: s.flight !== null ? (ground - house.floors[s.flight].level > house.storeyHeight / 2 ? s.flight + 1 : s.flight) : s.floor, x: s.x, y: s.y });
+    }
+  });
+
+  return <PointerLockControls />;
+}
