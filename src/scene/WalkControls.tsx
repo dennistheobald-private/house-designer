@@ -1,4 +1,3 @@
-import { PointerLockControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
@@ -10,6 +9,10 @@ import type { House } from '../house/types';
 export const EYE_HEIGHT = 1.65;
 const WALK_SPEED = 1.4;
 const RUN_SPEED = 3.0;
+/** Turning with A and D, and looking up and down with W and S, in radians per second. */
+const TURN_SPEED = 1.7;
+const TILT_SPEED = 1.1;
+const MAX_TILT = 1.2;
 
 export interface WalkTarget {
   floor: number;
@@ -47,6 +50,7 @@ export function WalkControls({
   const camera = useThree((s) => s.camera);
   const keys = useRef(new Set<string>());
   const state = useRef({ x: target.x, y: target.y, floor: target.floor, flight: null as number | null, eye: 0 });
+  const view = useRef({ yaw: 0, pitch: 0 });
   const lastReport = useRef(0);
 
   const rects = useMemo(() => {
@@ -67,11 +71,19 @@ export function WalkControls({
     s.flight = null;
     s.eye = house.floors[target.floor].level + EYE_HEIGHT;
     camera.position.set(s.x, s.eye, s.y);
-    camera.rotation.set(0, yawFor(target.facing), 0, 'YXZ');
+    view.current = { yaw: yawFor(target.facing), pitch: 0 };
+    camera.rotation.set(0, view.current.yaw, 0, 'YXZ');
   }, [target, camera, house]);
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => keys.current.add(e.code);
+    // The keyboard drives the view, so the mouse stays free for the buttons and menus.
+    const typing = (e: KeyboardEvent) => e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement;
+    const down = (e: KeyboardEvent) => {
+      if (typing(e) || e.metaKey || e.ctrlKey || e.altKey) return;
+      keys.current.add(e.code);
+      // Arrows would otherwise scroll the page or move focus.
+      if (e.code.startsWith('Arrow')) e.preventDefault();
+    };
     const up = (e: KeyboardEvent) => keys.current.delete(e.code);
     const clear = () => keys.current.clear();
     window.addEventListener('keydown', down);
@@ -90,8 +102,17 @@ export function WalkControls({
     const dt = Math.min(rawDt, 0.05);
     const s = state.current;
     const k = keys.current;
-    const fwd = (k.has('KeyW') || k.has('ArrowUp') ? 1 : 0) - (k.has('KeyS') || k.has('ArrowDown') ? 1 : 0);
-    const side = (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0);
+    // Arrow keys walk and step sideways; W A S D look around.
+    const fwd = (k.has('ArrowUp') ? 1 : 0) - (k.has('ArrowDown') ? 1 : 0);
+    const side = (k.has('ArrowRight') ? 1 : 0) - (k.has('ArrowLeft') ? 1 : 0);
+    const turn = (k.has('KeyA') ? 1 : 0) - (k.has('KeyD') ? 1 : 0);
+    const tilt = (k.has('KeyW') ? 1 : 0) - (k.has('KeyS') ? 1 : 0);
+    if ((turn || tilt) && !frozen) {
+      const v = view.current;
+      v.yaw += turn * TURN_SPEED * dt;
+      v.pitch = THREE.MathUtils.clamp(v.pitch + tilt * TILT_SPEED * dt, -MAX_TILT, MAX_TILT);
+      camera.rotation.set(v.pitch, v.yaw, 0, 'YXZ');
+    }
 
     if ((fwd || side) && !frozen) {
       camera.getWorldDirection(forward);
@@ -135,5 +156,5 @@ export function WalkControls({
     }
   });
 
-  return <PointerLockControls enabled={!frozen} />;
+  return null;
 }

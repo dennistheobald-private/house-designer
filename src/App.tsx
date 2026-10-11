@@ -113,7 +113,14 @@ export function App() {
         {mode === 'walk' && (
           <label className="jump">
             Go to
-            <select value="" onChange={(e) => e.target.value && jump(e.target.value)}>
+            <select
+              value=""
+              onChange={(e) => {
+                // Hand the keys back to walking once a room is chosen.
+                e.target.blur();
+                if (e.target.value) jump(e.target.value);
+              }}
+            >
               <option value="">Choose a room…</option>
               {house.floors.map((f) => (
                 <optgroup key={f.id} label={f.name}>
@@ -197,7 +204,7 @@ export function App() {
             <div className="minimap">
               <PlanView house={house} floorIndex={shownFloor} marker={position} furnished={furnished} />
             </div>
-            <p className="help">Click to look around · W A S D to walk · Shift to run · P for a photo · Esc to stop</p>
+            <p className="help">Arrow keys to walk · W A S D to look around · Shift to run · P for a photo</p>
           </>
         )}
         {mode === 'dollhouse' && !photo && <p className="help">Drag to orbit · scroll to zoom · right-drag to pan · P for a photo</p>}
