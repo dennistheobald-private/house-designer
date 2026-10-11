@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FurnitureItem } from './furniture/types';
 import { proposalFor } from './furniture/proposals';
-import { contains } from './house/geometry';
+import { contains, roomArea } from './house/geometry';
 import { houseK } from './house/houseK';
 import { Scene, type TimeOfDay } from './scene/Scene';
 import type { WalkPosition, WalkTarget } from './scene/WalkControls';
@@ -36,6 +36,14 @@ function targetForRoom(roomId: string, nonce: number, furnished = true): WalkTar
   return { floor: 1, x: 9.7, y: 2.4, facing: Math.PI, nonce };
 }
 
+/** Where Walk starts on a floor when no room is chosen: its largest room. */
+function mainRoom(floorIndex: number) {
+  const rooms = house.floors[floorIndex].rooms.filter((r) => r.spawn);
+  return rooms.reduce((a, b) => (roomArea(b.rects) > roomArea(a.rects) ? b : a)).id;
+}
+
+const floorOfRoom = (roomId: string) => house.floors.findIndex((f) => [...f.rooms, ...f.outdoor].some((r) => r.id === roomId));
+
 function roomAt(p: WalkPosition) {
   const f = house.floors[p.floor];
   return [...f.rooms, ...f.outdoor].find((r) => r.rects.some((rect) => contains(rect, p.x, p.y)));
@@ -55,7 +63,12 @@ export function App() {
   const [photo, setPhoto] = useState(init.photo && init.mode !== 'plan');
   const [samples, setSamples] = useState(0);
   const [picked, setPicked] = useState<{ item: FurnitureItem; at: { x: number; y: number } } | null>(null);
-  const pick = useCallback((item: FurnitureItem, at: { x: number; y: number }) => setPicked({ item, at }), []);
+  // The room you are looking at in 3D or the plan, so Walk can start there.
+  const [focusRoom, setFocusRoom] = useState<string | null>(null);
+  const pick = useCallback((item: FurnitureItem, at: { x: number; y: number }) => {
+    setPicked({ item, at });
+    setFocusRoom(item.room);
+  }, []);
   const unpick = useCallback(() => setPicked(null), []);
 
   // A new view or floor closes the card; so does Esc.
@@ -97,6 +110,25 @@ export function App() {
     setMode('walk');
   }, [furnished]);
 
+  const switchMode = (next: Mode) => {
+    if (next === mode) return;
+    if (next === 'walk') {
+      // Start walking in the room you were looking at, or carry on where you left off.
+      const roomId = focusRoom ?? mainRoom(floorIndex);
+      if (position.floor === floorOfRoom(roomId) && roomAt(position)?.id === roomId) {
+        setTarget((t) => ({ ...t, ...position, nonce: Date.now() }));
+        setMode('walk');
+      } else jump(roomId);
+      return;
+    }
+    if (mode === 'walk') {
+      // Leaving Walk shows the floor and room you were in.
+      setFloorIndex(position.floor);
+      setFocusRoom(roomAt(position)?.id ?? null);
+    }
+    setMode(next);
+  };
+
   const here = roomAt(position);
   const shownFloor = mode === 'walk' ? position.floor : floorIndex;
 
@@ -106,7 +138,7 @@ export function App() {
         <h1>{house.name}</h1>
         <nav className="tabs" aria-label="View">
           {(['dollhouse', 'plan', 'walk'] as const).map((m) => (
-            <button key={m} className={m === mode ? 'active' : ''} onClick={() => setMode(m)}>
+            <button key={m} className={m === mode ? 'active' : ''} onClick={() => switchMode(m)}>
               {m === 'dollhouse' ? '3D' : m === 'plan' ? 'Plan' : 'Walk'}
             </button>
           ))}
@@ -117,7 +149,7 @@ export function App() {
               .map((f, i) => ({ f, i }))
               .reverse()
               .map(({ f, i }) => (
-                <button key={f.id} className={i === floorIndex ? 'active' : ''} onClick={() => setFloorIndex(i)}>
+                <button key={f.id} className={i === floorIndex ? 'active' : ''} onClick={() => (setFloorIndex(i), setFocusRoom(null))}>
                   {f.name}
                 </button>
               ))}

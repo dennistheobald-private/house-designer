@@ -23,6 +23,8 @@ npm test        # checks the traced rooms against the plan areas, the stair and 
 - **Plan**: the floor plan with room names and areas.
 - **Walk**: the arrow keys walk and step sideways, W A S D turn and look up or down, and
   Shift runs. The mouse stays free for the buttons and menus.
+  Walk starts in the room you were looking at: the room of the last piece you clicked, or
+  the largest room of the floor shown. Switching back to 3D or Plan shows the floor you were on.
 - **Sizes**: click any piece of furniture, in 3D, Walk or the plan, to see its width, depth
   and height (and how high it hangs). Esc or a click elsewhere closes the card.
   The stairs are walkable between all floors, and "Go to" jumps to any room.
