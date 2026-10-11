@@ -131,8 +131,63 @@ function LoungeChair({ it }: { it: FurnitureItem }) {
   );
 }
 
+/**
+ * A cantilever chair after Dennis's photo: black upholstered seat and back, brushed steel
+ * tube frame on a sled base, and black rope-wrapped arms and back band.
+ */
+function CantileverChair({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const steel = metal('#b9bbbc', 0.35);
+  const rope = fabric('#1b1b1c', 'knit');
+  const seat = fabric('#1d1e1f', 'linen');
+  const x = w / 2 - 0.035;
+  const tube = (pts: [number, number][]) => {
+    const curve = new THREE.CatmullRomCurve3(pts.map(([z, y]) => new THREE.Vector3(0, y, z)), false, 'catmullrom', 0.4);
+    return new THREE.TubeGeometry(curve, 28, 0.0095, 8, false);
+  };
+  // One side of the frame, in (z, y): the floor runner curves up in front into the arm.
+  const side = metricFrame(d);
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * x, 0, 0]}>
+          <M g={tube(side.sled)} m={steel} />
+          <M g={cylinder(0.0145, 0.0145, side.arm, 12)} m={rope} p={[0, 0.655, side.armMid]} r={[Math.PI / 2 + 0.03, 0, 0]} />
+          <M g={cylinder(0.011, 0.011, 0.3, 8)} m={steel} p={[0, 0.5, -d / 2 + 0.07]} r={[0.0, 0, 0]} />
+        </group>
+      ))}
+      {/* seat and reclined back, upholstered in black */}
+      <Box w={w - 0.1} h={0.07} d={d * 0.8} y={0.42} z={0.03} m={seat} r={0.03} />
+      <group position={[0, 0.5, -d / 2 + 0.06]} rotation={[-0.16, 0, 0]}>
+        <Box w={w - 0.14} h={h - 0.54} d={0.07} y={0.02} m={seat} r={0.03} />
+      </group>
+      <Box w={w - 0.08} h={0.07} d={0.02} y={0.52} z={-d / 2 + 0.01} m={rope} r={0.008} />
+    </group>
+  );
+}
+
+function metricFrame(d: number) {
+  const front = d / 2 - 0.05;
+  const back = -d / 2 + 0.08;
+  return {
+    sled: [
+      [back, 0.02],
+      [0.0, 0.02],
+      [front - 0.06, 0.02],
+      [front, 0.08],
+      [front + 0.005, 0.3],
+      [front - 0.01, 0.5],
+      [front - 0.05, 0.64],
+      [front - 0.15, 0.655],
+    ] as [number, number][],
+    arm: front - 0.15 - back + 0.02,
+    armMid: (front - 0.15 + back) / 2,
+  };
+}
+
 function DiningChair({ it }: { it: FurnitureItem }) {
   const { w, d } = it;
+  if (it.variant === 'cantilever') return <CantileverChair it={it} />;
   const carver = it.variant === 'carver';
   const seat = carver ? fabric(it.colour ?? '#8c8f91', 'wool') : wood();
   return (
@@ -246,6 +301,24 @@ function SideTable({ it }: { it: FurnitureItem }) {
 function Table({ it, desk = false }: { it: FurnitureItem; desk?: boolean }) {
   const { w, d, h } = it;
   const top = desk ? 0.025 : 0.04;
+  if (it.variant === 'steel') {
+    // After Dennis's photo: a plank oak top on a brushed steel pedestal, two flat posts on a base plate.
+    const steel = metal('#b4b6b7', 0.32);
+    const long = Math.max(w, d) === d ? 'z' : 'x';
+    const plateL = Math.min(0.9, Math.max(w, d) * 0.4);
+    const plateW = Math.min(0.5, Math.min(w, d) * 0.55);
+    const [pw, pd] = long === 'z' ? [plateW, plateL] : [plateL, plateW];
+    return (
+      <group>
+        <Box w={w} h={top} d={d} y={h - top} m={wood('oakBrushed')} r={0.008} grain />
+        <Box w={pw} h={0.018} d={pd} m={steel} r={0.004} />
+        {[-1, 1].map((s) => (
+          <Box key={s} w={long === 'z' ? pw - 0.06 : 0.07} h={h - top - 0.018} d={long === 'z' ? 0.07 : pd - 0.06} x={long === 'z' ? 0 : s * (pw / 2 - 0.1)} z={long === 'z' ? s * (pd / 2 - 0.1) : 0} y={0.018} m={steel} r={0.004} />
+        ))}
+        <Box w={long === 'z' ? pw - 0.1 : pw - 0.2} h={0.05} d={long === 'z' ? pd - 0.2 : pd - 0.1} y={h - top - 0.05} m={steel} r={0.004} />
+      </group>
+    );
+  }
   return (
     <group>
       <Box w={w} h={top} d={d} y={h - top} m={wood()} r={0.006} />
@@ -702,6 +775,18 @@ function Plant({ it }: { it: FurnitureItem }) {
   const r = it.w / 2;
   const seed = Math.round(it.x * 131 + it.y * 17);
   switch (it.variant) {
+    case 'tree': {
+      // A small garden tree planted in the ground: a clear trunk and a rounded, airy crown.
+      const trunk = it.h * 0.42;
+      return (
+        <group>
+          <M g={cylinder(0.05, 0.08, trunk, 10)} m={lacquer('#7d7467', 0.9)} p={[0, trunk / 2, 0]} />
+          <M g={cylinder(0.03, 0.045, trunk * 0.5, 8)} m={lacquer('#7d7467', 0.9)} p={[0.18, trunk * 0.78, 0]} r={[0, 0, -0.7]} />
+          <M g={cylinder(0.03, 0.045, trunk * 0.5, 8)} m={lacquer('#7d7467', 0.9)} p={[-0.16, trunk * 0.8, 0.06]} r={[0, 0, 0.65]} />
+          <LeafCloud count={150} spread={it.h * 0.3} height={it.h * 0.5} base={it.h * 0.45} size={0.2} kind="leaf" seed={seed} flat={0.5} />
+        </group>
+      );
+    }
     case 'olive': {
       const potH = Math.min(0.42, it.h * 0.22);
       return (
@@ -1010,6 +1095,27 @@ function IceBath({ it }: { it: FurnitureItem }) {
   );
 }
 
+/** A simple black steel bike stand: a row of upright slots on a flat base rail, to lean a bike against. */
+function BikeRack({ it }: { it: FurnitureItem }) {
+  const black = metal('#1c1c1d', 0.5);
+  const slots = Math.max(2, Math.round(it.w / 0.37));
+  return (
+    <group>
+      <Box w={it.w} h={0.03} d={0.05} y={0.02} m={black} r={0.006} />
+      {Array.from({ length: slots }, (_, i) => {
+        const x = -it.w / 2 + 0.07 + ((it.w - 0.14) * i) / (slots - 1);
+        return (
+          <group key={i} position={[x, 0, 0]}>
+            <M g={cylinder(0.012, 0.012, it.h * 0.75, 8)} m={black} p={[-0.04, it.h * 0.4, 0]} />
+            <M g={cylinder(0.012, 0.012, it.h * 0.75, 8)} m={black} p={[0.04, it.h * 0.4, 0]} />
+            <M g={torus(0.04, 0.012, Math.PI)} m={black} p={[0, it.h * 0.78, 0]} />
+          </group>
+        );
+      })}
+    </group>
+  );
+}
+
 function Planter({ it }: { it: FurnitureItem }) {
   const seed = Math.round(it.y * 77);
   return (
@@ -1189,5 +1295,7 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
       return <Sauna it={it} lit={lit} />;
     case 'iceBath':
       return <IceBath it={it} />;
+    case 'bikeRack':
+      return <BikeRack it={it} />;
   }
 }

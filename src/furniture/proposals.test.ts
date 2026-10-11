@@ -92,7 +92,9 @@ describe('furnished proposals', () => {
 
   it('hangs pendants and wall pieces below the ceiling', () => {
     for (const { floor, items } of floors) {
-      for (const it of items) expect((it.z ?? 0) + it.h, it.id).toBeLessThanOrEqual(floor.clearHeight + 0.001);
+      // Outdoors there is no ceiling; a garden tree may stand taller than a room.
+      const indoors = new Set(floor.rooms.map((r) => r.id));
+      for (const it of items.filter((i) => indoors.has(i.room))) expect((it.z ?? 0) + it.h, it.id).toBeLessThanOrEqual(floor.clearHeight + 0.001);
     }
   });
 });

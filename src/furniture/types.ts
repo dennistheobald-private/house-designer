@@ -56,7 +56,8 @@ export type FurnitureKind =
   | 'washer'
   | 'dryingRack'
   | 'sauna'
-  | 'iceBath';
+  | 'iceBath'
+  | 'bikeRack';
 
 /** The nature prints, drawn procedurally in textures.ts. */
 export type Artwork = 'mountain' | 'forest' | 'forestMist' | 'lake' | 'birch' | 'river' | 'botanical1' | 'botanical2' | 'botanical3';
@@ -130,6 +131,7 @@ export const BLOCKING: ReadonlySet<FurnitureKind> = new Set<FurnitureKind>([
   'stool',
   'sauna',
   'iceBath',
+  'bikeRack',
 ]);
 
 /** The plan rectangle an item covers, after its turn (turns are multiples of 90° or bounded). */
