@@ -19,6 +19,7 @@ export type FurnitureKind =
   | 'wardrobe'
   | 'shelf'
   | 'lowboard'
+  | 'dresser'
   // soft furnishings
   | 'rug'
   | 'curtain'
@@ -53,7 +54,9 @@ export type FurnitureKind =
   | 'workbench'
   | 'pegboard'
   | 'washer'
-  | 'dryingRack';
+  | 'dryingRack'
+  | 'sauna'
+  | 'iceBath';
 
 /** The nature prints, drawn procedurally in textures.ts. */
 export type Artwork = 'mountain' | 'forest' | 'forestMist' | 'lake' | 'birch' | 'river' | 'botanical1' | 'botanical2' | 'botanical3';
@@ -115,6 +118,7 @@ export const BLOCKING: ReadonlySet<FurnitureKind> = new Set<FurnitureKind>([
   'wardrobe',
   'shelf',
   'lowboard',
+  'dresser',
   'floorLamp',
   'plant',
   'toilet',
@@ -124,6 +128,8 @@ export const BLOCKING: ReadonlySet<FurnitureKind> = new Set<FurnitureKind>([
   'washer',
   'dryingRack',
   'stool',
+  'sauna',
+  'iceBath',
 ]);
 
 /** The plan rectangle an item covers, after its turn (turns are multiples of 90° or bounded). */

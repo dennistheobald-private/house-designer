@@ -196,6 +196,8 @@ export const rattan = () =>
 
 export const mirrorGlass = () => cached('mirror', () => new THREE.MeshPhysicalMaterial({ color: '#dfe3e4', roughness: 0.02, metalness: 1, envMapIntensity: 1.6 }));
 
+export const water = () => cached('water', () => new THREE.MeshPhysicalMaterial({ color: '#4f7f86', roughness: 0.04, clearcoat: 1, clearcoatRoughness: 0.02 }));
+
 export const screen = () => cached('screen', () => new THREE.MeshPhysicalMaterial({ color: '#0d0e0f', roughness: 0.12, clearcoat: 1, clearcoatRoughness: 0.05 }));
 
 /**

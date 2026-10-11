@@ -34,7 +34,8 @@ npm test        # checks the traced rooms against the plan areas, the stair and 
   "Save image" downloads it as a PNG.
 
 Links can open a view directly: `?mode=walk&room=kitchen`, `?mode=plan&floor=2`,
-`?mode=dollhouse&floor=3`, `&time=evening`, `&furnished=0`, `&photo=1`. Floors are numbered
+`?mode=dollhouse&floor=3`, `&time=evening`, `&furnished=0`, `&photo=1`, and `&at=x,y,facing` to stand at a plan
+point in that room's floor, facing in degrees (0 looks towards the street, 90 south). Floors are numbered
 0 (basement) to 3 (top floor).
 
 ## Where things are

@@ -19,7 +19,9 @@ function initialState() {
   const time: TimeOfDay = params.get('time') === 'evening' ? 'evening' : 'day';
   const furnished = params.get('furnished') !== '0';
   const photo = params.get('photo') === '1';
-  return { mode, floor, roomId, time, furnished, photo };
+  // `at=x,y,facing` stands you at a plan point in the room's floor, facing in degrees.
+  const at = params.get('at')?.split(',').map(Number);
+  return { mode, floor, roomId, time, furnished, photo, at: at?.length === 3 && at.every(Number.isFinite) ? at : undefined };
 }
 
 function targetForRoom(roomId: string, nonce: number, furnished = true): WalkTarget {
@@ -41,7 +43,10 @@ export function App() {
   const init = useMemo(initialState, []);
   const [mode, setMode] = useState<Mode>(init.mode);
   const [floorIndex, setFloorIndex] = useState(init.floor);
-  const [target, setTarget] = useState<WalkTarget>(() => targetForRoom(init.roomId, 0, init.furnished));
+  const [target, setTarget] = useState<WalkTarget>(() => {
+    const t = targetForRoom(init.roomId, 0, init.furnished);
+    return init.at ? { ...t, x: init.at[0], y: init.at[1], facing: (init.at[2] * Math.PI) / 180 } : t;
+  });
   const [position, setPosition] = useState<WalkPosition>({ floor: target.floor, x: target.x, y: target.y });
   const [time, setTime] = useState<TimeOfDay>(init.time);
   const [furnished, setFurnished] = useState(init.furnished);

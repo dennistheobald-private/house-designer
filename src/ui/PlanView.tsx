@@ -9,6 +9,7 @@ const FINISH_FILL: Record<FloorFinish, string> = {
   parquet: '#e8d6bb',
   tile: '#e4e2dd',
   stoneTile: '#ddd6ca',
+  bathTile: '#e6dccb',
   screed: '#d7d5d0',
   carpet: '#e1dacd',
   stair: '#cdc3b7',

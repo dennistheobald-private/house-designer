@@ -150,7 +150,7 @@ const firstFloor: Floor = {
     { id: 'zimmer-1', name: 'Zimmer 1 (child)', planArea: 14.7, rects: [r(0, 2.95, 5.32, 5.7)], finish: 'parquet', spawn: { x: 4.6, y: 3.5, facing: Math.PI } },
     { id: 'zimmer-2', name: 'Zimmer 2 (child)', planArea: 12.0, rects: [r(0, 0, 4.26, 2.79)], finish: 'parquet', spawn: { x: 3.7, y: 2.3, facing: Math.PI } },
     { id: 'zimmer-3', name: 'Zimmer 3 (office and guest)', planArea: 12.7, rects: [r(5.48, 2.95, 10.15, 5.7)], finish: 'parquet', spawn: { x: 6.2, y: 3.5, facing: 0 } },
-    { id: 'bathroom', name: 'Bathroom', planArea: 9.3, rects: [r(6.8, 0, 10.15, 2.79)], finish: 'stoneTile', spawn: { x: 7.3, y: 2.3, facing: -0.4 } },
+    { id: 'bathroom', name: 'Bathroom', planArea: 9.3, rects: [r(6.8, 0, 10.15, 2.79)], finish: 'bathTile', spawn: { x: 7.3, y: 2.3, facing: -0.4 } },
     { id: 'first-landing', name: 'Landing', planArea: 2.4, rects: [r(4.4, 1.77, 6.67, 2.79)], finish: 'parquet', spawn: { x: 5.5, y: 2.4, facing: Math.PI / 2 } },
   ],
   outdoor: [],
@@ -181,7 +181,7 @@ const topFloor: Floor = {
   ],
   rooms: [
     { id: 'bedroom', name: 'Bedroom', planArea: 14.0, rects: [r(4.42, 2.41, 8.69, 5.7)], finish: 'parquet', spawn: { x: 8.0, y: 3.0, facing: 2.6 } },
-    { id: 'ensuite', name: 'En-suite bathroom', planArea: 4.2, rects: [r(6.76, 0, 8.69, 2.31)], finish: 'tile', spawn: { x: 7.3, y: 2.0, facing: -1.2 } },
+    { id: 'ensuite', name: 'En-suite bathroom', planArea: 4.2, rects: [r(6.76, 0, 8.69, 2.31)], finish: 'bathTile', spawn: { x: 7.3, y: 2.0, facing: -1.2 } },
     { id: 'top-landing', name: 'Landing', rects: [r(4.42, 1.77, 6.66, 2.31)], finish: 'parquet' },
   ],
   outdoor: [

@@ -25,6 +25,7 @@ import {
   stone,
   terracotta,
   torus,
+  water,
   wood,
   type Foliage,
   type Weave,
@@ -332,6 +333,27 @@ function Wardrobe({ it }: { it: FurnitureItem }) {
           )}
         </group>
       ))}
+    </group>
+  );
+}
+
+/** A chest of drawers on a low plinth, with finger grooves instead of handles. */
+function Dresser({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const oak = wood('oakBrushed');
+  const rows = 3;
+  const cols = w > 1.0 ? 2 : 1;
+  const body = h - 0.1;
+  return (
+    <group>
+      <Box w={w - 0.06} h={0.1} d={d - 0.06} z={-0.02} m={metal('#2b2b2a', 0.6)} r={0.004} />
+      <Box w={w} h={body} d={d} y={0.1} m={oak} r={0.006} grain />
+      {Array.from({ length: rows }, (_, r) =>
+        Array.from({ length: cols }, (_, c) => (
+          <Box key={`${r}${c}`} w={w / cols - 0.03} h={0.006} d={0.01} x={-w / 2 + (w / cols) * (c + 0.5)} y={0.1 + (body * (r + 1)) / rows - 0.03} z={d / 2} m={metal('#3b2f25', 0.8)} r={0} />
+        )),
+      )}
+      {cols > 1 && <Box w={0.004} h={body - 0.02} d={0.004} y={0.11} z={d / 2} m={metal('#3b2f25', 0.8)} r={0} />}
     </group>
   );
 }
@@ -894,6 +916,62 @@ function Lounger({ it }: { it: FurnitureItem }) {
   );
 }
 
+/**
+ * A compact outdoor cube sauna in dark thermo-wood: vertical cladding, a flat roof with a
+ * small overhang, and a full-height glass door on the front with a long oak handle.
+ */
+function Sauna({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const thermo = wood('teak');
+  const dark = lacquer('#3a2e25', 0.8);
+  const slats = Math.round(w / 0.09);
+  return (
+    <group>
+      <Box w={w - 0.04} h={h - 0.12} d={d - 0.04} y={0.04} m={dark} r={0.004} />
+      {[-1, 1].map((side) =>
+        Array.from({ length: slats }, (_, i) => (
+          <Box key={`${side}${i}`} w={0.012} h={h - 0.14} d={(d - 0.06) / slats - 0.012} x={side * (w / 2 - 0.02)} y={0.05} z={-d / 2 + 0.03 + ((d - 0.06) * (i + 0.5)) / slats} m={thermo} r={0.003} grain />
+        )),
+      )}
+      {Array.from({ length: slats }, (_, i) => (
+        <Box key={`b${i}`} w={(w - 0.06) / slats - 0.012} h={h - 0.14} d={0.012} x={-w / 2 + 0.03 + ((w - 0.06) * (i + 0.5)) / slats} y={0.05} z={-d / 2 + 0.02} m={thermo} r={0.003} grain />
+      ))}
+      {/* Front: cladding either side of a glass door */}
+      {[-1, 1].map((side) => (
+        <Box key={`f${side}`} w={w / 2 - 0.32} h={h - 0.14} d={0.03} x={side * (w / 4 + 0.16)} y={0.05} z={d / 2 - 0.02} m={thermo} r={0.003} grain />
+      ))}
+      <Box w={0.62} h={h - 0.3} d={0.012} y={0.08} z={d / 2 - 0.02} m={lacquer('#2a2d2c', 0.05)} r={0.003} />
+      <Box w={0.03} h={0.6} d={0.04} x={0.24} y={0.8} z={d / 2 + 0.01} m={wood()} r={0.008} />
+      <Box w={w + 0.1} h={0.1} d={d + 0.1} y={h - 0.1} m={thermo} r={0.008} />
+      <Box w={w - 0.1} h={0.04} d={d - 0.1} y={0} m={dark} r={0.004} />
+    </group>
+  );
+}
+
+/** A round cold-plunge tub in teak staves with two steel bands, open and filled to near the rim. */
+function IceBath({ it }: { it: FurnitureItem }) {
+  const r = Math.min(it.w, it.d) / 2;
+  const h = it.h;
+  // Outer wall, rim and inner wall in one turned profile, so the tub is open at the top.
+  const tub = lathe([
+    [0.001, 0],
+    [r * 0.96, 0],
+    [r, h],
+    [r - 0.04, h],
+    [r - 0.05, 0.06],
+    [0.001, 0.06],
+  ], 48);
+  return (
+    <group>
+      <M g={tub} m={wood('teak')} />
+      {[0.15, h - 0.15].map((y, i) => (
+        <M key={i} g={cylinder(r * (0.96 + (0.04 * y) / h) + 0.006, r * (0.96 + (0.04 * y) / h) + 0.006, 0.04, 48)} m={metal('#2b2b2a', 0.5)} p={[0, y, 0]} />
+      ))}
+      <M g={cylinder(r - 0.043, r - 0.043, 0.004, 48)} m={water()} p={[0, h - 0.1, 0]} shadow={false} />
+    </group>
+  );
+}
+
 function Planter({ it }: { it: FurnitureItem }) {
   const seed = Math.round(it.y * 77);
   return (
@@ -1009,6 +1087,8 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
       return <Shelf it={it} />;
     case 'lowboard':
       return <Lowboard it={it} />;
+    case 'dresser':
+      return <Dresser it={it} />;
     case 'rug':
       return <Rug it={it} />;
     case 'curtain':
@@ -1067,5 +1147,9 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
       return <Washer it={it} />;
     case 'dryingRack':
       return <DryingRack it={it} />;
+    case 'sauna':
+      return <Sauna it={it} />;
+    case 'iceBath':
+      return <IceBath it={it} />;
   }
 }

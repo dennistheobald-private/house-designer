@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { furnitureByFloor } from '../furniture/proposals';
-import { fixturesByFloor } from '../house/fixtures';
+import { fixturesByFloor, showersByFloor } from '../house/fixtures';
 import { runsAlongX, stairTreads, STAIR_TURN_X, wallBlocks } from '../house/geometry';
 import type { Floor, House, Opening, Wall } from '../house/types';
 import { Furnishings } from './furniture/Furnishings';
 import { BlockMesh, FloorPlane, PlanSlab, rectOutline } from './meshes';
+import { Shower } from './Shower';
 
 const SLAB = 0.33;
 const TREAD = 0.06;
@@ -66,6 +67,9 @@ function FloorStructure({ house, floor, index }: { house: House; floor: Floor; i
       )}
       {fixturesByFloor[floor.id]?.map((fx, i) => (
         <BlockMesh key={`fx-${i}`} block={fx} level={floor.level} mat={fx.material} shadows={fx.material !== 'glass' && fx.material !== 'light'} />
+      ))}
+      {showersByFloor[floor.id]?.map((s, i) => (
+        <Shower key={`shower-${i}`} shower={s} level={floor.level} />
       ))}
     </group>
   );
