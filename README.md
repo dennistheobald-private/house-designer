@@ -25,6 +25,11 @@ npm test        # checks the traced rooms against the plan areas, the stair and 
   Shift runs. The mouse stays free for the buttons and menus.
   Walk starts in the room you were looking at: the room of the last piece you clicked, or
   the largest room of the floor shown. Switching back to 3D or Plan shows the floor you were on.
+- **Fast / Quality** (header): Fast is the default and is meant for an ordinary PC. It draws
+  only when something moves (nothing runs while you stand still), uses smaller shadows, no
+  ambient occlusion or bloom, a lower pixel ratio, and lights only the lamps of the room you
+  are in. Quality adds those effects, sharp shadows and every lamp and draws continuously,
+  so it wants a good graphics card. Photo always draws continuously. Links: `&quality=high`.
 - **Sizes**: click any piece of furniture, in 3D, Walk or the plan, to see its width, depth
   and height (and how high it hangs). Esc or a click elsewhere closes the card.
   The stairs are walkable between all floors, and "Go to" jumps to any room.

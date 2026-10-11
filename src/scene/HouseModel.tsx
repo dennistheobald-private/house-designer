@@ -136,6 +136,7 @@ export function HouseModel({
   showSurroundings,
   furnished = true,
   litFloors = [],
+  litRoom = null,
   onPick,
 }: {
   house: House;
@@ -146,6 +147,8 @@ export function HouseModel({
   furnished?: boolean;
   /** Floors whose lamps are switched on. */
   litFloors?: number[];
+  /** When set, only the lamps of this room are lit ('' lights none); null lights all on the floor. */
+  litRoom?: string | null;
   /** Called when a piece of furniture is clicked. */
   onPick?: PickHandler;
 }) {
@@ -157,7 +160,7 @@ export function HouseModel({
       ))}
       {furnished &&
         visibleFloors.map((i) => (
-          <Furnishings key={`furniture-${i}`} items={furnitureByFloor[house.floors[i].id] ?? []} level={house.floors[i].level} lit={litFloors.includes(i)} onPick={onPick} />
+          <Furnishings key={`furniture-${i}`} items={furnitureByFloor[house.floors[i].id] ?? []} level={house.floors[i].level} lit={litFloors.includes(i)} litRoom={litRoom} onPick={onPick} />
         ))}
       {visibleFloors
         .filter((i) => i < house.floors.length - 1)

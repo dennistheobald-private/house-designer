@@ -47,7 +47,7 @@ export function WalkControls({
   /** Hold still (while a photo renders). */
   frozen?: boolean;
 }) {
-  const camera = useThree((s) => s.camera);
+  const { camera, invalidate } = useThree();
   const keys = useRef(new Set<string>());
   const state = useRef({ x: target.x, y: target.y, floor: target.floor, flight: null as number | null, eye: 0 });
   const view = useRef({ yaw: 0, pitch: 0 });
@@ -73,7 +73,8 @@ export function WalkControls({
     camera.position.set(s.x, s.eye, s.y);
     view.current = { yaw: yawFor(target.facing), pitch: 0 };
     camera.rotation.set(0, view.current.yaw, 0, 'YXZ');
-  }, [target, camera, house]);
+    invalidate();
+  }, [target, camera, house, invalidate]);
 
   useEffect(() => {
     // The keyboard drives the view, so the mouse stays free for the buttons and menus.
@@ -81,6 +82,7 @@ export function WalkControls({
     const down = (e: KeyboardEvent) => {
       if (typing(e) || e.metaKey || e.ctrlKey || e.altKey) return;
       keys.current.add(e.code);
+      invalidate();
       // Arrows would otherwise scroll the page or move focus.
       if (e.code.startsWith('Arrow')) e.preventDefault();
     };
@@ -94,7 +96,7 @@ export function WalkControls({
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', clear);
     };
-  }, []);
+  }, [invalidate]);
 
   const forward = useMemo(() => new THREE.Vector3(), []);
 
@@ -148,6 +150,9 @@ export function WalkControls({
     const eyeTarget = ground + EYE_HEIGHT;
     s.eye += (eyeTarget - s.eye) * Math.min(1, dt * 12);
     camera.position.set(s.x, s.eye, s.y);
+
+    // On-demand rendering: keep drawing while a key is held or the eye is still settling.
+    if (k.size > 0 || Math.abs(eyeTarget - s.eye) > 0.001) invalidate();
 
     lastReport.current += dt;
     if (lastReport.current > 0.2) {
