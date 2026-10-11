@@ -24,7 +24,7 @@ const SCALE = 60; // pixels per metre
 const onPlan = (it: FurnitureItem) =>
   (it.z ?? 0) < 0.5 && !['print', 'mural', 'paint', 'slats', 'mirror', 'hooks', 'tv', 'pendant', 'blind', 'curtain'].includes(it.kind);
 
-function FurnitureShape({ it }: { it: FurnitureItem }) {
+function FurnitureShape({ it, onPick }: { it: FurnitureItem; onPick?: (item: FurnitureItem, screen: { x: number; y: number }) => void }) {
   const rug = it.kind === 'rug';
   const props = {
     fill: rug ? (it.colour ?? '#ddd') : '#fffdf9',
@@ -34,8 +34,12 @@ function FurnitureShape({ it }: { it: FurnitureItem }) {
   };
   const round = it.variant === 'round' || ['coffeeTable', 'sideTable', 'pouf', 'stool', 'plant', 'floorLamp'].includes(it.kind);
   return (
-    <g transform={`translate(${it.x} ${it.y}) rotate(${-(it.rot ?? 0)})`}>
-      <title>{it.name}</title>
+    <g
+      transform={`translate(${it.x} ${it.y}) rotate(${-(it.rot ?? 0)})`}
+      className={onPick ? 'pickable' : undefined}
+      onClick={onPick && ((e) => (e.stopPropagation(), onPick(it, { x: e.clientX, y: e.clientY })))}
+    >
+      {!onPick && <title>{it.name}</title>}
       {round ? (
         <ellipse rx={it.w / 2} ry={it.d / 2} {...props} />
       ) : (
@@ -50,11 +54,14 @@ export function PlanView({
   floorIndex,
   marker,
   furnished = false,
+  onPick,
 }: {
   house: House;
   floorIndex: number;
   marker?: { x: number; y: number };
   furnished?: boolean;
+  /** Called when a piece of furniture is clicked. */
+  onPick?: (item: FurnitureItem, screen: { x: number; y: number }) => void;
 }) {
   const floor = house.floors[floorIndex];
   const walls = useMemo(
@@ -114,7 +121,7 @@ export function PlanView({
             .filter(onPlan)
             .sort((a, b) => Number(b.kind === 'rug') - Number(a.kind === 'rug'))
             .map((it) => (
-              <FurnitureShape key={it.id} it={it} />
+              <FurnitureShape key={it.id} it={it} onPick={onPick} />
             ))}
         </g>
       )}

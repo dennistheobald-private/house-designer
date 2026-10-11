@@ -8,6 +8,7 @@ import { DenoiseMaterial, WebGLPathTracer } from 'three-gpu-pathtracer';
 import { FullScreenQuad } from 'three/examples/jsm/postprocessing/Pass.js';
 import type { House } from '../house/types';
 import { lampMaterials } from './furniture/look';
+import type { PickHandler } from './furniture/Furnishings';
 import { HouseModel } from './HouseModel';
 import { WalkControls, type WalkPosition, type WalkTarget } from './WalkControls';
 
@@ -193,6 +194,8 @@ export function Scene({
   furnished,
   photo,
   onPhotoProgress,
+  onPick,
+  onPickNothing,
 }: {
   house: House;
   mode: 'dollhouse' | 'walk';
@@ -205,6 +208,9 @@ export function Scene({
   furnished: boolean;
   photo: boolean;
   onPhotoProgress: (samples: number) => void;
+  onPick?: PickHandler;
+  /** A click that hit no furniture. */
+  onPickNothing?: () => void;
 }) {
   const walking = mode === 'walk';
   const evening = time === 'evening';
@@ -218,12 +224,13 @@ export function Scene({
       dpr={[1, 2]}
       gl={{ preserveDrawingBuffer: true, antialias: false, toneMapping: THREE.NeutralToneMapping, powerPreference: 'high-performance' }}
       camera={{ position: [-9, focusLevel + 13, 15], fov: walking ? 70 : 40, near: 0.05, far: 300 }}
+      onPointerMissed={onPickNothing}
     >
       <Lighting time={time} />
       <LampShades on={evening} />
       {/* The path tracer lights rooms only through their windows, as a camera sees them, so it needs the exposure a photographer would use indoors. */}
       <Exposure value={photo ? (evening ? 1.8 : 2.6) : walking ? (evening ? 1.3 : 1.0) : evening ? 1.2 : 0.85} />
-      <HouseModel house={house} visibleFloors={visible} showRoof={walking} showSurroundings={walking} furnished={furnished} litFloors={lit} />
+      <HouseModel house={house} visibleFloors={visible} showRoof={walking} showSurroundings={walking} furnished={furnished} litFloors={lit} onPick={onPick} />
       {walking ? (
         <WalkControls house={house} target={walkTarget} onMove={onWalk} furnished={furnished} frozen={photo} />
       ) : (

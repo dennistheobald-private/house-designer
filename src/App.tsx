@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { FurnitureItem } from './furniture/types';
 import { proposalFor } from './furniture/proposals';
 import { contains } from './house/geometry';
 import { houseK } from './house/houseK';
 import { Scene, type TimeOfDay } from './scene/Scene';
 import type { WalkPosition, WalkTarget } from './scene/WalkControls';
 import { PlanView } from './ui/PlanView';
+import { ItemInfo } from './ui/ItemInfo';
 import { ProposalCard, ProposalList } from './ui/Proposal';
 
 type Mode = 'dollhouse' | 'plan' | 'walk';
@@ -52,6 +54,17 @@ export function App() {
   const [furnished, setFurnished] = useState(init.furnished);
   const [photo, setPhoto] = useState(init.photo && init.mode !== 'plan');
   const [samples, setSamples] = useState(0);
+  const [picked, setPicked] = useState<{ item: FurnitureItem; at: { x: number; y: number } } | null>(null);
+  const pick = useCallback((item: FurnitureItem, at: { x: number; y: number }) => setPicked({ item, at }), []);
+  const unpick = useCallback(() => setPicked(null), []);
+
+  // A new view or floor closes the card; so does Esc.
+  useEffect(unpick, [mode, floorIndex, furnished, unpick]);
+  useEffect(() => {
+    const key = (e: KeyboardEvent) => e.code === 'Escape' && unpick();
+    window.addEventListener('keydown', key);
+    return () => window.removeEventListener('keydown', key);
+  }, [unpick]);
 
   const togglePhoto = useCallback(() => {
     setSamples(0);
@@ -165,8 +178,8 @@ export function App() {
 
       <main className="stage">
         {mode === 'plan' ? (
-          <div className="plan-wrap">
-            <PlanView house={house} floorIndex={floorIndex} furnished={furnished} />
+          <div className="plan-wrap" onClick={unpick}>
+            <PlanView house={house} floorIndex={floorIndex} furnished={furnished} onPick={pick} />
           </div>
         ) : (
           <Scene
@@ -181,6 +194,8 @@ export function App() {
             furnished={furnished}
             photo={photo}
             onPhotoProgress={setSamples}
+            onPick={pick}
+            onPickNothing={unpick}
           />
         )}
 
@@ -204,10 +219,11 @@ export function App() {
             <div className="minimap">
               <PlanView house={house} floorIndex={shownFloor} marker={position} furnished={furnished} />
             </div>
-            <p className="help">Arrow keys to walk · W A S D to look around · Shift to run · P for a photo</p>
+            <p className="help">Arrow keys to walk · W A S D to look around · Shift to run · click a piece for its size · P for a photo</p>
           </>
         )}
-        {mode === 'dollhouse' && !photo && <p className="help">Drag to orbit · scroll to zoom · right-drag to pan · P for a photo</p>}
+        {mode === 'dollhouse' && !photo && <p className="help">Drag to orbit · scroll to zoom · right-drag to pan · click a piece for its size · P for a photo</p>}
+        {picked && <ItemInfo item={picked.item} at={picked.at} onClose={unpick} />}
       </main>
     </div>
   );
