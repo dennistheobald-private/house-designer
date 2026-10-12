@@ -118,7 +118,7 @@ const mainFloor: Floor = {
     { id: 'wc', name: 'WC', planArea: 1.8, rects: [r(8.95, 0, 10.15, 1.62)], finish: 'tile', spawn: { x: 9.3, y: 0.9, facing: 0 } },
   ],
   outdoor: [
-    { id: 'garden-terrace', name: 'Garden terrace', planArea: 14.8, rects: [r(TERRACE_EDGE, 0, -0.35, 5.7)], finish: 'terrace', spawn: { x: -1.5, y: 0.5, facing: Math.PI / 2 } },
+    { id: 'garden-terrace', name: 'Garden terrace', planArea: 14.8, rects: [r(TERRACE_EDGE, 0, -0.35, 5.7)], finish: 'terrace', spawn: { x: -1.5, y: 3.9, facing: -Math.PI / 2 } },
     { id: 'garden', name: 'Garden', planArea: 32.54, rects: [r(GARDEN_EDGE, PARTY_N, TERRACE_EDGE, PARTY_S)], finish: 'lawn', spawn: { x: -6.5, y: 2.8, facing: 0 } },
     // In front of the WC: a planted bed; the rest of the front strip is the path to the door.
     { id: 'front-garden', name: 'Front garden', rects: [r(10.5, PARTY_N, FRONT_EDGE, 1.9)], finish: 'lawn' },

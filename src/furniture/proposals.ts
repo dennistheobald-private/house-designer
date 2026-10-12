@@ -306,8 +306,7 @@ const wc: FurnitureItem[] = [
 const gardenTerrace: FurnitureItem[] = [
   // A black aluminium pergola with a louvred roof over the whole terrace, after Dennis's photo, resting on the facade.
   item('garden-terrace', 'pergola', 'Pergola, black aluminium, louvred roof, 570 x 260 cm, 260 cm high', 'pergola', -1.65, 2.85, 5.7, 2.6, 2.6, { rot: -90 }),
-  item('garden-terrace', 'planter-1', 'Planter with grasses', 'planter', -2.6, 0.75, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
-  item('garden-terrace', 'dining', 'Garden dining set: teak table 180 x 90 cm, six rope chairs; double-click to cover it for winter', 'gardenSet', -1.85, 2.85, 1.9, 1.9, 0.9, { rot: 90 }),
+  item('garden-terrace', 'dining', 'Garden dining set: teak table 180 x 90 cm, six rope chairs; double-click to cover it for winter', 'gardenSet', -1.85, 1.3, 1.9, 1.9, 0.9, { rot: 90 }),
   item('garden-terrace', 'planter-2', 'Planter with grasses', 'planter', -2.6, 4.95, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
 ];
 
