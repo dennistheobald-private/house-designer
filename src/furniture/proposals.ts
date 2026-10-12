@@ -48,7 +48,7 @@ export const C = {
 export const proposals: RoomProposal[] = [
   {
     room: 'living',
-    view: { x: 5.6, y: 4.9, facing: -2.23 },
+    view: { x: 6.1, y: 5.2, facing: -2.26 },
     theme: 'Mountains',
     palette: [
       { name: 'Granite', hex: C.granite },
@@ -244,15 +244,15 @@ const mainFloor: FurnitureItem[] = [
   living('tv', 'Television, 65 inch', 'tv', 2.2, 5.675, 1.45, 0.04, 0.84, { rot: 180, z: 0.82 }),
   living('vase', 'Vase with dried grasses', 'vase', 1.55, 5.5, 0.18, 0.18, 0.55, { z: 0.48, colour: C.stone }),
   living('pine-bonsai', 'Mountain pine bonsai', 'plant', 2.95, 5.5, 0.32, 0.32, 0.38, { z: 0.48, variant: 'bonsai', accent: C.charcoal }),
-  // Dining, in the living room and clear of the way to the kitchen: an oak table on a steel
+  // Dining, between the TV unit and the kitchen with a clear way past it to the kitchen: an oak table on a steel
   // pedestal and six black cantilever chairs, as Dennis's photos show.
-  living('table', 'Dining table, oak on a steel pedestal, 100 x 200 cm', 'diningTable', 3.4, 4.15, 1.0, 2.0, 0.75, { variant: 'steel' }),
+  living('table', 'Dining table, oak on a steel pedestal, 100 x 200 cm', 'diningTable', 4.6, 4.15, 1.0, 2.0, 0.75, { variant: 'steel' }),
   ...[3.5, 4.15, 4.8].flatMap((y, i) => [
-    living(`chair-w${i}`, 'Chair, black with steel frame', 'diningChair', 2.6, y, 0.56, 0.58, 0.82, { rot: 90, variant: 'cantilever' }),
-    living(`chair-e${i}`, 'Chair, black with steel frame', 'diningChair', 4.2, y, 0.56, 0.58, 0.82, { rot: -90, variant: 'cantilever' }),
+    living(`chair-w${i}`, 'Chair, black with steel frame', 'diningChair', 3.8, y, 0.56, 0.58, 0.82, { rot: 90, variant: 'cantilever' }),
+    living(`chair-e${i}`, 'Chair, black with steel frame', 'diningChair', 5.4, y, 0.56, 0.58, 0.82, { rot: -90, variant: 'cantilever' }),
   ]),
-  living('pendant', 'Cloud pendant, linen', 'pendant', 3.4, 4.15, 1.0, 0.55, 0.32, { z: 1.62, variant: 'cloud', colour: C.linen }),
-  living('table-vase', 'Stoneware jug with pine sprigs', 'vase', 3.4, 4.15, 0.14, 0.14, 0.4, { z: 0.75, colour: C.snow, variant: 'sprigs' }),
+  living('pendant', 'Cloud pendant, linen', 'pendant', 4.6, 4.15, 1.0, 0.55, 0.32, { z: 1.62, variant: 'cloud', colour: C.linen }),
+  living('table-vase', 'Stoneware jug with pine sprigs', 'vase', 4.6, 4.15, 0.14, 0.14, 0.4, { z: 0.75, colour: C.snow, variant: 'sprigs' }),
 ];
 
 const kitchenItems: FurnitureItem[] = [
