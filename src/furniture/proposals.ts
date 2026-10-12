@@ -202,7 +202,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Rubber black', hex: '#2e3032' },
       { name: 'Oak', hex: '#c8a97e' },
     ],
-    summary: 'Energy: charcoal walls with a burnt-orange wall, a rubber floor and bright ceiling spots. A road bike on a smart trainer facing a 43-inch screen on the back of the pantry shelves, a deadlift platform with a loaded bar, a black jump box, farmer handles, dumbbells, wall balls with a target at 2 m, a pull-up bar and TRX straps, and a closed gym closet.',
+    summary: 'Energy: charcoal walls with a burnt-orange wall, a rubber floor and bright ceiling spots. A road bike on a smart trainer facing a 43-inch screen on the back of the pantry shelves, a deadlift platform with a loaded bar, a black jump box, farmer handles, dumbbells, wall balls with a target at 2 m, a pull-up bar, and a closed gym closet.',
   },
   {
     room: 'storage',
@@ -476,7 +476,6 @@ const basement: FurnitureItem[] = [
   item('bastelraum-2', 'closet', 'Gym closet: mats, bands, kettlebells, towels', 'wardrobe', -3.03, 2.3, 1.4, 0.6, 2.4, { rot: 90, variant: 'gym', colour: '#2f3236' }),
   item('bastelraum-2', 'dumbbells', 'Dumbbell rack with kettlebells', 'dumbbells', -3.13, 0.95, 1.2, 0.4, 0.75, { rot: 90 }),
   item('bastelraum-2', 'pull-up', 'Wall-mounted pull-up bar', 'pullUpBar', -2.0, 0.3, 1.2, 0.6, 0.35, { z: 2.1 }),
-  item('bastelraum-2', 'trx', 'Suspension trainer (TRX) from a ceiling anchor', 'trx', -1.6, 1.35, 0.3, 0.1, 1.45, { z: 1.0 }),
   // A road bike on a smart trainer, facing a 43-inch screen on the back of the pantry shelves.
   item('bastelraum-2', 'tv', 'Television, 43 inch, on the back of the pantry shelves', 'tv', 0.585, 1.0, 0.97, 0.03, 0.56, { rot: -90, z: 1.05, art: 'mountain' }),
   item('bastelraum-2', 'trainer-bike', 'Road bike on a smart trainer', 'bike', -0.45, 1.0, 0.55, 1.75, 1.1, { rot: 90, colour: '#2f4f6f', variant: 'trainer' }),

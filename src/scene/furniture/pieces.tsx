@@ -2110,13 +2110,46 @@ function BookNook({ it, lit }: { it: FurnitureItem; lit: boolean }) {
         <Box key={`cs${l}`} w={caseW} h={0.022} d={0.34} x={-w / 2 + t + caseW / 2} y={0.08 + l * csh} z={-d / 2 + 0.17} m={oak} r={0.002} grain />
       ))}
       <Box w={caseW} h={h} d={0.012} x={-w / 2 + t + caseW / 2} z={-d / 2 + 0.006} m={oak} r={0} grain />
-      {/* the case is closed below the mattress towards the bed side */}
-      <Box w={caseW} h={h - t} d={d - 0.36} x={-w / 2 + t + caseW / 2} z={-d / 2 + 0.36 + (d - 0.36) / 2} m={oak} r={0.003} grain />
+      {/* In front of the bookcase, a cupboard with two oak doors that open on a double-click; open, it shows its boxes and the books behind. */}
+      {[0.1, (h - t) / 2].map((y, i) => (
+        <Box key={`cb${i}`} w={caseW} h={0.022} d={d - 0.38} x={-w / 2 + t + caseW / 2} y={y} z={-d / 2 + 0.37 + (d - 0.38) / 2} m={oak} r={0.002} grain />
+      ))}
+      {[0.122, (h - t) / 2 + 0.022].map((y, i) => (
+        <Box key={`cx${i}`} w={caseW - 0.08} h={0.26} d={0.4} x={-w / 2 + t + caseW / 2} y={y} z={d / 2 - 0.3} m={fabric(i ? '#dcd3c4' : '#a7b494', 'linen')} r={0.012} />
+      ))}
+      {[
+        [0, (h - t) / 2],
+        [(h - t) / 2, h - t],
+      ].map(([y0, y1], i) => (
+        <Opens key={`cd${i}`} swing={-1.7} at={[-w / 2 + t, 0, d / 2]}>
+          <Box w={caseW - 0.004} h={y1 - y0 - 0.006} d={0.02} x={caseW / 2} y={y0 + 0.003} z={-0.01} m={oak} r={0.003} grain />
+          <Box w={0.012} h={0.18} d={0.02} x={caseW - 0.04} y={i ? y0 + 0.08 : y1 - 0.26} z={0.01} m={metal('#2b2b2a', 0.5)} r={0.004} />
+        </Opens>
+      ))}
       {/* a low sage back with a ledge; above it the wall and the window */}
       <Box w={bedW} h={backH} d={0.03} x={bedX} z={-d / 2 + 0.015} m={paint('#8f9a8c')} r={0} />
       <Box w={bedW} h={0.025} d={0.14} x={bedX} y={backH} z={-d / 2 + 0.07} m={oak} r={0.003} grain />
-      {/* base and mattress */}
-      <Box w={bedW} h={base} d={d - 0.03} x={bedX} z={-0.015} m={oak} r={0.004} grain />
+      {/* base with two deep drawers under the mattress (double-click to pull one out), then the mattress */}
+      <Box w={bedW} h={base} d={d - 0.7} x={bedX} z={-d / 2 + (d - 0.7) / 2} m={oak} r={0.004} grain />
+      <Box w={bedW} h={0.025} d={0.7} x={bedX} y={base - 0.025} z={d / 2 - 0.35} m={oak} r={0.003} grain />
+      <Box w={bedW} h={0.05} d={0.66} x={bedX} z={d / 2 - 0.37} m={lacquer('#2c2a28', 0.7)} r={0} />
+      {[0, 1].map((k) => {
+        const dw = bedW / 2;
+        const cx = bedX - bedW / 2 + dw * (k + 0.5);
+        const fh = base - 0.085;
+        return (
+          <Opens key={`bd${k}`} slide={0.5} at={[cx, 0.055, d / 2 - 0.02]}>
+            <Box w={dw - 0.006} h={fh} d={0.02} m={oak} r={0.003} grain />
+            <Box w={0.2} h={0.014} d={0.02} y={fh - 0.06} z={0.012} m={metal('#2b2b2a', 0.5)} r={0.004} />
+            {[-1, 1].map((sx) => (
+              <Box key={sx} w={0.012} h={fh - 0.05} d={0.6} x={sx * (dw / 2 - 0.04)} y={0.01} z={-0.31} m={wood('birch')} r={0} />
+            ))}
+            <Box w={dw - 0.08} h={0.01} d={0.6} y={0.01} z={-0.31} m={wood('birch')} r={0} />
+            <Box w={dw - 0.08} h={fh - 0.05} d={0.012} y={0.01} z={-0.61} m={wood('birch')} r={0} />
+            <Box w={dw * 0.6} h={0.12} d={0.4} x={-dw * 0.12} y={0.02} z={-0.32} m={fabric(k ? '#e9e3d6' : '#8a9fab', 'knit')} r={0.03} />
+          </Opens>
+        );
+      })}
       <Box w={bedW - 0.02} h={0.16} d={d - 0.08} x={bedX} y={base} z={-0.02} m={fabric('#dcd3c4', 'linen')} r={0.04} />
       {cushions.map(([x, c, r], i) => (
         <Box key={`c${i}`} w={0.55} h={0.5} d={0.16} x={bedX + x * (bedW / 2)} y={base + 0.12} z={-d / 2 + 0.16 + (i === 3 ? 0.12 : 0)} m={fabric(c, i === 3 ? 'wool' : 'linen')} r={0.08} rot={[-0.2, r, 0]} />

@@ -69,7 +69,7 @@ const basement: Floor = {
     // The plan's 22.8 m² Bastelraum 2 is now the gym and the store together, with a pantry cupboard between them.
     { id: 'bastelraum-2', name: 'Gym', rects: [r(-3.33, 0, 0.575, 3.0)], finish: 'screed', spawn: { x: -1.6, y: 0.45, facing: 0.3 } },
     { id: 'storage', name: 'Storage and bikes', rects: [r(0.575, 0, 4.27, 3.0)], finish: 'screed', spawn: { x: 2.4, y: 1.85, facing: -Math.PI / 2 } },
-    { id: 'bastelraum-1', name: 'Chill room, storage and guest bed', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'carpet', spawn: { x: -0.9, y: 3.6, facing: Math.PI / 2 } },
+    { id: 'bastelraum-1', name: 'Chill room, storage and guest bed', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'parquet', spawn: { x: -0.9, y: 3.6, facing: Math.PI / 2 } },
     { id: 'laundry', name: 'Laundry and technical', planArea: 8.3, rects: [r(2.19, 3.15, 5.45, 5.7)], finish: 'screed', spawn: { x: 4.8, y: 4.4, facing: Math.PI } },
     // The plan's 9.7 m² for the corridor includes the stairwell.
     { id: 'basement-corridor', name: 'Corridor', rects: [r(4.42, 1.77, 6.7, 3.0), r(5.59, 3.0, 6.7, 5.7), r(4.42, 3.0, 5.45, 3.15)], finish: 'screed', spawn: { x: 6.1, y: 2.4, facing: Math.PI } },
