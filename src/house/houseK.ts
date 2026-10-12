@@ -57,17 +57,24 @@ const basement: Floor = {
     { wall: 'b-west', kind: 'window', from: 3.87, to: 4.83, sill: 1.6, head: 2.3 },
     { wall: 'b-east', kind: 'door', from: 4.57, to: 5.52, sill: 0, head: 2.1 },
     { wall: 'b-stair', kind: 'door', from: 2.0, to: 2.82, sill: 0, head: 2.1 },
-    { wall: 'b-mid', kind: 'door', from: 0.69, to: 1.56, sill: 0, head: 2.1 },
+    // Moved west so the reading room opens off the gym, not the store.
+    { wall: 'b-mid', kind: 'door', from: -0.45, to: 0.35, sill: 0, head: 2.1 },
     { wall: 'b-mid', kind: 'door', from: 4.51, to: 5.38, sill: 0, head: 2.1 },
   ],
   rooms: [
-    { id: 'bastelraum-2', name: 'Bastelraum 2', planArea: 22.8, rects: [r(-3.33, 0, 4.27, 3.0)], finish: 'screed', spawn: { x: 1.5, y: 1.5, facing: Math.PI } },
-    { id: 'bastelraum-1', name: 'Bastelraum 1', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'carpet', spawn: { x: 1.2, y: 4.4, facing: Math.PI } },
+    // The plan's 22.8 m² Bastelraum 2 is now the gym and the store together, with a pantry cupboard between them.
+    { id: 'bastelraum-2', name: 'Gym', rects: [r(-3.33, 0, 0.575, 3.0)], finish: 'screed', spawn: { x: -1.6, y: 0.45, facing: 0.3 } },
+    { id: 'storage', name: 'Storage and bikes', rects: [r(0.575, 0, 4.27, 3.0)], finish: 'screed', spawn: { x: 2.4, y: 1.85, facing: -Math.PI / 2 } },
+    { id: 'bastelraum-1', name: 'Chill room, storage and guest bed', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'parquet', spawn: { x: -0.9, y: 3.6, facing: Math.PI / 2 } },
     { id: 'laundry', name: 'Laundry and technical', planArea: 8.3, rects: [r(2.19, 3.15, 5.45, 5.7)], finish: 'screed', spawn: { x: 4.8, y: 4.4, facing: Math.PI } },
     // The plan's 9.7 m² for the corridor includes the stairwell.
     { id: 'basement-corridor', name: 'Corridor', rects: [r(4.42, 1.77, 6.7, 3.0), r(5.59, 3.0, 6.7, 5.7), r(4.42, 3.0, 5.45, 3.15)], finish: 'screed', spawn: { x: 6.1, y: 2.4, facing: Math.PI } },
   ],
-  outdoor: [],
+  outdoor: [
+    // Two parking spaces side by side, through the door at the end of the corridor: part of a bigger shared garage,
+    // left open on its sides rather than modelled.
+    { id: 'parking', name: 'Parking', rects: [r(7.0, 0, 11.95, 5.7)], finish: 'screed', spawn: { x: 7.5, y: 4.6, facing: -0.55 } },
+  ],
 };
 
 const mainFloor: Floor = {
@@ -91,8 +98,10 @@ const mainFloor: Floor = {
     { id: 'm-niche-end', rect: r(8.48, 2.79, 8.6, 3.26) },
     { id: 'm-kitchen-hall', rect: r(8.48, 3.11, 10.15, 3.26) },
     // Garden boundaries: hedges to the neighbours, a low wall at the back.
-    { id: 'm-hedge-n', rect: r(GARDEN_EDGE, PARTY_N - HEDGE, TERRACE_EDGE, PARTY_N + HEDGE), height: 1.2, hedge: true },
-    { id: 'm-hedge-s', rect: r(GARDEN_EDGE, PARTY_S - HEDGE, TERRACE_EDGE, PARTY_S + HEDGE), height: 1.2, hedge: true },
+    { id: 'm-hedge-n', rect: r(GARDEN_EDGE, PARTY_N - HEDGE, -0.35, PARTY_N + HEDGE), height: 1.2, hedge: true },
+    { id: 'm-hedge-s', rect: r(GARDEN_EDGE, PARTY_S - HEDGE, -0.35, PARTY_S + HEDGE), height: 1.2, hedge: true },
+    // The same hedge closes the garden at the back, in front of the low boundary wall.
+    { id: 'm-hedge-w', rect: r(GARDEN_EDGE, PARTY_N + HEDGE, GARDEN_EDGE + 2 * HEDGE, PARTY_S - HEDGE), height: 1.2, hedge: true },
     { id: 'm-garden-wall', rect: r(GARDEN_EDGE - 0.2, PARTY_N - HEDGE, GARDEN_EDGE, PARTY_S + HEDGE), height: 0.4, exterior: true },
   ],
   openings: [
@@ -110,7 +119,7 @@ const mainFloor: Floor = {
     { id: 'wc', name: 'WC', planArea: 1.8, rects: [r(8.95, 0, 10.15, 1.62)], finish: 'tile', spawn: { x: 9.3, y: 0.9, facing: 0 } },
   ],
   outdoor: [
-    { id: 'garden-terrace', name: 'Garden terrace', planArea: 14.8, rects: [r(TERRACE_EDGE, 0, -0.35, 5.7)], finish: 'terrace', spawn: { x: -1.8, y: 2.8, facing: 0 } },
+    { id: 'garden-terrace', name: 'Garden terrace', planArea: 14.8, rects: [r(TERRACE_EDGE, 0, -0.35, 5.7)], finish: 'terrace', spawn: { x: -1.5, y: 3.9, facing: -Math.PI / 2 } },
     { id: 'garden', name: 'Garden', planArea: 32.54, rects: [r(GARDEN_EDGE, PARTY_N, TERRACE_EDGE, PARTY_S)], finish: 'lawn', spawn: { x: -6.5, y: 2.8, facing: 0 } },
     // In front of the WC: a planted bed; the rest of the front strip is the path to the door.
     { id: 'front-garden', name: 'Front garden', rects: [r(10.5, PARTY_N, FRONT_EDGE, 1.9)], finish: 'lawn' },
@@ -143,6 +152,7 @@ const firstFloor: Floor = {
     { wall: 'f-street', kind: 'window', from: 3.28, to: 5.0, sill: 0.9, head: 2.2 },
     { wall: 'f-z2', kind: 'door', from: 1.9, to: 2.72, sill: 0, head: 2.1 },
     { wall: 'f-bath', kind: 'door', from: 1.9, to: 2.72, sill: 0, head: 2.1 },
+    { wall: 'f-bath', kind: 'niche', from: 0.01, to: 1.21, sill: 1.2, head: 1.5 },
     { wall: 'f-mid', kind: 'door', from: 4.46, to: 5.29, sill: 0, head: 2.1 },
     { wall: 'f-mid', kind: 'door', from: 5.71, to: 6.57, sill: 0, head: 2.1 },
   ],

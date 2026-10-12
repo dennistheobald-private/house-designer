@@ -4,7 +4,7 @@ import { collisionRects, contains, moveWithCollisions } from '../house/geometry'
 import { houseK } from '../house/houseK';
 import type { Rect } from '../house/types';
 import { furnitureByFloor, proposals } from './proposals';
-import { BLOCKING, footprint, type FurnitureItem } from './types';
+import { BLOCKING, footprints, type FurnitureItem } from './types';
 
 const overlap = (a: Rect, b: Rect) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
 const shrink = (r: Rect, by: number): Rect => ({ x0: r.x0 + by, y0: r.y0 + by, x1: r.x1 - by, y1: r.y1 - by });
@@ -14,7 +14,7 @@ const onFloor = (it: FurnitureItem) => !it.z && BLOCKING.has(it.kind);
 
 describe('furnished proposals', () => {
   it('gives every room a proposal, except landings and the open garden', () => {
-    const skip = new Set(['first-landing', 'top-landing', 'basement-corridor', 'garden', 'front-garden', 'front-path', 'garden-terrace', 'street-terrace']);
+    const skip = new Set(['first-landing', 'top-landing', 'basement-corridor', 'garden', 'front-garden', 'front-path', 'garden-terrace', 'street-terrace', 'parking']);
     const rooms = houseK.floors.flatMap((f) => [...f.rooms, ...f.outdoor]).filter((r) => !skip.has(r.id));
     for (const room of rooms) expect(proposals.map((p) => p.room), room.id).toContain(room.id);
   });
@@ -35,7 +35,8 @@ describe('furnished proposals', () => {
     for (const { floor, items } of floors) {
       for (const it of items.filter(onFloor)) {
         const room = [...floor.rooms, ...floor.outdoor].find((r) => r.id === it.room)!;
-        const fp = shrink(footprint(it), 0.01);
+        for (const part of footprints(it)) {
+        const fp = shrink(part, 0.01);
         for (let i = 0; i <= 4; i++) {
           for (let j = 0; j <= 4; j++) {
             const x = fp.x0 + ((fp.x1 - fp.x0) * i) / 4;
@@ -45,6 +46,7 @@ describe('furnished proposals', () => {
               `${it.id} at ${x.toFixed(2)}, ${y.toFixed(2)}`,
             ).toBe(true);
           }
+        }
         }
       }
     }
@@ -56,17 +58,19 @@ describe('furnished proposals', () => {
       const walls = collisionRects(floor, houseK.stair);
       const fixtures = (fixturesByFloor[floor.id] ?? []).filter((f) => f.z0 < 0.5 && f.z1 - f.z0 > 0.05);
       for (const [i, a] of solid.entries()) {
-        const fa = shrink(footprint(a), 0.005);
-        for (const w of walls) expect(overlap(fa, w), `${a.id} into a wall`).toBe(0);
-        for (const f of fixtures) expect(overlap(fa, f), `${a.id} into ${f.name}`).toBe(0);
-        for (const b of solid.slice(i + 1)) expect(overlap(fa, footprint(b)), `${a.id} and ${b.id}`).toBe(0);
+        for (const part of footprints(a)) {
+          const fa = shrink(part, 0.005);
+          for (const w of walls) expect(overlap(fa, w), `${a.id} into a wall`).toBe(0);
+          for (const f of fixtures) expect(overlap(fa, f), `${a.id} into ${f.name}`).toBe(0);
+          for (const b of solid.slice(i + 1)) for (const pb of footprints(b)) expect(overlap(fa, pb), `${a.id} and ${b.id}`).toBe(0);
+        }
       }
     }
   });
 
   it('leaves every arrival point free, so a jump never lands inside furniture', () => {
     for (const [index, { floor, items }] of floors.entries()) {
-      const rects = [...collisionRects(floor, houseK.stair, { top: index === floors.length - 1, bottom: index === 0 }), ...items.filter(onFloor).map(footprint)];
+      const rects = [...collisionRects(floor, houseK.stair, { top: index === floors.length - 1, bottom: index === 0 }), ...items.filter(onFloor).flatMap(footprints)];
       const points = [
         // Rooms with a view of their own use the plain spawn only when the house is empty.
         ...[...floor.rooms, ...floor.outdoor].flatMap((r) => (r.spawn && !proposals.find((p) => p.room === r.id)?.view ? [{ id: r.id, ...r.spawn }] : [])),
@@ -92,7 +96,10 @@ describe('furnished proposals', () => {
 
   it('hangs pendants and wall pieces below the ceiling', () => {
     for (const { floor, items } of floors) {
-      for (const it of items) expect((it.z ?? 0) + it.h, it.id).toBeLessThanOrEqual(floor.clearHeight + 0.001);
+      // Outdoors there is no ceiling; a garden tree may stand taller than a room.
+      const indoors = new Set(floor.rooms.map((r) => r.id));
+      // The stair wall's slats run on through the slab to the floor above.
+      for (const it of items.filter((i) => indoors.has(i.room) && !i.id.endsWith('-stair-slats'))) expect((it.z ?? 0) + it.h, it.id).toBeLessThanOrEqual(floor.clearHeight + 0.001);
     }
   });
 });

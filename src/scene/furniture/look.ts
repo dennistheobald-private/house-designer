@@ -3,6 +3,8 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { Artwork } from '../../furniture/types';
 import {
+  animalPrint,
+  animalsPrint,
   birchPrint,
   botanicalPrint,
   fabricMaps,
@@ -13,6 +15,7 @@ import {
   plasterMaps,
   riverPrint,
   stoneMaps,
+  sunrisePrint,
   toTexture,
   woodGrain,
   type SurfaceMaps,
@@ -120,6 +123,8 @@ function surface(key: string): SurfaceMaps {
       oakBrushed: () => woodGrain(37, [196, 160, 118], [150, 112, 76]),
       birch: () => woodGrain(41, [236, 222, 198], [214, 194, 164]),
       teak: () => woodGrain(43, [168, 118, 78], [128, 86, 54]),
+      walnut: () => woodGrain(47, [112, 76, 46], [74, 48, 28]),
+      cedar: () => woodGrain(53, [196, 138, 92], [156, 102, 64]),
       boucle: () => fabricMaps('boucle', 3),
       linen: () => fabricMaps('linen', 5),
       wool: () => fabricMaps('wool', 7),
@@ -140,7 +145,7 @@ function surface(key: string): SurfaceMaps {
   return maps[key];
 }
 
-export type Wood = 'oak' | 'oakBrushed' | 'birch' | 'teak';
+export type Wood = 'oak' | 'oakBrushed' | 'birch' | 'teak' | 'walnut' | 'cedar';
 
 export const wood = (kind: Wood = 'oak') =>
   cached(`wood-${kind}`, () => new THREE.MeshPhysicalMaterial({ ...surface(kind), roughness: 1, clearcoat: 0.08, clearcoatRoughness: 0.6 }));
@@ -234,6 +239,11 @@ const artCanvas: Record<Artwork, () => HTMLCanvasElement> = {
   botanical1: () => botanicalPrint(0),
   botanical2: () => botanicalPrint(1),
   botanical3: () => botanicalPrint(2),
+  animals: () => animalsPrint(4240, 2000),
+  fox: () => animalPrint('fox'),
+  owl: () => animalPrint('owl'),
+  deer: () => animalPrint('deer'),
+  sunrise: () => sunrisePrint(),
 };
 
 /** Printed paper behind glass: matt print, glossy coat. */

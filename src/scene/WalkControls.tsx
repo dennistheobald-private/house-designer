@@ -1,9 +1,9 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { collisionRects, contains, moveWithCollisions, stairHeight, stairLengths, stairProgress } from '../house/geometry';
+import { collisionRects, contains, moveWithCollisions, stairGuide, stairHeight, stairLengths, stairProgress } from '../house/geometry';
 import { furnitureByFloor } from '../furniture/proposals';
-import { BLOCKING, footprint } from '../furniture/types';
+import { BLOCKING, footprints } from '../furniture/types';
 import type { House } from '../house/types';
 
 export const EYE_HEIGHT = 1.65;
@@ -47,7 +47,7 @@ export function WalkControls({
   /** Hold still (while a photo renders). */
   frozen?: boolean;
 }) {
-  const camera = useThree((s) => s.camera);
+  const { camera, invalidate } = useThree();
   const keys = useRef(new Set<string>());
   const state = useRef({ x: target.x, y: target.y, floor: target.floor, flight: null as number | null, eye: 0 });
   const view = useRef({ yaw: 0, pitch: 0 });
@@ -56,7 +56,7 @@ export function WalkControls({
   const rects = useMemo(() => {
     const last = house.floors.length - 1;
     const furniture = (floorId: string) =>
-      furnished ? (furnitureByFloor[floorId] ?? []).filter((it) => BLOCKING.has(it.kind) && !it.z).map(footprint) : [];
+      furnished ? (furnitureByFloor[floorId] ?? []).filter((it) => BLOCKING.has(it.kind) && !it.z).flatMap(footprints) : [];
     return {
       onFloor: house.floors.map((f, i) => [...collisionRects(f, house.stair, { top: i === last, bottom: i === 0 }), ...furniture(f.id)]),
       onFlight: house.floors.map((f) => collisionRects(f, house.stair)),
@@ -73,7 +73,8 @@ export function WalkControls({
     camera.position.set(s.x, s.eye, s.y);
     view.current = { yaw: yawFor(target.facing), pitch: 0 };
     camera.rotation.set(0, view.current.yaw, 0, 'YXZ');
-  }, [target, camera, house]);
+    invalidate();
+  }, [target, camera, house, invalidate]);
 
   useEffect(() => {
     // The keyboard drives the view, so the mouse stays free for the buttons and menus.
@@ -81,6 +82,7 @@ export function WalkControls({
     const down = (e: KeyboardEvent) => {
       if (typing(e) || e.metaKey || e.ctrlKey || e.altKey) return;
       keys.current.add(e.code);
+      invalidate();
       // Arrows would otherwise scroll the page or move focus.
       if (e.code.startsWith('Arrow')) e.preventDefault();
     };
@@ -94,7 +96,7 @@ export function WalkControls({
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', clear);
     };
-  }, []);
+  }, [invalidate]);
 
   const forward = useMemo(() => new THREE.Vector3(), []);
 
@@ -121,8 +123,24 @@ export function WalkControls({
       const fz = forward.z / len;
       const speed = (k.has('ShiftLeft') || k.has('ShiftRight') ? RUN_SPEED : WALK_SPEED) * dt;
       const norm = Math.hypot(fwd, side);
-      const dx = ((fwd * fx - side * fz) / norm) * speed;
-      const dy = ((fwd * fz + side * fx) / norm) * speed;
+      let dx = ((fwd * fx - side * fz) / norm) * speed;
+      let dy = ((fwd * fz + side * fx) / norm) * speed;
+      if (s.flight !== null && fwd) {
+        // On a flight, walking forward or back follows the stair up or down and round its turn, drifting
+        // towards the middle of the treads, and the view turns with it.
+        const g = stairGuide(s.x, s.y);
+        const along = Math.sign(fx * g.tx + fz * g.ty || 1) * fwd;
+        const pull = Math.min(1, dt * 3);
+        dx = along * g.tx * speed + (g.cx - s.x) * pull * (g.ty !== 0 && g.tx === 0 ? 1 : 0.5);
+        dy = along * g.ty * speed + (g.cy - s.y) * pull * (g.tx !== 0 && g.ty === 0 ? 1 : 0.5);
+        if (!turn && !frozen) {
+          const want = Math.atan2(-along * g.tx * fwd, -along * g.ty * fwd);
+          const v = view.current;
+          const diff = Math.atan2(Math.sin(want - v.yaw), Math.cos(want - v.yaw));
+          v.yaw += diff * Math.min(1, dt * 4);
+          camera.rotation.set(v.pitch, v.yaw, 0, 'YXZ');
+        }
+      }
       const walls = s.flight !== null ? rects.onFlight[s.flight] : rects.onFloor[s.floor];
       const next = moveWithCollisions(s.x, s.y, dx, dy, walls);
       s.x = next.x;
@@ -148,6 +166,9 @@ export function WalkControls({
     const eyeTarget = ground + EYE_HEIGHT;
     s.eye += (eyeTarget - s.eye) * Math.min(1, dt * 12);
     camera.position.set(s.x, s.eye, s.y);
+
+    // On-demand rendering: keep drawing while a key is held or the eye is still settling.
+    if (k.size > 0 || Math.abs(eyeTarget - s.eye) > 0.001) invalidate();
 
     lastReport.current += dt;
     if (lastReport.current > 0.2) {

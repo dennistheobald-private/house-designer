@@ -88,6 +88,17 @@ export function stairProgress(stair: Stair, x: number, y: number): number {
   return leg + (Math.min(Math.PI, Math.max(0, angle)) / Math.PI) * turn;
 }
 
+/**
+ * Where the stair's centre line runs near a point: the closest point on it and the unit direction
+ * in which the stair goes up there. Walking on a flight follows this line, so you go round the turn
+ * instead of walking into the wall at its head.
+ */
+export function stairGuide(x: number, y: number): { cx: number; cy: number; tx: number; ty: number } {
+  if (y >= STAIR_TURN_Y) return x >= STAIR_TURN_X ? { cx: RIGHT_LEG_X, cy: y, tx: 0, ty: -1 } : { cx: LEFT_LEG_X, cy: y, tx: 0, ty: 1 };
+  const a = Math.min(Math.PI, Math.max(0, Math.atan2(STAIR_TURN_Y - y, x - STAIR_TURN_X)));
+  return { cx: STAIR_TURN_X + TURN_RADIUS * Math.cos(a), cy: STAIR_TURN_Y - TURN_RADIUS * Math.sin(a), tx: -Math.sin(a), ty: -Math.cos(a) };
+}
+
 /** Height of the stair surface at a point, for the flight that starts on floor `flight`. */
 export function stairHeight(house: House, flight: number, x: number, y: number): number {
   const s = stairProgress(house.stair, x, y);

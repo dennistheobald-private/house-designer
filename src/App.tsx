@@ -3,7 +3,7 @@ import type { FurnitureItem } from './furniture/types';
 import { proposalFor } from './furniture/proposals';
 import { contains, roomArea } from './house/geometry';
 import { houseK } from './house/houseK';
-import { Scene, type TimeOfDay } from './scene/Scene';
+import { Scene, type Quality, type TimeOfDay } from './scene/Scene';
 import type { WalkPosition, WalkTarget } from './scene/WalkControls';
 import { PlanView } from './ui/PlanView';
 import { ItemInfo } from './ui/ItemInfo';
@@ -21,9 +21,11 @@ function initialState() {
   const time: TimeOfDay = params.get('time') === 'evening' ? 'evening' : 'day';
   const furnished = params.get('furnished') !== '0';
   const photo = params.get('photo') === '1';
+  // Fast is the default, so the app runs smoothly on an ordinary PC; ?quality=high turns the full effects on.
+  const quality: Quality = ['high', 'quality'].includes(params.get('quality') ?? '') ? 'quality' : 'fast';
   // `at=x,y,facing` stands you at a plan point in the room's floor, facing in degrees.
   const at = params.get('at')?.split(',').map(Number);
-  return { mode, floor, roomId, time, furnished, photo, at: at?.length === 3 && at.every(Number.isFinite) ? at : undefined };
+  return { mode, floor, roomId, time, furnished, photo, quality, at: at?.length === 3 && at.every(Number.isFinite) ? at : undefined };
 }
 
 function targetForRoom(roomId: string, nonce: number, furnished = true): WalkTarget {
@@ -53,6 +55,8 @@ export function App() {
   const init = useMemo(initialState, []);
   const [mode, setMode] = useState<Mode>(init.mode);
   const [floorIndex, setFloorIndex] = useState(init.floor);
+  // The top floor seen with its roof on: the green roof and the solar panels.
+  const [roof, setRoof] = useState(false);
   const [target, setTarget] = useState<WalkTarget>(() => {
     const t = targetForRoom(init.roomId, 0, init.furnished);
     return init.at ? { ...t, x: init.at[0], y: init.at[1], facing: (init.at[2] * Math.PI) / 180 } : t;
@@ -62,6 +66,7 @@ export function App() {
   const [furnished, setFurnished] = useState(init.furnished);
   const [photo, setPhoto] = useState(init.photo && init.mode !== 'plan');
   const [samples, setSamples] = useState(0);
+  const [quality, setQuality] = useState<Quality>(init.quality);
   const [picked, setPicked] = useState<{ item: FurnitureItem; at: { x: number; y: number } } | null>(null);
   // The room you are looking at in 3D or the plan, so Walk can start there.
   const [focusRoom, setFocusRoom] = useState<string | null>(null);
@@ -145,11 +150,16 @@ export function App() {
         </nav>
         {mode !== 'walk' && (
           <nav className="tabs" aria-label="Floor">
+            {mode === 'dollhouse' && (
+              <button className={roof ? 'active' : ''} onClick={() => (setFloorIndex(house.floors.length - 1), setRoof(true), setFocusRoom(null))}>
+                Roof
+              </button>
+            )}
             {house.floors
               .map((f, i) => ({ f, i }))
               .reverse()
               .map(({ f, i }) => (
-                <button key={f.id} className={i === floorIndex ? 'active' : ''} onClick={() => (setFloorIndex(i), setFocusRoom(null))}>
+                <button key={f.id} className={i === floorIndex && !(roof && mode === 'dollhouse') ? 'active' : ''} onClick={() => (setFloorIndex(i), setRoof(false), setFocusRoom(null))}>
                   {f.name}
                 </button>
               ))}
@@ -200,6 +210,14 @@ export function App() {
                   Evening
                 </button>
               </nav>
+              <nav className="tabs" aria-label="Performance" title="Fast draws only when something moves, with simpler shading. Quality adds ambient occlusion, bloom and sharper shadows, and needs a good graphics card.">
+                <button className={quality === 'fast' ? 'active' : ''} onClick={() => setQuality('fast')}>
+                  Fast
+                </button>
+                <button className={quality === 'quality' ? 'active' : ''} onClick={() => setQuality('quality')}>
+                  Quality
+                </button>
+              </nav>
               <button className={`photo-button${photo ? ' active' : ''}`} onClick={togglePhoto} title="Render a photo-realistic image of this view (P)">
                 {photo ? 'Back to live view' : 'Photo'}
               </button>
@@ -219,6 +237,7 @@ export function App() {
             house={house}
             mode={mode}
             floorIndex={floorIndex}
+            roof={roof && mode === 'dollhouse'}
             walkTarget={target}
             onWalk={setPosition}
             walkFloor={position.floor}
@@ -228,6 +247,8 @@ export function App() {
             onPhotoProgress={setSamples}
             onPick={pick}
             onPickNothing={unpick}
+            quality={quality}
+            litRoom={mode === 'walk' ? here?.id : null}
           />
         )}
 
@@ -239,7 +260,7 @@ export function App() {
             </button>
           </div>
         )}
-        {mode === 'dollhouse' && furnished && !photo && <ProposalList floor={house.floors[floorIndex]} />}
+        {mode === 'dollhouse' && furnished && !photo && !roof && <ProposalList floor={house.floors[floorIndex]} />}
 
         {mode === 'walk' && (
           <>

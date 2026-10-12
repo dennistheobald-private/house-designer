@@ -14,6 +14,13 @@ import { WalkControls, type WalkPosition, type WalkTarget } from './WalkControls
 
 export type TimeOfDay = 'day' | 'evening';
 
+/**
+ * Fast draws only when something moves, with smaller shadows, no screen-space effects and
+ * the lamps of just the room you are in. Quality adds ambient occlusion, bloom, big sharp
+ * shadows and every lamp, and draws continuously.
+ */
+export type Quality = 'fast' | 'quality';
+
 /* The garden side (plan x < 0) faces south, so the sun comes from -x. */
 const SUN_DAY: [number, number, number] = [-14, 16, 6];
 /* Blue hour: the sun just below the western horizon. */
@@ -26,14 +33,16 @@ const NO_TRACE = { noTrace: true };
  * (soft skylight in every room, true reflections in glass and metal) and the sun casts the
  * hard shadows.
  */
-function Lighting({ time }: { time: TimeOfDay }) {
+function Lighting({ time, quality }: { time: TimeOfDay; quality: Quality }) {
   const day = time === 'day';
   const sun = day ? SUN_DAY : SUN_EVENING;
-  const { scene } = useThree();
+  const { scene, invalidate } = useThree();
   useEffect(() => {
     scene.environmentIntensity = day ? 0.55 : 0.1;
     scene.backgroundIntensity = 1;
-  }, [scene, day]);
+    invalidate();
+  }, [scene, day, invalidate]);
+  const shadowSize = quality === 'fast' ? 2048 : 4096;
   return (
     <>
       <group userData={NO_TRACE}>
@@ -59,7 +68,8 @@ function Lighting({ time }: { time: TimeOfDay }) {
         intensity={day ? 3.2 : 0.25}
         color={day ? '#fff1dc' : '#8ea0c8'}
         castShadow={day}
-        shadow-mapSize={[4096, 4096]}
+        shadow-mapSize={[shadowSize, shadowSize]}
+        key={shadowSize}
         shadow-camera-left={-16}
         shadow-camera-right={16}
         shadow-camera-top={16}
@@ -76,18 +86,32 @@ function Lighting({ time }: { time: TimeOfDay }) {
 
 /** Lamp shades glow in the evening and are plain fabric by day. */
 function LampShades({ on }: { on: boolean }) {
+  const invalidate = useThree((s) => s.invalidate);
   useEffect(() => {
     for (const m of lampMaterials()) m.emissiveIntensity = on ? (m.userData.bulb ? 6 : 0.55) : 0;
+    invalidate();
   });
   return null;
 }
 
 /** Exposure: interiors need more than the bright garden; evenings more still. */
 function Exposure({ value }: { value: number }) {
-  const gl = useThree((s) => s.gl);
+  const { gl, invalidate } = useThree();
   useEffect(() => {
     gl.toneMappingExposure = value;
-  }, [gl, value]);
+    invalidate();
+  }, [gl, value, invalidate]);
+  return null;
+}
+
+/** Redraws once a texture from an image has loaded, since Fast mode only renders on demand. */
+function TextureReady() {
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    const redraw = () => invalidate();
+    window.addEventListener('texture-loaded', redraw);
+    return () => window.removeEventListener('texture-loaded', redraw);
+  }, [invalidate]);
   return null;
 }
 
@@ -187,6 +211,7 @@ export function Scene({
   house,
   mode,
   floorIndex,
+  roof = false,
   walkTarget,
   onWalk,
   walkFloor,
@@ -196,10 +221,14 @@ export function Scene({
   onPhotoProgress,
   onPick,
   onPickNothing,
+  quality,
+  litRoom,
 }: {
   house: House;
   mode: 'dollhouse' | 'walk';
   floorIndex: number;
+  /** Show the top floor with its roof on. */
+  roof?: boolean;
   walkTarget: WalkTarget;
   onWalk: (p: WalkPosition) => void;
   /** The floor you are standing on in the walkthrough. */
@@ -211,7 +240,11 @@ export function Scene({
   onPick?: PickHandler;
   /** A click that hit no furniture. */
   onPickNothing?: () => void;
+  quality: Quality;
+  /** Fast mode lights only the lamps of this room; Quality lights the whole floor. */
+  litRoom?: string | null;
 }) {
+  const fast = quality === 'fast';
   const walking = mode === 'walk';
   const evening = time === 'evening';
   const visible = walking ? house.floors.map((_, i) => i) : house.floors.map((_, i) => i).filter((i) => i <= floorIndex);
@@ -221,22 +254,24 @@ export function Scene({
   return (
     <Canvas
       shadows
-      dpr={[1, 2]}
-      gl={{ preserveDrawingBuffer: true, antialias: false, toneMapping: THREE.NeutralToneMapping, powerPreference: 'high-performance' }}
+      dpr={fast ? [1, 1.25] : [1, 2]}
+      frameloop={fast && !photo ? 'demand' : 'always'}
+      gl={{ preserveDrawingBuffer: true, antialias: true, toneMapping: THREE.NeutralToneMapping, powerPreference: 'high-performance' }}
       camera={{ position: [-9, focusLevel + 13, 15], fov: walking ? 70 : 40, near: 0.05, far: 300 }}
       onPointerMissed={onPickNothing}
     >
-      <Lighting time={time} />
+      <Lighting time={time} quality={quality} />
       <LampShades on={evening} />
       {/* The path tracer lights rooms only through their windows, as a camera sees them, so it needs the exposure a photographer would use indoors. */}
+      <TextureReady />
       <Exposure value={photo ? (evening ? 1.8 : 2.6) : walking ? (evening ? 1.3 : 1.0) : evening ? 1.2 : 0.85} />
-      <HouseModel house={house} visibleFloors={visible} showRoof={walking} showSurroundings={walking} furnished={furnished} litFloors={lit} onPick={onPick} />
+      <HouseModel house={house} visibleFloors={visible} showRoof={walking || roof} showSurroundings={walking} furnished={furnished} litFloors={lit} litRoom={fast ? (litRoom ?? '') : null} onPick={onPick} />
       {walking ? (
         <WalkControls house={house} target={walkTarget} onMove={onWalk} furnished={furnished} frozen={photo} />
       ) : (
         <OrbitControls target={[5, focusLevel + 0.8, 2.85]} maxPolarAngle={Math.PI / 2.05} minDistance={4} maxDistance={45} makeDefault />
       )}
-      {photo ? <PhotoRender onProgress={onPhotoProgress} /> : <PostEffects evening={evening} />}
+      {photo ? <PhotoRender onProgress={onPhotoProgress} /> : !fast && <PostEffects evening={evening} />}
     </Canvas>
   );
 }

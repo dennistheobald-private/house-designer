@@ -567,3 +567,268 @@ export function parquetMaps(size = 1024, metres = 2): SurfaceMaps {
   ctx.putImageData(new ImageData(colour, size, size), 0, 0);
   return { map: toTexture(c), normalMap: normalMap(height, size, 2.5), roughnessMap: greyMap(rough, size, 0.35, 0.7) };
 }
+
+/* ---------------------------------------------------------------- woodland animals, for the children's room */
+
+const FOX = '#c8743f';
+const FOX_DARK = '#8f4a26';
+const CREAM = '#f4ede1';
+const INK = '#33302c';
+
+function ellipse(ctx: Ctx, x: number, y: number, rx: number, ry: number, fill: string, rot = 0) {
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, rot, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function poly(ctx: Ctx, pts: [number, number][], fill: string) {
+  ctx.fillStyle = fill;
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (const [x, y] of pts.slice(1)) ctx.lineTo(x, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/** A sitting fox, stylised: `s` is its height in pixels, standing on y, facing right (dir 1) or left. */
+function drawFox(ctx: Ctx, x: number, y: number, s: number, dir = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(dir, 1);
+  // tail curling round the front
+  ctx.strokeStyle = FOX;
+  ctx.lineCap = 'round';
+  ctx.lineWidth = s * 0.16;
+  ctx.beginPath();
+  ctx.moveTo(-s * 0.18, -s * 0.12);
+  ctx.quadraticCurveTo(-s * 0.5, -s * 0.05, -s * 0.38, -s * 0.02);
+  ctx.quadraticCurveTo(-s * 0.1, s * 0.0, s * 0.2, -s * 0.06);
+  ctx.stroke();
+  ellipse(ctx, s * 0.26, -s * 0.07, s * 0.08, s * 0.07, CREAM);
+  // body and chest
+  ellipse(ctx, 0, -s * 0.3, s * 0.2, s * 0.28, FOX);
+  ellipse(ctx, s * 0.07, -s * 0.36, s * 0.09, s * 0.18, CREAM);
+  // legs
+  ctx.fillStyle = INK;
+  ctx.fillRect(s * 0.02, -s * 0.12, s * 0.05, s * 0.12);
+  ctx.fillRect(s * 0.1, -s * 0.12, s * 0.05, s * 0.12);
+  // head: a broad triangle with ears and a white muzzle
+  poly(ctx, [[-s * 0.13, -s * 0.66], [s * 0.2, -s * 0.66], [s * 0.04, -s * 0.48]], FOX);
+  poly(ctx, [[-s * 0.13, -s * 0.66], [-s * 0.1, -s * 0.84], [-s * 0.02, -s * 0.68]], FOX_DARK);
+  poly(ctx, [[s * 0.2, -s * 0.66], [s * 0.17, -s * 0.84], [s * 0.09, -s * 0.68]], FOX_DARK);
+  poly(ctx, [[-s * 0.06, -s * 0.62], [s * 0.13, -s * 0.62], [s * 0.04, -s * 0.49]], CREAM);
+  ellipse(ctx, s * 0.04, -s * 0.5, s * 0.022, s * 0.018, INK);
+  ellipse(ctx, -s * 0.03, -s * 0.62, s * 0.014, s * 0.014, INK);
+  ellipse(ctx, s * 0.11, -s * 0.62, s * 0.014, s * 0.014, INK);
+  ctx.restore();
+}
+
+/** A standing roe deer with antlers, facing right (dir 1) or left; `s` is its height to the antler tips. */
+function drawDeer(ctx: Ctx, x: number, y: number, s: number, dir = 1, body = '#a8744a') {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(dir, 1);
+  ctx.fillStyle = '#7d5434';
+  for (const lx of [-0.2, -0.13, 0.12, 0.19]) ctx.fillRect(lx * s, -s * 0.36, s * 0.035, s * 0.36);
+  ellipse(ctx, 0, -s * 0.42, s * 0.3, s * 0.12, body);
+  ellipse(ctx, -s * 0.27, -s * 0.45, s * 0.05, s * 0.05, CREAM);
+  // neck and head
+  poly(ctx, [[s * 0.14, -s * 0.48], [s * 0.26, -s * 0.5], [s * 0.3, -s * 0.72], [s * 0.21, -s * 0.73]], body);
+  ellipse(ctx, s * 0.31, -s * 0.73, s * 0.09, s * 0.05, body, 0.35);
+  ellipse(ctx, s * 0.39, -s * 0.7, s * 0.02, s * 0.018, INK);
+  ellipse(ctx, s * 0.21, -s * 0.8, s * 0.05, s * 0.025, body, -0.6);
+  ellipse(ctx, s * 0.3, -s * 0.75, s * 0.012, s * 0.012, INK);
+  // dots on the back
+  for (const [dx, dy] of [[-0.12, -0.47], [-0.02, -0.5], [0.08, -0.47], [-0.07, -0.43], [0.03, -0.44]]) ellipse(ctx, dx * s, dy * s, s * 0.018, s * 0.014, CREAM);
+  // antlers
+  ctx.strokeStyle = '#5f4630';
+  ctx.lineWidth = s * 0.018;
+  ctx.lineCap = 'round';
+  const tine = (pts: [number, number][]) => {
+    ctx.beginPath();
+    ctx.moveTo(pts[0][0] * s, pts[0][1] * s);
+    for (const [px, py] of pts.slice(1)) ctx.lineTo(px * s, py * s);
+    ctx.stroke();
+  };
+  tine([[0.27, -0.77], [0.24, -0.92], [0.18, -1.0]]);
+  tine([[0.25, -0.86], [0.31, -0.93]]);
+  tine([[0.24, -0.93], [0.22, -0.99]]);
+  ctx.restore();
+}
+
+/** An owl, front on: `s` is its height. */
+function drawOwl(ctx: Ctx, x: number, y: number, s: number, body = '#8a6a4f') {
+  ctx.save();
+  ctx.translate(x, y);
+  ellipse(ctx, 0, -s * 0.45, s * 0.3, s * 0.42, body);
+  poly(ctx, [[-s * 0.28, -s * 0.75], [-s * 0.24, -s * 0.98], [-s * 0.08, -s * 0.82]], body);
+  poly(ctx, [[s * 0.28, -s * 0.75], [s * 0.24, -s * 0.98], [s * 0.08, -s * 0.82]], body);
+  ellipse(ctx, 0, -s * 0.33, s * 0.19, s * 0.25, '#d8c3a5');
+  ctx.strokeStyle = body;
+  ctx.lineWidth = s * 0.015;
+  for (let r = 0; r < 3; r++) {
+    for (let c = -1; c <= 1; c++) {
+      const vx = c * s * 0.08 + (r % 2) * s * 0.04 - s * 0.02;
+      const vy = -s * 0.42 + r * s * 0.09;
+      ctx.beginPath();
+      ctx.moveTo(vx - s * 0.025, vy);
+      ctx.lineTo(vx, vy + s * 0.025);
+      ctx.lineTo(vx + s * 0.025, vy);
+      ctx.stroke();
+    }
+  }
+  for (const sx of [-1, 1]) {
+    ellipse(ctx, sx * s * 0.12, -s * 0.66, s * 0.11, s * 0.11, CREAM);
+    ellipse(ctx, sx * s * 0.12, -s * 0.66, s * 0.05, s * 0.05, INK);
+    ellipse(ctx, sx * s * 0.135, -s * 0.675, s * 0.015, s * 0.015, '#ffffff');
+  }
+  poly(ctx, [[-s * 0.035, -s * 0.6], [s * 0.035, -s * 0.6], [0, -s * 0.53]], '#d9a441');
+  ellipse(ctx, -s * 0.08, -s * 0.03, s * 0.06, s * 0.025, '#d9a441');
+  ellipse(ctx, s * 0.08, -s * 0.03, s * 0.06, s * 0.025, '#d9a441');
+  ctx.restore();
+}
+
+/** A sitting hare, facing right (dir 1) or left. */
+function drawHare(ctx: Ctx, x: number, y: number, s: number, dir = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(dir, 1);
+  const fur = '#b29b7f';
+  ellipse(ctx, 0, -s * 0.25, s * 0.25, s * 0.22, fur);
+  ellipse(ctx, -s * 0.24, -s * 0.28, s * 0.07, s * 0.07, CREAM);
+  ellipse(ctx, s * 0.2, -s * 0.5, s * 0.12, s * 0.11, fur);
+  ellipse(ctx, s * 0.14, -s * 0.78, s * 0.04, s * 0.2, fur, -0.15);
+  ellipse(ctx, s * 0.23, -s * 0.77, s * 0.04, s * 0.19, fur, 0.1);
+  ellipse(ctx, s * 0.25, -s * 0.52, s * 0.018, s * 0.018, INK);
+  ellipse(ctx, s * 0.12, -s * 0.04, s * 0.13, s * 0.04, fur);
+  ctx.restore();
+}
+
+function drawBird(ctx: Ctx, x: number, y: number, s: number) {
+  ctx.strokeStyle = 'rgba(70,74,72,0.7)';
+  ctx.lineWidth = s * 0.12;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(x - s, y);
+  ctx.quadraticCurveTo(x - s * 0.4, y - s * 0.6, x, y);
+  ctx.quadraticCurveTo(x + s * 0.4, y - s * 0.6, x + s, y);
+  ctx.stroke();
+}
+
+/** A soft woodland scene in sage and oat with a deer, foxes, hares, an owl and birds: the mural in Zimmer 1. */
+export function animalsPrint(w = 2200, h = 2000, seed = 29) {
+  const { c, ctx } = canvas(w, h);
+  const rand = rng(seed);
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, '#dfe6e4');
+  sky.addColorStop(0.55, '#f2ece0');
+  sky.addColorStop(1, '#efe6d6');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h);
+  ellipse(ctx, w * 0.76, h * 0.17, h * 0.07, h * 0.07, 'rgba(236,196,140,0.75)');
+  // rolling hills
+  const hills: [number, string][] = [
+    [0.48, '#c9d2c0'],
+    [0.56, '#adbca4'],
+    [0.66, '#93a68a'],
+  ];
+  for (const [base, fill] of hills) {
+    const line = ridge(w, rand, 0.5, base, 0.08);
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    for (let x = 0; x < w; x += 4) ctx.lineTo(x, line[x] * h);
+    ctx.lineTo(w, h);
+    ctx.closePath();
+    ctx.fill();
+  }
+  // spruces on the hills
+  for (let i = 0; i < 14; i++) {
+    const x = rand() * w;
+    const base = h * (0.58 + rand() * 0.1);
+    ctx.fillStyle = rand() > 0.5 ? '#5f7a63' : '#6f8a70';
+    spruce(ctx, x, base, h * (0.14 + rand() * 0.12), h * 0.07, rand);
+  }
+  // a big spruce on the left with an owl on a branch
+  ctx.fillStyle = '#4d6652';
+  spruce(ctx, w * 0.1, h * 0.86, h * 0.62, h * 0.24, rand);
+  ctx.fillStyle = '#7d5f45';
+  ctx.fillRect(w * 0.1, h * 0.43, w * 0.12, h * 0.012);
+  drawOwl(ctx, w * 0.19, h * 0.43, h * 0.12);
+  // meadow in front
+  ctx.fillStyle = '#a9b58f';
+  ctx.fillRect(0, h * 0.8, w, h * 0.2);
+  for (let i = 0; i < 260; i++) {
+    const x = rand() * w;
+    const y = h * (0.8 + rand() * 0.2);
+    ctx.fillStyle = ['#e3c96f', '#f4ede1', '#c8743f'][i % 3];
+    ellipse(ctx, x, y, 5, 5, ctx.fillStyle);
+  }
+  drawDeer(ctx, w * 0.36, h * 0.8, h * 0.34, 1);
+  drawFox(ctx, w * 0.62, h * 0.86, h * 0.2, -1);
+  drawFox(ctx, w * 0.72, h * 0.88, h * 0.13, -1);
+  drawHare(ctx, w * 0.86, h * 0.84, h * 0.14, -1);
+  drawHare(ctx, w * 0.52, h * 0.9, h * 0.1, 1);
+  for (let i = 0; i < 5; i++) drawBird(ctx, w * (0.45 + rand() * 0.4), h * (0.1 + rand() * 0.2), h * 0.015);
+  paperGrain(ctx, w, h, seed, 0.025);
+  return c;
+}
+
+/** One animal on a cream ground with a soft circle behind it: the framed prints in Zimmer 1. */
+export function animalPrint(kind: 'fox' | 'owl' | 'deer', w = 600, h = 800) {
+  const { c, ctx } = canvas(w, h);
+  ctx.fillStyle = '#f3ede2';
+  ctx.fillRect(0, 0, w, h);
+  ellipse(ctx, w / 2, h * 0.5, w * 0.36, w * 0.36, kind === 'fox' ? '#dfe5d6' : kind === 'owl' ? '#ece0c8' : '#dde4e2');
+  ctx.fillStyle = '#c8cfb8';
+  ctx.fillRect(w * 0.14, h * 0.72, w * 0.72, h * 0.008);
+  if (kind === 'fox') drawFox(ctx, w * 0.5, h * 0.72, h * 0.5);
+  if (kind === 'owl') drawOwl(ctx, w * 0.5, h * 0.72, h * 0.46);
+  if (kind === 'deer') drawDeer(ctx, w * 0.42, h * 0.72, h * 0.48);
+  paperGrain(ctx, w, h, 7, 0.03);
+  return c;
+}
+
+/** Alpine ridges at sunrise, warm orange over cool blue-grey peaks: the mural in the gym. */
+export function sunrisePrint(w = 2400, h = 1540, seed = 37) {
+  const { c, ctx } = canvas(w, h);
+  const rand = rng(seed);
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, '#5d7182');
+  sky.addColorStop(0.35, '#c99a7a');
+  sky.addColorStop(0.55, '#f0b979');
+  sky.addColorStop(1, '#f6dcb2');
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h);
+  const sun = ctx.createRadialGradient(w * 0.62, h * 0.5, 0, w * 0.62, h * 0.5, h * 0.4);
+  sun.addColorStop(0, 'rgba(255,236,190,1)');
+  sun.addColorStop(0.15, 'rgba(255,214,150,0.9)');
+  sun.addColorStop(1, 'rgba(255,190,120,0)');
+  ctx.fillStyle = sun;
+  ctx.fillRect(0, 0, w, h);
+  const layers: [number, number, number, number[], number[]][] = [
+    [0.42, 0.42, 0.56, [120, 112, 124], [246, 210, 180]],
+    [0.52, 0.36, 0.55, [84, 86, 100], [232, 176, 140]],
+    [0.64, 0.3, 0.52, [56, 62, 74], [180, 128, 104]],
+    [0.78, 0.2, 0.5, [36, 42, 50], [90, 74, 70]],
+  ];
+  for (const [base, amp, rough, tone, rim] of layers) {
+    const line = ridge(w, rand, rough, base, amp);
+    ctx.fillStyle = rgb(tone);
+    ctx.beginPath();
+    ctx.moveTo(0, h);
+    for (let x = 0; x < w; x += 3) ctx.lineTo(x, line[x] * h);
+    ctx.lineTo(w, h);
+    ctx.closePath();
+    ctx.fill();
+    // sunlit edges on the ridges facing the sun
+    ctx.strokeStyle = rgb(rim, 0.55);
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for (let x = 0; x < w; x += 3) ctx.lineTo(x, line[x] * h + 2);
+    ctx.stroke();
+  }
+  paperGrain(ctx, w, h, seed, 0.02);
+  return c;
+}

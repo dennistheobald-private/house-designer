@@ -21,11 +21,11 @@ function Placed({ it, level, lit, onPick }: { it: FurnitureItem; level: number; 
 }
 
 /** All the furniture of one floor. `lit` turns the lamps on (evening). */
-export const Furnishings = memo(function Furnishings({ items, level, lit, onPick }: { items: FurnitureItem[]; level: number; lit: boolean; onPick?: PickHandler }) {
+export const Furnishings = memo(function Furnishings({ items, level, lit, litRoom = null, onPick }: { items: FurnitureItem[]; level: number; lit: boolean; litRoom?: string | null; onPick?: PickHandler }) {
   return (
     <group>
       {items.map((it) => (
-        <Placed key={it.id} it={it} level={level} lit={lit} onPick={onPick} />
+        <Placed key={it.id} it={it} level={level} lit={lit && (litRoom === null || it.room === litRoom)} onPick={onPick} />
       ))}
     </group>
   );
