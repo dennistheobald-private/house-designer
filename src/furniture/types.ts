@@ -79,7 +79,13 @@ export type FurnitureKind =
   | 'skiRack'
   | 'dumbbells'
   | 'wallBall'
-  | 'plyoBox';
+  | 'plyoBox'
+  // doors and the front
+  | 'door'
+  | 'canopy'
+  | 'mailbox'
+  | 'kerb'
+  | 'boxShelf';
 
 /** The nature prints, drawn procedurally in textures.ts. */
 export type Artwork = 'mountain' | 'forest' | 'forestMist' | 'lake' | 'birch' | 'river' | 'botanical1' | 'botanical2' | 'botanical3' | 'animals' | 'fox' | 'owl' | 'deer' | 'sunrise';
@@ -174,6 +180,8 @@ export const BLOCKING: ReadonlySet<FurnitureKind> = new Set<FurnitureKind>([
   'skiRack',
   'dumbbells',
   'plyoBox',
+  'mailbox',
+  'boxShelf',
 ]);
 
 /** The plan rectangle an item covers, after its turn (turns are multiples of 90° or bounded). */

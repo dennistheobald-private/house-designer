@@ -239,7 +239,7 @@ const artCanvas: Record<Artwork, () => HTMLCanvasElement> = {
   botanical1: () => botanicalPrint(0),
   botanical2: () => botanicalPrint(1),
   botanical3: () => botanicalPrint(2),
-  animals: () => animalsPrint(),
+  animals: () => animalsPrint(4240, 2000),
   fox: () => animalPrint('fox'),
   owl: () => animalPrint('owl'),
   deer: () => animalPrint('deer'),

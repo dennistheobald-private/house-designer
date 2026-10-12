@@ -275,6 +275,43 @@ select:focus-visible {
 .proposals h2 {
   font-size: 14px;
   margin: 12px 0 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.proposal-close {
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.proposal-close:hover {
+  color: inherit;
+}
+
+.proposals-reopen {
+  margin: 8px 0 10px;
+  border: 1px solid var(--line);
+  background: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.proposals-closed {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--panel-glass);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
 }
 
 .proposals p {
@@ -316,7 +353,8 @@ select:focus-visible {
 }
 
 @media (max-width: 900px) {
-  .proposals {
+  .proposals,
+  .proposals-closed {
     display: none;
   }
 }

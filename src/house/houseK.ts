@@ -51,18 +51,24 @@ const basement: Floor = {
     { id: 'b-mid', rect: r(-3.33, 3.0, 5.45, 3.15) },
     { id: 'b-b1', rect: r(2.02, 3.15, 2.19, 5.7) },
     { id: 'b-wash', rect: r(5.45, 3.0, 5.59, 5.7) },
+    // A new partition splits the big hobby room into a gym and a store with the bikes.
+    { id: 'b-store', rect: r(0.5, 0, 0.65, 3.0) },
   ],
   openings: [
     { wall: 'b-west', kind: 'window', from: 0.52, to: 1.46, sill: 1.6, head: 2.3 },
     { wall: 'b-west', kind: 'window', from: 3.87, to: 4.83, sill: 1.6, head: 2.3 },
     { wall: 'b-east', kind: 'door', from: 4.57, to: 5.52, sill: 0, head: 2.1 },
     { wall: 'b-stair', kind: 'door', from: 2.0, to: 2.82, sill: 0, head: 2.1 },
-    { wall: 'b-mid', kind: 'door', from: 0.69, to: 1.56, sill: 0, head: 2.1 },
+    // Moved west so the reading room opens off the gym, not the store.
+    { wall: 'b-mid', kind: 'door', from: -0.45, to: 0.35, sill: 0, head: 2.1 },
+    { wall: 'b-store', kind: 'door', from: 1.95, to: 2.8, sill: 0, head: 2.1 },
     { wall: 'b-mid', kind: 'door', from: 4.51, to: 5.38, sill: 0, head: 2.1 },
   ],
   rooms: [
-    { id: 'bastelraum-2', name: 'Gym, bikes and storage', planArea: 22.8, rects: [r(-3.33, 0, 4.27, 3.0)], finish: 'screed', spawn: { x: 1.5, y: 1.5, facing: Math.PI } },
-    { id: 'bastelraum-1', name: 'Reading room and guest bed', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'carpet', spawn: { x: 1.2, y: 4.4, facing: Math.PI } },
+    // The plan's 22.8 m² Bastelraum 2 is now the gym and the store together.
+    { id: 'bastelraum-2', name: 'Gym', rects: [r(-3.33, 0, 0.5, 3.0)], finish: 'screed', spawn: { x: -1.2, y: 1.5, facing: Math.PI } },
+    { id: 'storage', name: 'Storage and bikes', rects: [r(0.65, 0, 4.27, 3.0)], finish: 'screed', spawn: { x: 2.4, y: 2.2, facing: 0 } },
+    { id: 'bastelraum-1', name: 'Reading room, office and guest bed', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'carpet', spawn: { x: 0.0, y: 4.4, facing: Math.PI } },
     { id: 'laundry', name: 'Laundry and technical', planArea: 8.3, rects: [r(2.19, 3.15, 5.45, 5.7)], finish: 'screed', spawn: { x: 4.8, y: 4.4, facing: Math.PI } },
     // The plan's 9.7 m² for the corridor includes the stairwell.
     { id: 'basement-corridor', name: 'Corridor', rects: [r(4.42, 1.77, 6.7, 3.0), r(5.59, 3.0, 6.7, 5.7), r(4.42, 3.0, 5.45, 3.15)], finish: 'screed', spawn: { x: 6.1, y: 2.4, facing: Math.PI } },
