@@ -908,8 +908,8 @@ function MirrorCabinet({ it }: { it: FurnitureItem }) {
 function Fence({ it }: { it: FurnitureItem }) {
   const { w, h, d } = it;
   const grey = cached('wood-greyOak', () => {
-    const m = wood('oakBrushed').clone();
-    m.color.set('#b5b1aa');
+    const m = wood('birch').clone();
+    m.color.set('#aeaba6');
     return m;
   });
   const post = metal('#3a3a38', 0.6);
@@ -920,10 +920,10 @@ function Fence({ it }: { it: FurnitureItem }) {
   return (
     <group>
       {Array.from({ length: posts }, (_, i) => (
-        <Box key={`p${i}`} w={0.06} h={h - 0.08} d={0.06} x={-w / 2 + 0.03 + (i * (w - 0.06)) / (posts - 1)} z={-d / 2 + 0.03} m={post} r={0.002} />
+        <Box key={`p${i}`} w={0.06} h={h - 0.08} d={0.06} x={-w / 2 + 0.03 + (i * (w - 0.06)) / (posts - 1)} z={-d / 2 - 0.03} m={post} r={0.002} />
       ))}
       {[0.25, h - 0.35].map((y) => (
-        <Box key={`r${y}`} w={w} h={0.06} d={0.03} y={y} z={-d / 2 + 0.075} m={grey} r={0.003} />
+        <Box key={`r${y}`} w={w} h={0.06} d={0.03} y={y} z={-d / 2 + 0.015} m={grey} r={0.003} />
       ))}
       {Array.from({ length: n }, (_, i) => (
         <Box key={i} w={slat} h={i % 2 ? h - 0.1 : h} d={0.022} x={-w / 2 + pitch * (i + 0.5)} y={0.02} z={d / 2 - 0.011} m={grey} r={0.003} grain />
