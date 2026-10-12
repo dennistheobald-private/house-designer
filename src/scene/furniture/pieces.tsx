@@ -1477,10 +1477,14 @@ function BikeRack({ it }: { it: FurnitureItem }) {
 
 function Planter({ it }: { it: FurnitureItem }) {
   const seed = Math.round(it.y * 77);
+  // Keep the greenery within the trough's depth, so planters against a parapet don't grow through it.
+  const spread = it.variant === 'grass' ? it.w / 2.2 : it.variant === 'birch' ? 0.55 : 0.4;
+  const squeeze = Math.min(1, (it.d / 2) / (spread + 0.1));
   return (
     <group>
       <Box w={it.w} h={it.h} d={it.d} m={metal('#4a4744', 0.7)} r={0.01} />
       <Box w={it.w - 0.04} h={0.02} d={it.d - 0.04} y={it.h - 0.04} m={terracotta('#4a3b2e')} r={0} />
+      <group scale={[1, 1, squeeze]}>
       {it.variant === 'grass' ? (
         <LeafCloud count={30} spread={it.w / 2.2} height={0.3} base={it.h + 0.1} size={0.08} kind="grass" seed={seed} flat={1.6} />
       ) : it.variant === 'birch' ? (
@@ -1500,6 +1504,7 @@ function Planter({ it }: { it: FurnitureItem }) {
           </group>
         ))
       )}
+      </group>
     </group>
   );
 }
