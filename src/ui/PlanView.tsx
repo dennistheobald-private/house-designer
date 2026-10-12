@@ -22,7 +22,7 @@ const SCALE = 60; // pixels per metre
 
 /** Wall pieces and things on tables stay off the plan. */
 const onPlan = (it: FurnitureItem) =>
-  (it.z ?? 0) < 0.5 && !['print', 'mural', 'paint', 'slats', 'mirror', 'hooks', 'tv', 'pendant', 'blind', 'curtain'].includes(it.kind);
+  (it.z ?? 0) < 0.5 && !['print', 'mural', 'paint', 'slats', 'mirror', 'hooks', 'tv', 'pendant', 'blind', 'curtain', 'panel', 'projection'].includes(it.kind);
 
 /** Outline of an L made of a back run and a chaise in front of one end. */
 function lShape([back, chaise]: { x0: number; y0: number; x1: number; y1: number }[]) {

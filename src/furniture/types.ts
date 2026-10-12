@@ -90,7 +90,19 @@ export type FurnitureKind =
   | 'espresso'
   | 'grinder'
   // garden
-  | 'gardenSet';
+  | 'gardenSet'
+  // gym and chill room, 12 October
+  | 'indoorBike'
+  | 'beamer'
+  | 'projection'
+  | 'deadlift'
+  | 'farmer'
+  | 'wallTarget'
+  | 'spot'
+  | 'pullUpBar'
+  | 'trx'
+  | 'panel'
+  | 'daybed';
 
 /** The nature prints, drawn procedurally in textures.ts. */
 export type Artwork = 'mountain' | 'forest' | 'forestMist' | 'lake' | 'birch' | 'river' | 'botanical1' | 'botanical2' | 'botanical3' | 'animals' | 'fox' | 'owl' | 'deer' | 'sunrise';
@@ -188,6 +200,10 @@ export const BLOCKING: ReadonlySet<FurnitureKind> = new Set<FurnitureKind>([
   'mailbox',
   'boxShelf',
   'gardenSet',
+  'indoorBike',
+  'deadlift',
+  'farmer',
+  'daybed',
 ]);
 
 /** The plan rectangle an item covers, after its turn (turns are multiples of 90° or bounded). */

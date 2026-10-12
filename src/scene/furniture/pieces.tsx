@@ -383,9 +383,8 @@ function Bed({ it }: { it: FurnitureItem }) {
 }
 
 /**
- * A part of a cabinet that opens when clicked: a door that swings on its hinge, or a drawer
- * or box that slides out (+z). Clicking it again closes it. The click stops here, so the
- * size card only opens when the cabinet itself is clicked.
+ * A part of a cabinet that opens when double-clicked: a door that swings on its hinge, or a
+ * drawer or box that slides out (+z). Double-clicking it again closes it.
  */
 function Opens({ swing, slide, at = [0, 0, 0], children }: { swing?: number; slide?: number; at?: [number, number, number]; children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -410,7 +409,7 @@ function Opens({ swing, slide, at = [0, 0, 0], children }: { swing?: number; sli
     invalidate();
   };
   return (
-    <group ref={g} position={at} onClick={click}>
+    <group ref={g} position={at} onDoubleClick={click}>
       {children}
     </group>
   );
@@ -491,7 +490,10 @@ function Wardrobe({ it }: { it: FurnitureItem }) {
   const zc = back + innerD / 2;
   const pairs = Math.ceil(doors / 2);
   const bayW = w / pairs;
-  const deep = d >= 0.45;
+  const gym = it.variant === 'gym';
+  const pantry = it.variant === 'pantry';
+  const deep = d >= 0.45 && !gym;
+  const folded = gym ? ['#d0622f', '#2f3236', '#5b8a72', '#e9e3d6'] : ['#dcd3c4', '#8a9fab', '#a7b494', '#e9e3d6'];
   return (
     <group>
       <Box w={w - 0.04} h={0.08} d={d - 0.08} z={-0.04} m={lacquer('#bdb7ae', 0.7)} r={0} />
@@ -502,8 +504,14 @@ function Wardrobe({ it }: { it: FurnitureItem }) {
       ))}
       <Box w={w} h={t} d={d - 0.02} y={h - t} z={-0.01} m={front} r={0.003} />
       <Box w={w} h={t} d={d - 0.02} y={0.08} z={-0.01} m={inside} r={0} />
+      {/* a pantry cupboard holds dry stock on its shelves */}
+      {pantry && (
+        <group position={[0, 0.1, zc]}>
+          <Pantry it={{ ...it, w: w - 2 * t - 0.01, d: innerD - 0.03, h: h - 0.14, variant: 'birch' }} />
+        </group>
+      )}
       {/* inside each bay: shelves, and on deep wardrobes a hanging rail in every other bay */}
-      {Array.from({ length: pairs }, (_, b) => {
+      {!pantry && Array.from({ length: pairs }, (_, b) => {
         const cx = -w / 2 + bayW * (b + 0.5);
         const rail = deep && b % 2 === 0;
         const shelves = rail ? [body + 0.08 - 0.42] : [0.5, 0.9, 1.3, 1.7, 2.1].filter((y) => y < h - 0.2);
@@ -513,9 +521,17 @@ function Wardrobe({ it }: { it: FurnitureItem }) {
               <Box key={i} w={bayW - 2 * t} h={t} d={innerD - 0.02} x={cx} y={y} z={zc} m={inside} r={0} />
             ))}
             {!rail &&
-              shelves.slice(0, -1).map((y, i) => (
-                <Box key={`f${i}`} w={bayW * 0.55} h={0.12} d={innerD * 0.7} x={cx - bayW * 0.12} y={y + t} z={zc} m={fabric(['#dcd3c4', '#8a9fab', '#a7b494', '#e9e3d6'][(i + b) % 4], 'knit')} r={0.015} />
-              ))}
+              shelves.slice(0, -1).map((y, i) =>
+                gym && i % 2 === 0 ? (
+                  <group key={`f${i}`}>
+                    {[0, 1, 2].map((k) => (
+                      <M key={k} g={cylinder(0.06, 0.06, innerD * 0.8, 16)} m={lacquer(folded[(i + k + b) % 4], 0.8)} p={[cx - bayW * 0.3 + k * 0.13, y + t + 0.06, zc]} r={[Math.PI / 2, 0, 0]} />
+                    ))}
+                  </group>
+                ) : (
+                  <Box key={`f${i}`} w={bayW * 0.55} h={0.12} d={innerD * 0.7} x={cx - bayW * 0.12} y={y + t} z={zc} m={fabric(folded[(i + b) % 4], 'knit')} r={0.015} />
+                ),
+              )}
             {rail && <Hanging w={bayW - 2 * t} d={innerD} top={shelves[0] - 0.08} seed={Math.round(it.x * 7 + b)} />}
           </group>
         );
@@ -813,7 +829,7 @@ function Paint({ it }: { it: FurnitureItem }) {
 
 function Slats({ it }: { it: FurnitureItem }) {
   const n = Math.floor(it.w / 0.06);
-  const m = wood('birch');
+  const m = wood(it.variant === 'oak' ? 'oakBrushed' : 'birch');
   return (
     <group>
       <M g={plane(it.w, it.h)} m={paint('#3c3d3d')} p={[0, it.h / 2, -it.d / 2 + 0.001]} shadow={false} />
@@ -1619,6 +1635,22 @@ function Capisco({ it }: { it: FurnitureItem }) {
 
 /** An upright bike stand: a black steel hoop set in the ground, to lean one bike against. */
 function BikeHoop({ it }: { it: FurnitureItem }) {
+  if (it.variant === 'square') {
+    // A squared steel hoop after the renderings of the houses: two posts and a flat top bar.
+    const grey = metal(it.colour ?? '#3a3b3d', 0.5);
+    const r = 0.022;
+    return (
+      <group>
+        {[-1, 1].map((s) => (
+          <M key={s} g={cylinder(r, r, it.h - 0.04, 12)} m={grey} p={[s * (it.w / 2 - r), (it.h - 0.04) / 2, 0]} />
+        ))}
+        <M g={cylinder(r, r, it.w - 0.06, 12)} m={grey} p={[0, it.h - r, 0]} r={[0, 0, Math.PI / 2]} />
+        {[-1, 1].map((s) => (
+          <M key={`c${s}`} g={sphere(r, 2)} m={grey} p={[s * (it.w / 2 - r - 0.008), it.h - r - 0.008, 0]} />
+        ))}
+      </group>
+    );
+  }
   const black = metal('#1c1c1d', 0.5);
   const r = it.w / 2 - 0.02;
   const legs = it.h - r;
@@ -2036,6 +2068,8 @@ function WallBed({ it }: { it: FurnitureItem }) {
 
 /** A bike on a floor stand that holds its front wheel, so each of the four comes out on its own. Front faces +z. */
 function ParkedBike({ it }: { it: FurnitureItem }) {
+  if (it.variant === 'steadyrack') return <HangingBike it={it} />;
+  const hung = it.variant === 'hung';
   const { d } = it;
   const black = metal('#1c1c1d', 0.5);
   const frameM = lacquer(it.colour ?? '#34483e', 0.35);
@@ -2055,8 +2089,8 @@ function ParkedBike({ it }: { it: FurnitureItem }) {
   return (
     <group>
       {/* the stand: a rail on the floor and a cradle round the front wheel */}
-      <Box w={0.08} h={0.03} d={d - 0.1} m={black} r={0.006} />
-      {[-1, 1].map((s) => (
+      {!hung && <Box w={0.08} h={0.03} d={d - 0.1} m={black} r={0.006} />}
+      {!hung && [-1, 1].map((s) => (
         <M key={s} g={cylinder(0.008, 0.008, 0.36, 8)} m={metal('#9a9a9a', 0.3)} p={[s * 0.045, 0.2, fz + 0.05]} r={[0.5, 0, 0]} />
       ))}
       {[fz, rz].map((z) => (
@@ -2210,7 +2244,7 @@ function WallBall({ it }: { it: FurnitureItem }) {
 function PlyoBox({ it }: { it: FurnitureItem }) {
   return (
     <group>
-      <Box w={it.w} h={it.h} d={it.d} m={wood('birch')} r={0.01} grain />
+      <Box w={it.w} h={it.h} d={it.d} m={it.variant === 'black' ? lacquer('#1d1e1f', 0.8) : wood('birch')} r={0.01} grain={it.variant !== 'black'} />
       {[-1, 1].map((s) => (
         <Box key={s} w={0.14} h={0.04} d={0.004} x={0} y={it.h * 0.7} z={s * (it.d / 2)} m={lacquer('#2b2b2a', 0.6)} r={0.002} />
       ))}
@@ -2616,6 +2650,7 @@ function BoxShelf({ it }: { it: FurnitureItem }) {
   const { w, d, h } = it;
   const oak = it.variant === 'oak';
   const ply = wood(oak ? 'oakBrushed' : 'birch');
+  const doorM = oak ? wood('oakBrushed') : lacquer('#f4f3ef', 0.5);
   const t = 0.022;
   const plinth = oak ? 0.08 : 0.05;
   const levels = Math.max(3, Math.round((h - plinth) / 0.4));
@@ -2657,6 +2692,18 @@ function BoxShelf({ it }: { it: FurnitureItem }) {
       ))}
       <Box w={w} h={h - plinth} d={0.012} y={plinth} z={-d / 2 + 0.006} m={ply} r={0} grain />
       {boxes}
+      {/* closed doors over each bay; double-click one to open it */}
+      {Array.from({ length: bays }, (_, b) => {
+        const left = b % 2 === 0;
+        const sign = left ? 1 : -1;
+        const dwB = bw - 0.004;
+        return (
+          <Opens key={`d${b}`} swing={-sign * 1.7} at={[-w / 2 + t / 2 + bw * (left ? b : b + 1), 0, d / 2 + 0.01]}>
+            <Box w={dwB} h={h - plinth - 0.006} d={0.019} x={(sign * bw) / 2} y={plinth + 0.003} m={doorM} r={0.003} grain />
+            <Box w={0.012} h={0.22} d={0.02} x={sign * (bw - 0.05)} y={plinth + (h - plinth) * 0.45} z={0.02} m={metal('#2b2b2a', 0.5)} r={0.004} />
+          </Opens>
+        );
+      })}
     </group>
   );
 }
@@ -2826,6 +2873,227 @@ function GardenSet({ it }: { it: FurnitureItem }) {
   );
 }
 
+/* ---------------------------------------------------------------- basement gym and store, 12 October */
+
+/**
+ * A bike hung upright on a Steadyrack: the front wheel sits in a black wall cradle with chrome
+ * arms, the rear wheel rests against the wall just above the floor. The wall is at -z.
+ */
+function HangingBike({ it }: { it: FurnitureItem }) {
+  const black = lacquer('#1b1b1c', 0.5);
+  const chrome = metal('#d4d6d8', 0.15);
+  const wall = -it.d / 2;
+  const bike: FurnitureItem = { ...it, variant: 'hung', d: 1.8 };
+  return (
+    <group>
+      {/* the bike, front up, its wheels against the wall, swivelled on the rack so the handlebars clear each other */}
+      <group position={[0, 0.95 + (Math.round(it.x / 0.6) % 2) * 0.12, wall + 0.03]} rotation={[0, Math.PI + 0.55, 0]}>
+        <group rotation={[-Math.PI / 2, 0, 0]}>
+          <ParkedBike it={bike} />
+        </group>
+      </group>
+      {/* the Steadyrack: a black body on the wall and a chrome cradle round the front wheel */}
+      <Box w={0.12} h={0.55} d={0.06} y={1.35} z={wall + 0.03} m={black} r={0.03} />
+      {[1.38, 1.85].map((y) => (
+        <M key={y} g={sphere(0.05, 2)} m={black} p={[0, y, wall + 0.06]} />
+      ))}
+      {[-1, 1].map((sx) => (
+        <group key={sx}>
+          <Box w={0.012} h={0.62} d={0.012} x={sx * 0.065} y={1.3} z={wall + 0.2} m={chrome} r={0.004} />
+          <Box w={0.012} h={0.012} d={0.2} x={sx * 0.065} y={1.3} z={wall + 0.1} m={chrome} r={0.004} />
+          <Box w={0.012} h={0.012} d={0.2} x={sx * 0.065} y={1.91} z={wall + 0.1} m={chrome} r={0.004} />
+        </group>
+      ))}
+      <Box w={0.1} h={0.04} d={0.08} y={0.08} z={wall + 0.04} m={black} r={0.015} />
+    </group>
+  );
+}
+
+/** A smart indoor cycling bike in black, front (+z) towards the projected ride. */
+function IndoorBike({ it }: { it: FurnitureItem }) {
+  const { d } = it;
+  const black = lacquer('#1c1c1d', 0.45);
+  const grey = metal('#8d9093', 0.35);
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <Box key={s} w={0.55} h={0.05} d={0.08} z={s * (d / 2 - 0.08)} m={black} r={0.02} />
+      ))}
+      <Box w={0.08} h={0.06} d={d - 0.2} y={0.04} m={black} r={0.02} />
+      {/* the flywheel housing, the frame and the posts */}
+      <M g={cylinder(0.24, 0.24, 0.1, 40)} m={black} p={[0, 0.36, -0.05]} r={[0, 0, Math.PI / 2]} />
+      <M g={cylinder(0.12, 0.12, 0.104, 32)} m={lacquer('#d0622f', 0.4)} p={[0, 0.36, -0.05]} r={[0, 0, Math.PI / 2]} />
+      <Box w={0.07} h={0.75} d={0.08} y={0.1} z={-d / 2 + 0.28} m={black} r={0.02} rot={[-0.25, 0, 0]} />
+      <Box w={0.07} h={0.85} d={0.08} y={0.1} z={d / 2 - 0.25} m={black} r={0.02} rot={[0.2, 0, 0]} />
+      {/* saddle, handlebar with a small display, cranks */}
+      <Box w={0.16} h={0.05} d={0.27} y={0.9} z={-d / 2 + 0.16} m={lacquer('#2b2b2a', 0.6)} r={0.02} />
+      <M g={cylinder(0.014, 0.014, 0.45, 12)} m={grey} p={[0, 0.98, d / 2 - 0.08]} r={[0, 0, Math.PI / 2]} />
+      {[-1, 1].map((s) => (
+        <M key={s} g={cylinder(0.014, 0.014, 0.22, 12)} m={black} p={[s * 0.2, 0.98, d / 2 + 0.02]} r={[Math.PI / 2, 0, 0]} />
+      ))}
+      <Box w={0.12} h={0.08} d={0.02} y={1.0} z={d / 2 - 0.12} m={screen()} r={0.01} rot={[-0.5, 0, 0]} />
+      {[-1, 1].map((s) => (
+        <group key={`c${s}`}>
+          <Box w={0.02} h={0.17} d={0.03} x={s * 0.1} y={s > 0 ? 0.28 : 0.38} z={-0.05} m={grey} r={0.006} />
+          <Box w={0.1} h={0.02} d={0.06} x={s * 0.13} y={s > 0 ? 0.27 : 0.53} z={-0.05} m={black} r={0.006} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** A small projector hanging from the ceiling, its lens towards +z. */
+function Beamer({ it }: { it: FurnitureItem }) {
+  const white = lacquer('#e9e9e6', 0.4);
+  return (
+    <group>
+      <Box w={it.w} h={it.h} d={it.d} m={white} r={0.012} />
+      <M g={cylinder(0.03, 0.03, 0.02, 24)} m={screen()} p={[it.w * 0.2, it.h / 2, it.d / 2 + 0.008]} r={[Math.PI / 2, 0, 0]} />
+      <M g={cylinder(0.01, 0.01, 2.5 - (it.z ?? 2.3) - it.h, 8)} m={metal('#2b2b2a', 0.4)} p={[0, it.h + (2.5 - (it.z ?? 2.3) - it.h) / 2, 0]} />
+    </group>
+  );
+}
+
+/** The ride the beamer throws on the wall: a bright image with no lighting of its own. */
+function Projection({ it }: { it: FurnitureItem }) {
+  const m = cached(`projection-${it.art}`, () => new THREE.MeshBasicMaterial({ map: (art(it.art ?? 'mountain') as THREE.MeshPhysicalMaterial).map, toneMapped: false, color: '#d8d8d8' }));
+  return <M g={plane(it.w, it.h)} m={m} p={[0, it.h / 2, 0]} shadow={false} />;
+}
+
+/** A deadlift platform: an oak centre between rubber sides, with a loaded barbell across it. */
+function Deadlift({ it }: { it: FurnitureItem }) {
+  const { w, d } = it;
+  const rubber = lacquer('#1d1e1f', 0.95);
+  const steel = metal('#b9bbbc', 0.25);
+  const plateR = 0.225;
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <Box key={s} w={(w - 1.0) / 2} h={0.04} d={d} x={s * (w / 4 + 0.25)} m={rubber} r={0.004} />
+      ))}
+      <Box w={1.0} h={0.04} d={d} m={wood('oak')} r={0.004} grain />
+      <group position={[0, 0.04 + plateR, 0.1]}>
+        <M g={cylinder(0.014, 0.014, w - 0.1, 12)} m={steel} r={[0, 0, Math.PI / 2]} />
+        {[-1, 1].map((s) => (
+          <group key={s}>
+            <M g={cylinder(plateR, plateR, 0.05, 40)} m={lacquer(s > 0 ? '#c4372b' : '#c4372b', 0.6)} p={[s * (w / 2 - 0.25), 0, 0]} r={[0, 0, Math.PI / 2]} />
+            <M g={cylinder(plateR * 0.9, plateR * 0.9, 0.04, 40)} m={lacquer('#1d1e1f', 0.7)} p={[s * (w / 2 - 0.2), 0, 0]} r={[0, 0, Math.PI / 2]} />
+            <M g={cylinder(0.03, 0.03, 0.03, 16)} m={steel} p={[s * (w / 2 - 0.32), 0, 0]} r={[0, 0, Math.PI / 2]} />
+          </group>
+        ))}
+      </group>
+    </group>
+  );
+}
+
+/** A pair of farmer's-walk handles with plates at both ends, lying side by side. */
+function FarmerHandles({ it }: { it: FurnitureItem }) {
+  const { w, d } = it;
+  const steel = metal('#3a3b3c', 0.35);
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <group key={s} position={[0, 0.12, s * (d / 2 - 0.12)]}>
+          <M g={cylinder(0.025, 0.025, w - 0.04, 12)} m={steel} r={[0, 0, Math.PI / 2]} />
+          <M g={cylinder(0.018, 0.018, 0.2, 12)} m={lacquer('#1d1e1f', 0.8)} p={[0, 0, 0]} r={[0, 0, Math.PI / 2]} />
+          {[-1, 1].map((e) => (
+            <M key={e} g={cylinder(0.115, 0.115, 0.04, 32)} m={lacquer('#1d1e1f', 0.7)} p={[e * (w / 2 - 0.08), 0, 0]} r={[0, 0, Math.PI / 2]} />
+          ))}
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** A round target for wall balls, its centre at the item's mid height. */
+function WallTarget({ it }: { it: FurnitureItem }) {
+  const r = it.w / 2;
+  return (
+    <group position={[0, it.h / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
+      <M g={cylinder(r, r, 0.01, 48)} m={lacquer('#f4f3ef', 0.6)} shadow={false} />
+      <M g={cylinder(r * 0.72, r * 0.72, 0.012, 48)} m={lacquer('#1d1e1f', 0.6)} shadow={false} />
+      <M g={cylinder(r * 0.4, r * 0.4, 0.014, 48)} m={lacquer('#d0622f', 0.5)} shadow={false} />
+    </group>
+  );
+}
+
+/** A recessed ceiling spot: a black ring round a warm lens, pointing down. */
+function Spot({ it, lit }: { it: FurnitureItem; lit: boolean }) {
+  return (
+    <group>
+      <M g={cylinder(it.w / 2, it.w / 2, it.h, 24)} m={lacquer('#1d1e1f', 0.5)} p={[0, it.h / 2, 0]} shadow={false} />
+      <M g={cylinder(it.w / 2 - 0.012, it.w / 2 - 0.012, 0.004, 24)} m={bulb()} p={[0, -0.001, 0]} shadow={false} />
+      {lit && <LampLight y={-0.05} intensity={0.9} distance={4} />}
+    </group>
+  );
+}
+
+/** A wall-mounted pull-up bar: two black arms from the wall (-z) and a bar across their ends. */
+function PullUpBar({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const black = lacquer('#1c1c1d', 0.45);
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <group key={s}>
+          <Box w={0.06} h={h} d={0.02} x={s * (w / 2 - 0.1)} z={-d / 2 + 0.01} m={black} r={0.004} />
+          <Box w={0.05} h={0.05} d={d} x={s * (w / 2 - 0.1)} y={h - 0.12} m={black} r={0.006} />
+          <Box w={0.04} h={0.04} d={Math.hypot(d * 0.8, h - 0.15)} x={s * (w / 2 - 0.1)} y={(h - 0.12) / 2 - 0.05} z={-d * 0.1} m={black} r={0.006} rot={[Math.atan2(d * 0.8, h - 0.15), 0, 0]} />
+        </group>
+      ))}
+      <M g={cylinder(0.016, 0.016, w, 16)} m={metal('#b9bbbc', 0.25)} p={[0, h - 0.1, d / 2 - 0.04]} r={[0, 0, Math.PI / 2]} />
+    </group>
+  );
+}
+
+/** Suspension trainer straps hanging from a ceiling anchor, with their handles at the bottom. */
+function Trx({ it }: { it: FurnitureItem }) {
+  const { h } = it;
+  const strap = lacquer('#e6c229', 0.7);
+  const black = lacquer('#1c1c1d', 0.6);
+  return (
+    <group>
+      <Box w={0.08} h={0.04} d={0.08} y={h - 0.04} m={black} r={0.01} />
+      <Box w={0.03} h={h * 0.5} d={0.008} y={h * 0.5 - 0.04} m={black} r={0.002} />
+      {[-1, 1].map((s) => (
+        <group key={s}>
+          <Box w={0.03} h={h * 0.48} d={0.008} x={s * 0.06} y={0.08} m={strap} r={0.002} rot={[0, 0, -s * 0.12]} />
+          <M g={cylinder(0.016, 0.016, 0.13, 12)} m={black} p={[s * 0.1, 0.06, 0]} r={[0, 0, Math.PI / 2]} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** Oak wall panelling, boards running vertically with fine joints. */
+function Panel({ it }: { it: FurnitureItem }) {
+  const n = Math.max(1, Math.round(it.w / 0.3));
+  const bw = it.w / n;
+  const m = wood('oakBrushed');
+  return (
+    <group>
+      {Array.from({ length: n }, (_, i) => (
+        <Box key={i} w={bw - 0.003} h={it.h} d={it.d} x={-it.w / 2 + bw * (i + 0.5)} m={m} r={0.001} grain />
+      ))}
+    </group>
+  );
+}
+
+/** A low bouclé daybed with a sloping back cushion at its head (-z) and a green cushion. */
+function Daybed({ it }: { it: FurnitureItem }) {
+  const { w, d } = it;
+  const up = fabric(it.colour ?? '#d9d2c4', 'boucle');
+  return (
+    <group>
+      <Box w={w} h={0.12} d={d} y={0.02} m={lacquer('#3b3532', 0.7)} r={0.02} />
+      <Box w={w} h={0.26} d={d} y={0.1} m={up} r={0.06} />
+      <Box w={w - 0.04} h={0.42} d={0.22} y={0.32} z={-d / 2 + 0.16} m={up} r={0.09} rot={[-0.35, 0, 0]} />
+      <Box w={0.42} h={0.38} d={0.13} x={-0.1} y={0.4} z={-d / 2 + 0.36} m={fabric('#34483e', 'wool')} r={0.06} rot={[-0.4, 0.15, 0]} />
+      <Box w={w - 0.1} h={0.025} d={0.6} y={0.36} z={d / 2 - 0.4} m={fabric('#f3f0e8', 'knit')} r={0.01} />
+    </group>
+  );
+}
+
 /** Draws one furniture item in its own frame. */
 export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
   switch (it.kind) {
@@ -2969,6 +3237,28 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
       return <BoxShelf it={it} />;
     case 'gardenSet':
       return <GardenSet it={it} />;
+    case 'indoorBike':
+      return <IndoorBike it={it} />;
+    case 'beamer':
+      return <Beamer it={it} />;
+    case 'projection':
+      return <Projection it={it} />;
+    case 'deadlift':
+      return <Deadlift it={it} />;
+    case 'farmer':
+      return <FarmerHandles it={it} />;
+    case 'wallTarget':
+      return <WallTarget it={it} />;
+    case 'spot':
+      return <Spot it={it} lit={lit} />;
+    case 'pullUpBar':
+      return <PullUpBar it={it} />;
+    case 'trx':
+      return <Trx it={it} />;
+    case 'panel':
+      return <Panel it={it} />;
+    case 'daybed':
+      return <Daybed it={it} />;
     case 'espresso':
       return <Espresso it={it} />;
     case 'grinder':

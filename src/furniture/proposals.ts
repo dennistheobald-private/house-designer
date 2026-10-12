@@ -161,7 +161,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Oak', hex: '#c8a97e' },
       { name: 'Moss', hex: C.moss },
     ],
-    summary: "In the style of the first-floor bathroom: Dennis's beige tile on the floor, the whole vanity and shower wall and the WC pre-wall up to 1.2 m, a walnut vanity with a Loop & Friends basin and a tall rose gold mixer under a hanging mirror, a Laufen Pro WC; moss mat and towels and a fern.",
+    summary: "In the style of the first-floor bathroom: Dennis's beige tile on the floor, the whole vanity and shower wall and the WC pre-wall up to 1.2 m, a walnut vanity with a Loop & Friends basin and a tall rose gold mixer under a hanging mirror, a Laufen Pro WC; a moss mat and a fern.",
   },
   {
     room: 'roof-terrace',
@@ -184,35 +184,35 @@ export const proposals: RoomProposal[] = [
   },
   {
     room: 'bastelraum-1',
-    theme: 'Forest retreat',
+    theme: 'Forest calm',
     palette: [
       { name: 'Oak', hex: '#c8a97e' },
-      { name: 'Sage plaster', hex: '#8f9a8c' },
-      { name: 'Oat', hex: C.oat },
+      { name: 'Oat bouclé', hex: '#d9d2c4' },
+      { name: 'Moss', hex: '#8e9a6c' },
       { name: 'Pine', hex: C.pine },
     ],
-    summary: 'A built-in oak lounging nook along the window wall with its bookshelves built into one end and over the top, a 140 x 200 cm mattress that doubles as a guest bed, big cushions, a reading light and LED strips; speakers in the upper corners, a knitted pouf and a soft floor lamp, and oak closets of storage boxes along the east and south walls.',
+    summary: 'A calm forest room: a misty forest mural on the end wall, oak panelling, the oak lounging nook along the window wall with built-in books (also the guest bed), a bouclé daybed facing the forest, a moss rug, warm low light, speakers in the corners and one closed oak closet of storage boxes.',
   },
   {
     room: 'bastelraum-2',
-    theme: 'Mountain sunrise',
+    theme: 'Energy',
     palette: [
-      { name: 'Sunrise', hex: '#f0b979' },
-      { name: 'Granite', hex: C.granite },
+      { name: 'Burnt orange', hex: '#c85a2a' },
+      { name: 'Charcoal', hex: '#34373b' },
       { name: 'Rubber black', hex: '#2e3032' },
       { name: 'Oak', hex: '#c8a97e' },
     ],
-    summary: 'Energy and focus: a large mural of alpine ridges at sunrise and a rubber sports floor over the whole room, with dumbbells, kettlebells, wall balls, a plyo box and room for burpees. The storage is now its own room next door.',
+    summary: 'Energy: charcoal walls with a burnt-orange wall, a rubber floor and bright ceiling spots. An indoor cycling bike facing a ride projected on the wall by a small beamer, a deadlift platform with a loaded bar, a black jump box, farmer handles, dumbbells, wall balls with a target at 2 m, a pull-up bar and TRX straps, and a closed gym closet.',
   },
   {
     room: 'storage',
     theme: 'Mountain hut store',
     palette: [
+      { name: 'White', hex: '#f4f3ef' },
       { name: 'Birch ply', hex: '#e2cfa8' },
-      { name: 'White', hex: '#f7f7f4' },
       { name: 'Light grey', hex: C.pale },
     ],
-    summary: 'A plain, bright store behind its own door: four bikes side by side on their own stands by the stair door, each free to take out, birch and white pantry shelving for dry food along the partition, a wall of shelving with storage boxes, and a ski rack for skis, poles, boots and helmets.',
+    summary: 'Open to the gym, with a white pantry cupboard for dry food as the divider. Four bikes hang on Steadyrack wall mounts, each free to take down; a closed closet of storage boxes and the ski rack.',
   },
   {
     room: 'laundry',
@@ -243,7 +243,23 @@ const item = (room: string, id: string, name: string, kind: FurnitureItem['kind'
 const living = (id: string, name: string, kind: FurnitureItem['kind'], x: number, y: number, w: number, d: number, h: number, more?: Partial<FurnitureItem>) =>
   item('living', id, name, kind, x, y, w, d, h, more);
 
+/** The stairwell: vertical oak slats on its back wall and a gallery of mountain photos on its side wall, on every floor. */
+const stairWall = (room: string, floor: string, side: number, gallery = true): FurnitureItem[] => [
+  item(room, `${floor}-stair-slats`, 'Vertical oak slats on the stair wall', 'slats', 5.545, 0.015, 2.25, 0.03, 2.5, { variant: 'oak' }),
+  ...(gallery
+    ? ([
+        [1.35, 1.0, 0.5, 0.65, 'mountain'],
+        [1.4, 1.8, 0.4, 0.5, 'lake'],
+        [0.8, 1.6, 0.55, 0.7, 'river'],
+        [0.3, 1.75, 0.45, 0.6, 'forestMist'],
+      ] as const).map(([y, z, w, h, art], i) =>
+        item(room, `${floor}-stair-photo-${i}`, 'Mountain photo, oak frame', 'print', side - 0.015, y, w, 0.03, h, { rot: -90, z, art, accent: '#c8a97e' }),
+      )
+    : []),
+];
+
 const mainFloor: FurnitureItem[] = [
+  ...stairWall('living', 'main', 6.67),
   // Lounge, by the garden doors
   // Dennis's own sofa: grey-blue melange, tall back cushions, the chaise on the right as you face it.
   living('sofa', 'Corner sofa, grey-blue melange weave, 270 x 165 cm, chaise on the right', 'sofa', 2.15, 0.85, 2.7, 1.65, 1.0, { colour: C.denim, variant: 'recliner', chaise: 'right' }),
@@ -364,7 +380,6 @@ const zimmer3: FurnitureItem[] = [
 const bathroom: FurnitureItem[] = [
   item('bathroom', 'ladder', 'Oak towel ladder, stone and moss towels', 'towels', 6.86, 1.56, 0.45, 0.1, 1.6, { rot: 90, colour: C.stone, accent: C.moss }),
   item('bathroom', 'mat', 'Bath mat, moss', 'rug', 8.6, 1.85, 0.8, 0.5, 0.012, { colour: C.moss }),
-  item('bathroom', 'stool', 'Oak stool', 'stool', 8.24, 0.4, 0.32, 0.32, 0.45),
   item('bathroom', 'fern', 'Fern', 'plant', 9.95, 1.2, 0.32, 0.32, 0.7, { variant: 'fern', accent: C.white }),
 ];
 
@@ -392,8 +407,6 @@ const bedroom: FurnitureItem[] = [
 
 const ensuite: FurnitureItem[] = [
   item('ensuite', 'mat', 'Bath mat, moss', 'rug', 7.3, 0.85, 0.6, 0.4, 0.012, { colour: C.moss }),
-  item('ensuite', 'stool', 'Oak stool in the shower', 'stool', 8.45, 0.35, 0.3, 0.3, 0.45),
-  item('ensuite', 'towels', 'Towel rail, moss towels', 'towels', 7.0, 2.27, 0.5, 0.08, 1.2, { rot: 180, z: 0.5, colour: C.moss, accent: C.mushroom, variant: 'rail' }),
   item('ensuite', 'fern', 'Small fern', 'plant', 8.55, 2.21, 0.18, 0.18, 0.25, { z: 1.23, variant: 'fern', accent: C.white }),
 ];
 
@@ -429,9 +442,8 @@ const frontGarden: FurnitureItem[] = [
   item('front-path', 'doormat', 'Doormat, dark grey', 'rug', 10.85, 2.44, 0.9, 0.6, 0.015, { rot: 90, colour: '#333331' }),
   item('front-path', 'kerb', 'Stone kerb along the lawn', 'kerb', 11.69, 1.94, 2.38, 0.08, 0.06),
   item('front-path', 'mailbox', 'Letterbox on a post, grey', 'mailbox', 12.6, 2.2, 0.36, 0.28, 1.15, { rot: 90 }),
-  // Two separate upright hoops along the hedge, one bike leaning against each.
-  item('front-path', 'bike-rack-1', 'Bike stand, black steel hoop, 70 x 85 cm', 'bikeRack', 11.2, 5.5, 0.7, 0.05, 0.85, { variant: 'hoop' }),
-  item('front-path', 'bike-rack-2', 'Bike stand, black steel hoop, 70 x 85 cm', 'bikeRack', 12.3, 5.5, 0.7, 0.05, 0.85, { variant: 'hoop' }),
+  // Three squared steel hoops at right angles to the facade, under the big window beside the door, as on the renderings.
+  ...[3.75, 4.2, 4.65].map((y, i) => item('front-path', `bike-rack-${i + 1}`, 'Bike stand, anthracite steel, 75 x 80 cm', 'bikeRack', 11.0, y, 0.75, 0.05, 0.8, { variant: 'square' })),
 ];
 
 /* ---------------------------------------------------------------- basement */
@@ -440,35 +452,46 @@ const basement: FurnitureItem[] = [
   // Reading room: a built-in oak nook between built-in bookcases along the south wall.
   // Reading room: the lounging nook along the window wall, its bookcase built into one end and a shelf over the top.
   item('bastelraum-1', 'nook', 'Built-in lounging nook, oak, with built-in bookshelves, mattress 140 x 200 cm (guest bed)', 'nook', -2.58, 4.425, 2.5, 1.5, 2.45, { rot: 90, variant: 'books' }),
-  item('bastelraum-1', 'rug', 'Wool rug, oat', 'rug', -0.55, 4.45, 2.0, 1.6, 0.015, { colour: C.oat }),
-  // Chill and storage: box closets along the east and south walls, a pouf and a soft light.
-  item('bastelraum-1', 'closet-e', 'Built-in closet, oak, open shelves with storage boxes', 'boxShelf', 1.795, 4.1, 1.6, 0.45, 2.4, { rot: -90, variant: 'oak' }),
-  item('bastelraum-1', 'pouf', 'Knitted pouf, oat', 'pouf', 0.9, 4.9, 0.55, 0.55, 0.4, { colour: C.oat }),
+  // Chill room: the nook, a nature mural, oak panelling and a bouclé daybed, with a closed closet of boxes.
+  item('bastelraum-1', 'mural', 'Mural: misty forest', 'mural', 2.015, 4.195, 2.05, 0.01, 2.5, { rot: -90, art: 'forest' }),
+  item('bastelraum-1', 'panel-w', 'Oak wall panelling', 'panel', -1.14, 3.16, 1.38, 0.02, 2.5),
+  item('bastelraum-1', 'panel-e', 'Oak wall panelling', 'panel', 1.185, 3.16, 1.67, 0.02, 2.5),
+  item('bastelraum-1', 'daybed', 'Daybed, oat bouclé, 80 x 190 cm', 'daybed', 0.8, 4.2, 0.8, 1.9, 0.75, { rot: 90 }),
   item('bastelraum-1', 'floor-lamp', 'Floor lamp, black with linen shade', 'floorLamp', -1.55, 3.45, 0.4, 0.4, 1.6, { colour: C.linen }),
-  item('bastelraum-1', 'closet', 'Built-in closet, oak, open shelves with storage boxes', 'boxShelf', 1.1, 5.47, 1.8, 0.45, 2.4, { rot: 180, variant: 'oak' }),
+  item('bastelraum-1', 'closet', 'Built-in closet, oak doors, storage boxes inside', 'boxShelf', 0.375, 5.47, 3.25, 0.45, 2.4, { rot: 180, variant: 'oak' }),
+  item('bastelraum-1', 'rug', 'Wool rug, moss', 'rug', -0.55, 4.45, 2.0, 1.6, 0.015, { colour: '#8e9a6c' }),
   ...([
     [1.94, 3.23, -45, 2.2],
     [-1.0, 3.23, 20, 2.2],
   ] as const).map(([x, y, rot, z], i) => item('bastelraum-1', `speaker-${i}`, 'Speaker, black, wall-mounted', 'speaker', x, y, 0.15, 0.14, 0.24, { rot, z })),
   item('bastelraum-1', 'plant', 'Snake plant in clay', 'plant', -1.5, 5.42, 0.35, 0.35, 0.8, { variant: 'snake', accent: C.terracotta }),
-  // Gym: a rubber floor over the whole room, the sunrise mural and the weights along the walls.
-  item('bastelraum-2', 'floor', 'Rubber sports floor', 'rug', -1.415, 1.5, 3.82, 2.98, 0.015, { variant: 'rubber', colour: '#2e3032' }),
-  item('bastelraum-2', 'mural', 'Mural: alpine ridges at sunrise', 'mural', -1.93, 2.995, 2.75, 0.01, 2.5, { rot: 180, art: 'sunrise' }),
-  item('bastelraum-2', 'dumbbells', 'Dumbbell rack with kettlebells', 'dumbbells', -2.4, 2.78, 1.2, 0.4, 0.75, { rot: 180 }),
+  // Gym: charcoal walls, a burnt-orange wall behind the platform, spots, and a closed gym closet.
+  item('bastelraum-2', 'floor', 'Rubber sports floor', 'rug', -1.378, 1.5, 3.9, 2.98, 0.015, { variant: 'rubber', colour: '#2e3032' }),
+  item('bastelraum-2', 'paint-n', 'Wall paint, charcoal', 'paint', -1.378, 0.004, 3.9, 0.01, 2.5, { colour: '#34373b' }),
+  item('bastelraum-2', 'paint-s', 'Wall paint, burnt orange', 'paint', -1.89, 2.996, 2.88, 0.01, 2.5, { rot: 180, colour: '#c85a2a' }),
+  item('bastelraum-2', 'closet', 'Gym closet: mats, bands, kettlebells, towels', 'wardrobe', -3.03, 2.3, 1.4, 0.6, 2.4, { rot: 90, variant: 'gym', colour: '#2f3236' }),
+  item('bastelraum-2', 'dumbbells', 'Dumbbell rack with kettlebells', 'dumbbells', -3.13, 0.95, 1.2, 0.4, 0.75, { rot: 90 }),
+  item('bastelraum-2', 'pull-up', 'Wall-mounted pull-up bar', 'pullUpBar', -2.0, 0.3, 1.2, 0.6, 0.35, { z: 2.1 }),
+  item('bastelraum-2', 'trx', 'Suspension trainer (TRX) from a ceiling anchor', 'trx', -1.6, 1.35, 0.3, 0.1, 1.45, { z: 1.0 }),
+  item('bastelraum-2', 'indoor-bike', 'Indoor cycling bike', 'indoorBike', -0.4, 1.15, 0.55, 1.2, 1.1, { rot: 180 }),
+  item('bastelraum-2', 'projection', 'Projected ride on the wall', 'projection', -0.4, 0.012, 1.6, 0.01, 0.9, { z: 1.05, art: 'mountain' }),
+  item('bastelraum-2', 'beamer', 'Small projector on the ceiling', 'beamer', -0.4, 2.2, 0.25, 0.2, 0.08, { rot: 180, z: 2.3 }),
+  item('bastelraum-2', 'deadlift', 'Deadlift platform with a loaded barbell', 'deadlift', -1.65, 2.3, 2.0, 1.1, 0.45),
+  item('bastelraum-2', 'farmer', "Farmer's walk handles", 'farmer', -2.25, 1.35, 1.0, 0.45, 0.25),
+  item('bastelraum-2', 'plyo-box', 'Jump box, black', 'plyoBox', 0.25, 1.6, 0.6, 0.5, 0.6, { variant: 'black' }),
   ...([
-    [-1.35, 2.78, '#2b2b2a'],
-    [-0.95, 2.8, '#34483e'],
-    [-1.15, 2.42, '#2f4f6f'],
+    [0.3, 0.25, '#2b2b2a'],
+    [0.3, 0.65, '#c85a2a'],
   ] as const).map(([x, y, colour], i) => item('bastelraum-2', `wall-ball-${i}`, 'Wall ball, 6 kg', 'wallBall', x, y, 0.35, 0.35, 0.35, { colour })),
-  item('bastelraum-2', 'plyo-box', 'Plyo box, birch plywood', 'plyoBox', -0.2, 0.3, 0.6, 0.5, 0.6),
-  ...[-2.3, -0.5].map((x, i) => item('bastelraum-2', `pendant-${i}`, 'Black industrial pendant', 'pendant', x, 1.5, 0.35, 0.35, 0.15, { z: 2.3, variant: 'metal', colour: C.black })),
-  // Store: bikes by the stair door, food and boxes on light birch shelving, skis in the corner.
+  item('bastelraum-2', 'target', 'Wall ball target at 2 m', 'wallTarget', -1.65, 2.98, 0.45, 0.02, 0.45, { rot: 180, z: 1.78 }),
+  ...[-2.6, -1.4, -0.2].flatMap((x) => [0.8, 2.2].map((y) => item('bastelraum-2', `spot-${x}-${y}`, 'Ceiling spot', 'spot', x, y, 0.09, 0.09, 0.03, { z: 2.47 }))),
+  // Store: a pantry cupboard as the divider, bikes on Steadyracks, a closed box closet and the ski rack.
+  item('storage', 'pantry', 'Pantry cupboard, white, dry food inside; it also divides the gym from the store', 'wardrobe', 0.9, 1.0, 2.0, 0.6, 2.4, { rot: 90, variant: 'pantry', colour: '#f4f3ef' }),
   ...['#34483e', '#2f4f6f', '#bf5640', '#e9e3d6'].map((colour, i) =>
-    item('storage', `bike-${i}`, 'Bike on its own floor stand', 'bike', 2.5 + i * 0.5, 0.92, 0.5, 1.8, 1.05, { rot: 180, colour }),
+    item('storage', `bike-${i}`, 'Bike on a Steadyrack wall mount', 'bike', 1.6 + i * 0.6, 0.55, 0.55, 1.1, 2.0, { colour, variant: 'steadyrack' }),
   ),
-  item('storage', 'pantry', 'Pantry shelving for dry food, birch on white uprights', 'pantry', 0.88, 0.975, 1.85, 0.45, 2.2, { rot: 90, variant: 'birch' }),
-  item('storage', 'ski-rack', 'Ski rack: skis and poles upright, boots and helmets below', 'skiRack', 1.66, 0.21, 0.95, 0.42, 2.0),
-  item('storage', 'boxes', 'Shelving with storage boxes, birch plywood', 'boxShelf', 2.45, 2.775, 2.4, 0.45, 2.2, { rot: 180, variant: 'birch' }),
+  item('storage', 'ski-rack', 'Ski rack: skis and poles upright, boots and helmets below', 'skiRack', 4.06, 0.7, 0.95, 0.42, 2.0, { rot: -90 }),
+  item('storage', 'boxes', 'Closet with storage boxes, white doors', 'boxShelf', 2.45, 2.775, 2.4, 0.45, 2.2, { rot: 180, variant: 'birch' }),
   item('storage', 'light', 'Linen pendant', 'pendant', 2.45, 1.5, 0.4, 0.4, 0.2, { z: 2.2, colour: C.linen }),
   // Laundry
   item('laundry', 'washer', 'Washing machine with the dryer stacked on top', 'washer', 2.55, 5.38, 0.6, 0.62, 1.7, { rot: 180, variant: 'stack' }),
@@ -477,10 +500,10 @@ const basement: FurnitureItem[] = [
 ];
 
 export const furnitureByFloor: Record<string, FurnitureItem[]> = {
-  basement,
+  basement: [...basement, ...stairWall('basement-corridor', 'basement', 6.7)],
   main: [...mainFloor, ...kitchenItems, ...entrance, ...wc, ...gardenTerrace, ...frontGarden],
-  first: [...zimmer1, ...zimmer2, ...zimmer3, ...bathroom],
-  top: [...bedroom, ...ensuite, ...roofTerrace, ...streetTerrace],
+  first: [...stairWall('first-landing', 'first', 6.67), ...zimmer1, ...zimmer2, ...zimmer3, ...bathroom],
+  top: [...stairWall('top-landing', 'top', 6.66), ...bedroom, ...ensuite, ...roofTerrace, ...streetTerrace],
 };
 
 export const proposalFor = (roomId: string) => proposals.find((p) => p.room === roomId);
