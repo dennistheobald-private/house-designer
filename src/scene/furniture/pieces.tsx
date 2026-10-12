@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { CHAISE_WIDTH, SOFA_DEPTH, type FurnitureItem } from '../../furniture/types';
 import { rng } from '../textures';
 import { Toilet as BathToilet } from '../BathFittings';
+import { Stream, useRunning } from '../Water';
 import {
   art,
   cached,
@@ -850,6 +851,189 @@ function Mirror({ it }: { it: FurnitureItem }) {
   );
 }
 
+/** A built-in mirror cabinet: three mirrored doors on a white carcass with glass shelves and a few toiletries; double-click a door to open it. */
+function MirrorCabinet({ it }: { it: FurnitureItem }) {
+  const { w, h, d } = it;
+  const white = lacquer('#f6f5f2', 0.4);
+  const glass = mirrorGlass();
+  const t = 0.016;
+  const dw = w / 3;
+  const shelf = cached('cabinet-shelf', () => new THREE.MeshPhysicalMaterial({ color: '#e8f1ef', roughness: 0.05, transmission: 0.6, transparent: true, opacity: 0.55 }));
+  const inner = d - 0.025;
+  const z0 = d / 2 - 0.022;
+  const bottle = (x: number, y: number, r: number, bh: number, c: string, k: number) => (
+    <group key={k} position={[x, y, z0 - inner / 2]}>
+      <M g={cylinder(r, r, bh, 16)} m={ceramic(c, 0.4)} p={[0, bh / 2, 0]} />
+      <M g={cylinder(r * 0.45, r * 0.45, 0.03, 12)} m={metal('#d8b7a1', 0.3)} p={[0, bh + 0.015, 0]} />
+    </group>
+  );
+  return (
+    <group>
+      {/* Carcass, white inside and out */}
+      <Box w={w} h={t} d={d} m={white} r={0.002} />
+      <Box w={w} h={t} d={d} y={h - t} m={white} r={0.002} />
+      {[-1, 1].map((sx) => (
+        <Box key={sx} w={t} h={h} d={d} x={sx * (w / 2 - t / 2)} m={white} r={0.002} />
+      ))}
+      <Box w={w} h={h} d={0.008} z={-d / 2 + 0.004} m={white} r={0} />
+      {[1, 2].map((i) => (
+        <Box key={`d${i}`} w={0.012} h={h} d={inner} x={-w / 2 + dw * i} z={z0 - inner / 2} m={white} r={0} />
+      ))}
+      {[h * 0.36, h * 0.68].map((y) => (
+        <Box key={y} w={w - 2 * t} h={0.006} d={inner - 0.01} y={y} z={z0 - inner / 2} m={shelf} r={0} />
+      ))}
+      {bottle(-w / 2 + 0.12, t, 0.025, 0.14, '#ffffff', 1)}
+      {bottle(-w / 2 + 0.19, t, 0.02, 0.11, '#d9cfc2', 2)}
+      {bottle(-0.05, t, 0.022, 0.16, '#8a9a86', 3)}
+      {bottle(0.05, h * 0.36 + 0.006, 0.03, 0.09, '#f2ede6', 4)}
+      {bottle(w / 2 - 0.15, h * 0.36 + 0.006, 0.02, 0.13, '#c8a97e', 5)}
+      {bottle(w / 2 - 0.22, h * 0.68 + 0.006, 0.024, 0.1, '#ffffff', 6)}
+      {/* Doors: the outer two hinge at the sides, the middle one on its left. */}
+      {[
+        { hinge: -w / 2, dir: 1, swing: -1.75 },
+        { hinge: -w / 2 + dw, dir: 1, swing: -1.5 },
+        { hinge: w / 2, dir: -1, swing: 1.75 },
+      ].map((o, i) => (
+        <Opens key={i} swing={o.swing} at={[o.hinge, 0, d / 2]}>
+          <Box w={dw - 0.004} h={h - 0.004} d={0.018} x={(o.dir * dw) / 2} y={0.002} z={0.009} m={white} r={0.002} />
+          <M g={plane(dw - 0.012, h - 0.012)} m={glass} p={[(o.dir * dw) / 2, h / 2, 0.0185]} shadow={false} />
+          <M g={plane(dw - 0.012, h - 0.012)} m={glass} p={[(o.dir * dw) / 2, h / 2, -0.0005]} r={[0, Math.PI, 0]} shadow={false} />
+        </Opens>
+      ))}
+    </group>
+  );
+}
+
+/** A privacy fence of vertical grey-oak slats on posts, the slats' tops stepping up and down in turn. */
+function Fence({ it }: { it: FurnitureItem }) {
+  const { w, h, d } = it;
+  const grey = cached('wood-greyOak', () => {
+    const m = wood('oakBrushed').clone();
+    m.color.set('#b5b1aa');
+    return m;
+  });
+  const post = metal('#3a3a38', 0.6);
+  const slat = 0.07;
+  const n = Math.floor(w / (slat + 0.015));
+  const pitch = w / n;
+  const posts = Math.max(2, Math.round(w / 1.4) + 1);
+  return (
+    <group>
+      {Array.from({ length: posts }, (_, i) => (
+        <Box key={`p${i}`} w={0.06} h={h - 0.08} d={0.06} x={-w / 2 + 0.03 + (i * (w - 0.06)) / (posts - 1)} z={-d / 2 + 0.03} m={post} r={0.002} />
+      ))}
+      {[0.25, h - 0.35].map((y) => (
+        <Box key={`r${y}`} w={w} h={0.06} d={0.03} y={y} z={-d / 2 + 0.075} m={grey} r={0.003} />
+      ))}
+      {Array.from({ length: n }, (_, i) => (
+        <Box key={i} w={slat} h={i % 2 ? h - 0.1 : h} d={0.022} x={-w / 2 + pitch * (i + 0.5)} y={0.02} z={d / 2 - 0.011} m={grey} r={0.003} grain />
+      ))}
+    </group>
+  );
+}
+
+/** Extrudes a side profile (length along u, height v) across the car's width, centred, with the length along z. */
+const profiles = new Map<string, THREE.BufferGeometry>();
+const sideProfile = (key: string, pts: [number, number][], width: number, bevel: number) => {
+  let g = profiles.get(key);
+  if (!g) {
+    const shape = new THREE.Shape(pts.map(([u, v]) => new THREE.Vector2(u, v)));
+    g = new THREE.ExtrudeGeometry(shape, { depth: width - 2 * bevel, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel * 0.8, bevelSegments: 4, curveSegments: 8 });
+    g.translate(0, 0, -(width - 2 * bevel) / 2);
+    g.rotateY(-Math.PI / 2);
+    g.computeVertexNormals();
+    profiles.set(key, g);
+  }
+  return g;
+};
+
+/** Wheel arch: the body's bottom edge rising around a wheel centred at u. */
+const arch = (u: number, r: number, y0: number, dir: 1 | -1): [number, number][] =>
+  Array.from({ length: 9 }, (_, i) => {
+    const a = Math.PI - (i / 8) * Math.PI;
+    const x = u + dir * r * Math.cos(a);
+    return [x, Math.max(y0, 0.36 + r * Math.sin(a) * 0.95)] as [number, number];
+  });
+
+/** A grey Tesla Model Y (2025): fastback body, black glass cabin and roof, a light bar across the nose and tail, dark aero wheels. Front at +z. */
+function Car({ it }: { it: FurnitureItem }) {
+  const L = it.d;
+  const W = it.w;
+  const k = L / 4.75;
+  const paint = cached(`car-paint-${it.colour ?? '#5d6166'}`, () => new THREE.MeshPhysicalMaterial({ color: it.colour ?? '#5d6166', metalness: 0.55, roughness: 0.32, clearcoat: 1, clearcoatRoughness: 0.08 }));
+  const glass = cached('car-glass', () => new THREE.MeshPhysicalMaterial({ color: '#141719', metalness: 0.3, roughness: 0.05, clearcoat: 1 }));
+  const black = lacquer('#151515', 0.6);
+  const tyre = lacquer('#1b1b1b', 0.9);
+  const aero = metal('#3b3e42', 0.35);
+  const wb = 1.445 * k;
+  const bottom: [number, number][] = [[-2.3 * k, 0.3], ...arch(-wb, 0.42, 0.3, 1), ...arch(wb, 0.42, 0.3, 1), [2.26 * k, 0.3]];
+  const body = sideProfile(
+    `body${L}`,
+    [
+      ...bottom,
+      [2.35 * k, 0.4],
+      [2.38 * k, 0.62],
+      [2.3 * k, 0.8],
+      [1.95 * k, 0.92],
+      [0.95 * k, 1.04],
+      [-0.8 * k, 1.1],
+      [-2.05 * k, 1.12],
+      [-2.28 * k, 1.06],
+      [-2.39 * k, 0.86],
+      [-2.4 * k, 0.48],
+    ],
+    W - 0.1,
+    0.09,
+  );
+  const cabin = sideProfile(
+    `cabin${L}`,
+    [
+      [0.98 * k, 1.02],
+      [0.35 * k, 1.44],
+      [-0.3 * k, 1.6],
+      [-1.1 * k, 1.57],
+      [-1.85 * k, 1.29],
+      [-2.12 * k, 1.1],
+      [-0.8 * k, 1.08],
+    ],
+    W - 0.34,
+    0.08,
+  );
+  const lamp = (c: string, i: number) => cached(`car-lamp-${c}`, () => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: i }));
+  return (
+    <group>
+      <M g={body} m={paint} />
+      <M g={cabin} m={glass} />
+      {/* Underbody between the wheels */}
+      <Box w={W - 0.3} h={0.22} d={L - 0.5} y={0.12} m={black} r={0.02} />
+      {/* Light bar across the nose, slim headlamps below it, and the tail bar */}
+      <Box w={W * 0.86} h={0.014} d={0.02} y={0.79} z={2.31 * k} m={lamp('#f4f6ff', 1.6)} r={0.004} />
+      {[-1, 1].map((sx) => (
+        <Box key={sx} w={0.26} h={0.05} d={0.04} x={sx * (W / 2 - 0.26)} y={0.64} z={2.35 * k} m={lamp('#e9eef5', 0.6)} r={0.01} />
+      ))}
+      <Box w={W * 0.9} h={0.03} d={0.03} y={0.96} z={-2.33 * k} m={lamp('#b3141b', 0.9)} r={0.006} />
+      <Box w={W * 0.7} h={0.12} d={0.03} y={0.28} z={-2.36 * k} m={black} r={0.02} />
+      <Box w={W * 0.5} h={0.1} d={0.03} y={0.3} z={2.33 * k} m={black} r={0.02} />
+      {/* Mirrors */}
+      {[-1, 1].map((sx) => (
+        <group key={sx} position={[sx * (W / 2 + 0.06), 1.0, 0.8 * k]}>
+          <Box w={0.16} h={0.1} d={0.08} m={black} r={0.03} />
+        </group>
+      ))}
+      {/* Wheels: tyre and a dark aero cover */}
+      {[-wb, wb].flatMap((wz) =>
+        [-1, 1].map((sx) => (
+          <group key={`${wz}${sx}`} position={[sx * (W / 2 - 0.17), 0.36, wz]} rotation={[0, 0, Math.PI / 2]}>
+            <M g={cylinder(0.36, 0.36, 0.25, 32)} m={tyre} />
+            <M g={cylinder(0.27, 0.27, 0.256, 32)} m={aero} shadow={false} />
+            <M g={cylinder(0.08, 0.08, 0.262, 16)} m={black} shadow={false} />
+          </group>
+        )),
+      )}
+    </group>
+  );
+}
+
 function Hooks({ it }: { it: FurnitureItem }) {
   const n = 5;
   return (
@@ -1132,8 +1316,14 @@ function Toilet({ it }: { it: FurnitureItem }) {
 }
 
 function Basin({ it }: { it: FurnitureItem }) {
+  const [running, toggle] = useRunning();
   return (
-    <group>
+    <group onDoubleClick={toggle}>
+      {running && (
+        <group position={[0, it.h + 0.2, -it.d / 2 + 0.145]}>
+          <Stream drop={it.h + 0.2 - 0.075} />
+        </group>
+      )}
       <Box w={it.w} h={0.03} d={it.d} m={wood()} r={0.006} />
       <M
         g={lathe([
@@ -1501,8 +1691,14 @@ function UtilitySink({ it }: { it: FurnitureItem }) {
   const { w, d, h } = it;
   const white = lacquer('#f4f4f2', 0.35);
   const sinkH = 0.22;
+  const [running, toggle] = useRunning();
   return (
-    <group>
+    <group onDoubleClick={toggle}>
+      {running && (
+        <group position={[0, h + 0.31, -d / 2 + 0.22]}>
+          <Stream drop={sinkH + 0.28} r={0.007} />
+        </group>
+      )}
       <Box w={w - 0.02} h={0.08} d={d - 0.06} z={-0.03} m={lacquer('#d9d8d4', 0.6)} r={0} />
       <Box w={w} h={h - sinkH - 0.08} d={d} y={0.08} m={white} r={0.006} />
       <Box w={0.004} h={h - sinkH - 0.12} d={0.004} y={0.1} z={d / 2} m={lacquer('#c9c7c2', 0.6)} r={0} />
@@ -2499,10 +2695,13 @@ function Dracaena({ it }: { it: FurnitureItem }) {
         m={ceramic(it.accent ?? '#e7b52f', 0.4)}
       />
       <M g={cylinder(r * 0.9, r * 0.9, 0.01, 24)} m={terracotta('#4a3b2e')} p={[0, potH - 0.03, 0]} shadow={false} />
-      {canes.map((c, i) => (
-        <M key={i} g={cylinder(0.026, 0.032, c.h, 10)} m={cane} p={[c.x + (c.lean[0] * c.h) / 2, potH - 0.03 + c.h / 2, c.z + (c.lean[1] * c.h) / 2]} r={[c.lean[1], 0, -c.lean[0]]} />
-      ))}
-      <M g={g} m={foliage('leaf')} />
+      {/* The crown kept narrow enough to clear the walls of the corner it stands in. */}
+      <group scale={[0.6, 1, 0.6]}>
+        {canes.map((c, i) => (
+          <M key={i} g={cylinder(0.026, 0.032, c.h, 10)} m={cane} p={[c.x + (c.lean[0] * c.h) / 2, potH - 0.03 + c.h / 2, c.z + (c.lean[1] * c.h) / 2]} r={[c.lean[1], 0, -c.lean[0]]} />
+        ))}
+        <M g={g} m={foliage('leaf')} />
+      </group>
     </group>
   );
 }
@@ -3153,6 +3352,12 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
       return <Slats it={it} />;
     case 'mirror':
       return <Mirror it={it} />;
+    case 'car':
+      return <Car it={it} />;
+    case 'fence':
+      return <Fence it={it} />;
+    case 'mirrorCabinet':
+      return <MirrorCabinet it={it} />;
     case 'hooks':
       return <Hooks it={it} />;
     case 'tv':

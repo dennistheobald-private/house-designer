@@ -211,6 +211,7 @@ export function Scene({
   house,
   mode,
   floorIndex,
+  roof = false,
   walkTarget,
   onWalk,
   walkFloor,
@@ -226,6 +227,8 @@ export function Scene({
   house: House;
   mode: 'dollhouse' | 'walk';
   floorIndex: number;
+  /** Show the top floor with its roof on. */
+  roof?: boolean;
   walkTarget: WalkTarget;
   onWalk: (p: WalkPosition) => void;
   /** The floor you are standing on in the walkthrough. */
@@ -262,7 +265,7 @@ export function Scene({
       {/* The path tracer lights rooms only through their windows, as a camera sees them, so it needs the exposure a photographer would use indoors. */}
       <TextureReady />
       <Exposure value={photo ? (evening ? 1.8 : 2.6) : walking ? (evening ? 1.3 : 1.0) : evening ? 1.2 : 0.85} />
-      <HouseModel house={house} visibleFloors={visible} showRoof={walking} showSurroundings={walking} furnished={furnished} litFloors={lit} litRoom={fast ? (litRoom ?? '') : null} onPick={onPick} />
+      <HouseModel house={house} visibleFloors={visible} showRoof={walking || roof} showSurroundings={walking} furnished={furnished} litFloors={lit} litRoom={fast ? (litRoom ?? '') : null} onPick={onPick} />
       {walking ? (
         <WalkControls house={house} target={walkTarget} onMove={onWalk} furnished={furnished} frozen={photo} />
       ) : (

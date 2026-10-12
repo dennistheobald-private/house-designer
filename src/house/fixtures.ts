@@ -88,13 +88,16 @@ const bathroom: Fixture[] = [
   f('Glass wall', 'glass', 8.01, 0, 8.03, 1.2, 0, 2.0),
   f('Bath wall tiles', 'beige', 8.02, 0, 10.15, 0.01, 0, 1.2),
   f('Bathtub', 'white', 8.45, 0, 10.15, 0.8, 0, 0.58),
-  f('Pre-wall with mirror cabinet', 'beige', 7.74, 2.63, 9.35, 2.79, 0, 2.4),
+  // The pre-wall around the recess the mirror cabinet (a furniture piece, so its doors open) sits in.
+  f('Pre-wall', 'beige', 7.74, 2.63, 9.35, 2.79, 0, 1.31),
+  f('Pre-wall', 'beige', 7.74, 2.63, 9.35, 2.79, 2.09, 2.4),
+  f('Pre-wall', 'beige', 7.74, 2.63, 7.85, 2.79, 1.31, 2.09),
+  f('Pre-wall', 'beige', 9.25, 2.63, 9.35, 2.79, 1.31, 2.09),
   f('WC pre-wall', 'beige', 9.35, 2.63, 10.03, 2.79, 0, 1.2),
   f('Shelf', 'oak', 9.35, 2.62, 10.03, 2.79, 1.2, 1.23),
   f('Flush plate', 'roseGold', 9.6, 2.617, 9.82, 2.63, 0.95, 1.1),
   f('Downpipe casing', 'wall', 10.03, 2.63, 10.15, 2.79, 0, 2.5),
   f('Vanity', 'walnut', 7.85, 2.13, 9.25, 2.63, 0.34, 0.9),
-  f('Mirror cabinet, built in', 'mirror', 7.85, 2.625, 9.25, 2.632, 1.31, 2.09),
   f('Basin', 'white', 8.44, 2.19, 9.0, 2.57, 0.9, 1.02, true),
   f('WC', 'white', 9.53, 2.1, 9.89, 2.63, 0.14, 0.43, true),
   f('Ceiling light', 'light', 8.45, 1.3, 8.59, 1.44, 2.48, 2.5),
@@ -167,7 +170,11 @@ export const showersByFloor: Record<string, ShowerSystem[]> = {
 };
 
 export const fixturesByFloor: Record<string, Fixture[]> = {
-  basement: [],
+  basement: [
+    f('Parking ceiling', 'wall', 7.0, 0, 11.95, 5.7, 2.49, 2.5),
+    f('Parking bay line', 'white', 7.4, 2.81, 11.8, 2.89, 0, 0.004),
+    f('Parking bay line', 'white', 11.7, 0.1, 11.78, 5.6, 0, 0.004),
+  ],
   main: kitchen,
   first: bathroom,
   top: ensuite,

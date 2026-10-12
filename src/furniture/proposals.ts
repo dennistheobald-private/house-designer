@@ -244,8 +244,9 @@ const living = (id: string, name: string, kind: FurnitureItem['kind'], x: number
   item('living', id, name, kind, x, y, w, d, h, more);
 
 /** The stairwell: vertical oak slats on its back wall and a gallery of mountain photos on its side wall, on every floor. */
-const stairWall = (room: string, floor: string, side: number, gallery = true): FurnitureItem[] => [
-  item(room, `${floor}-stair-slats`, 'Vertical oak slats on the stair wall', 'slats', 5.545, 0.015, 2.25, 0.03, 2.5, { variant: 'oak' }),
+const stairWall = (room: string, floor: string, side: number, gallery = true, slatHeight = 2.83): FurnitureItem[] => [
+  // Floor to floor, so the slats run on past each slab without a break; on the top floor they stop at the ceiling.
+  item(room, `${floor}-stair-slats`, 'Vertical oak slats on the stair wall', 'slats', 5.545, 0.015, 2.25, 0.03, slatHeight, { variant: 'oak' }),
   ...(gallery
     ? ([
         [1.35, 1.0, 0.5, 0.65, 'mountain'],
@@ -269,7 +270,7 @@ const mainFloor: FurnitureItem[] = [
   living('books', 'Mountain books', 'books', 1.75, 1.85, 0.3, 0.22, 0.08, { z: 0.42, rot: 20 }),
   living('lounge-chair', 'Bentwood armchair, birch with a cream cushion', 'loungeChair', 0.75, 2.75, 0.68, 0.82, 1.0, { rot: 135, colour: C.snow, variant: 'bentwood' }),
   living('arc-lamp', 'Arc floor lamp, black with an LED strip', 'floorLamp', 0.42, 0.42, 0.36, 0.36, 2.05, { rot: 45, variant: 'arc' }),
-  living('dracaena', 'Dracaena, 2.3 m, in a yellow pot', 'plant', 3.92, 0.36, 0.56, 0.56, 2.3, { variant: 'dracaena', accent: '#e7b52f' }),
+  living('dracaena', 'Dracaena, 2 m, in a yellow pot', 'plant', 3.85, 0.42, 0.56, 0.56, 2.0, { variant: 'dracaena', accent: '#e7b52f' }),
   // The door at the top of the basement flight, beside the stair wall.
   living('basement-door', 'Door to the basement stair, warm grey, 93 x 208 cm', 'door', 4.935, 1.82, 1.03, 0.1, 2.48, { colour: '#8c8378', accent: '#2a2a2a' }),
   living('olive', 'Olive tree in a clay pot', 'plant', 0.45, 5.15, 0.6, 0.6, 1.9, { variant: 'olive', accent: C.clay }),
@@ -381,6 +382,7 @@ const bathroom: FurnitureItem[] = [
   item('bathroom', 'ladder', 'Oak towel ladder, stone and moss towels', 'towels', 6.86, 1.56, 0.45, 0.1, 1.6, { rot: 90, colour: C.stone, accent: C.moss }),
   item('bathroom', 'mat', 'Bath mat, moss', 'rug', 8.6, 1.85, 0.8, 0.5, 0.012, { colour: C.moss }),
   item('bathroom', 'fern', 'Fern', 'plant', 9.95, 1.2, 0.32, 0.32, 0.7, { variant: 'fern', accent: C.white }),
+  item('bathroom', 'mirror-cabinet', 'Mirror cabinet, three doors, white inside', 'mirrorCabinet', 8.55, 2.702, 1.4, 0.14, 0.78, { rot: 180, z: 1.31 }),
 ];
 
 /* ---------------------------------------------------------------- top floor */
@@ -411,6 +413,9 @@ const ensuite: FurnitureItem[] = [
 ];
 
 const roofTerrace: FurnitureItem[] = [
+  // Grey-oak slat fences along both party lines, screening the terrace from the neighbours' terraces.
+  item('roof-terrace', 'fence-north', 'Privacy fence, grey oak slats, 180 cm', 'fence', 1.935, 0.03, 4.27, 0.06, 1.8),
+  item('roof-terrace', 'fence-south', 'Privacy fence, grey oak slats, 180 cm', 'fence', 1.935, 5.67, 4.27, 0.06, 1.8, { rot: 180 }),
   ...[0.9, 2.85, 4.8].map((y, i) =>
     item('roof-terrace', `planter-${i}`, i === 1 ? 'Planter with birch and ferns' : 'Planter with mountain pine', 'planter', 0.05, y, 1.6, 0.45, 0.55, { rot: 90, variant: i === 1 ? 'birch' : 'pine' }),
   ),
@@ -500,10 +505,16 @@ const basement: FurnitureItem[] = [
 ];
 
 export const furnitureByFloor: Record<string, FurnitureItem[]> = {
-  basement: [...basement, ...stairWall('basement-corridor', 'basement', 6.7)],
+  basement: [
+    ...basement,
+    ...stairWall('basement-corridor', 'basement', 6.7),
+    // Dennis's grey Model Y, reversed into the north space; the south space stays free.
+    item('parking', 'model-y', 'Tesla Model Y, stealth grey, 475 x 192 x 162 cm', 'car', 9.45, 1.4, 1.92, 4.75, 1.62, { rot: -90, colour: '#5d6166' }),
+    ...[8.2, 10.7].flatMap((x) => [1.4, 4.3].map((y, i) => item('parking', `light-${x}-${i}`, 'Ceiling light', 'spot', x, y, 0.16, 0.16, 0.05, { z: 2.45 }))),
+  ],
   main: [...mainFloor, ...kitchenItems, ...entrance, ...wc, ...gardenTerrace, ...frontGarden],
   first: [...stairWall('first-landing', 'first', 6.67), ...zimmer1, ...zimmer2, ...zimmer3, ...bathroom],
-  top: [...stairWall('top-landing', 'top', 6.66), ...bedroom, ...ensuite, ...roofTerrace, ...streetTerrace],
+  top: [...stairWall('top-landing', 'top', 6.66, true, 2.5), ...bedroom, ...ensuite, ...roofTerrace, ...streetTerrace],
 };
 
 export const proposalFor = (roomId: string) => proposals.find((p) => p.room === roomId);

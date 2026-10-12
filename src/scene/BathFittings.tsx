@@ -1,8 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useThree } from '@react-three/fiber';
+import type { ThreeEvent } from '@react-three/fiber';
 import * as THREE from 'three';
 import type { Fitting } from '../house/fixtures';
 import { cylinder, lathe, metal, roundedBox } from './furniture/look';
 import { material } from './materials';
+import { Stream } from './Water';
 
 /*
  * Bathroom fittings after the products Dennis chose: the Laufen Pro wall-hung WC, the
@@ -173,11 +176,34 @@ export function BathMixer() {
 }
 
 /** All the fittings of one floor, placed on their walls. */
-export function Fittings({ items, level }: { items: Fitting[]; level: number }) {
+export function Fittings({ items, level, onClick }: { items: Fitting[]; level: number; onClick?: (f: Fitting, e: ThreeEvent<MouseEvent>) => void }) {
+  // Mixers with the water running; double-clicking a mixer, or the basin under it, turns it on or off.
+  const [running, setRunning] = useState<number[]>([]);
+  const invalidate = useThree((s) => s.invalidate);
+  const toggle = (i: number) => (e: ThreeEvent<MouseEvent>) => {
+    const f = items[i];
+    if (f.kind === 'toilet') return;
+    e.stopPropagation();
+    const mixers = items.map((m, j) => ({ m, j })).filter(({ m }) => m.kind !== 'basin' && m.kind !== 'toilet');
+    const target = f.kind === 'basin' ? mixers.sort((a, b) => Math.hypot(a.m.x - f.x, a.m.y - f.y) - Math.hypot(b.m.x - f.x, b.m.y - f.y))[0]?.j : i;
+    if (target === undefined) return;
+    setRunning((r) => (r.includes(target) ? r.filter((j) => j !== target) : [...r, target]));
+    invalidate();
+  };
   return (
     <group>
       {items.map((f, i) => (
-        <group key={i} position={[f.x, level + f.z, f.y]} rotation={[0, (f.facing * Math.PI) / 180, 0]}>
+        <group key={i} position={[f.x, level + f.z, f.y]} rotation={[0, (f.facing * Math.PI) / 180, 0]} onClick={onClick && ((e) => onClick(f, e))} onDoubleClick={toggle(i)}>
+          {running.includes(i) && f.kind === 'tallMixer' && (
+            <group position={[0, 0.262, (f.reach ?? 0.17) - 0.012]}>
+              <Stream drop={0.235} />
+            </group>
+          )}
+          {running.includes(i) && f.kind === 'bathMixer' && (
+            <group position={[0, -0.07, 0.175]}>
+              <Stream drop={0.6} r={0.008} />
+            </group>
+          )}
           {f.kind === 'toilet' && <Toilet />}
           {f.kind === 'basin' && <VesselBasin />}
           {f.kind === 'tallMixer' && <TallMixer reach={f.reach} />}

@@ -229,10 +229,14 @@ function build() {
     hedge: std({ map: speckle([62, 92, 56], 0.35, 17), roughness: 1 }),
     soil: std({ color: '#8a7663', roughness: 1 }),
     ground: std({ map: speckle([196, 192, 182], 0.1, 19), roughness: 1 }),
+    // Green roof: low sedum, mostly green with rusty patches.
+    sedum: std({ map: speckle([108, 128, 70], 0.45, 23), roughness: 1 }),
+    // Solar panels: dark blue cells with fine silver gaps under glass.
+    solar: new THREE.MeshPhysicalMaterial({ map: tiles([28, 36, 58], 0.156, 'rgba(170,180,200,0.75)', 0.02), roughness: 0.18, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05 }),
   } satisfies Record<string, THREE.Material>;
 }
 
-export type MaterialKey = FloorFinish | FixtureMaterial | 'facade' | 'slab' | 'frame' | 'neighbour' | 'hedge' | 'soil' | 'ground';
+export type MaterialKey = FloorFinish | FixtureMaterial | 'facade' | 'slab' | 'frame' | 'neighbour' | 'hedge' | 'soil' | 'ground' | 'sedum' | 'solar';
 
 export function material(key: MaterialKey): THREE.Material {
   cache ??= build();

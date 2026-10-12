@@ -55,6 +55,8 @@ export function App() {
   const init = useMemo(initialState, []);
   const [mode, setMode] = useState<Mode>(init.mode);
   const [floorIndex, setFloorIndex] = useState(init.floor);
+  // The top floor seen with its roof on: the green roof and the solar panels.
+  const [roof, setRoof] = useState(false);
   const [target, setTarget] = useState<WalkTarget>(() => {
     const t = targetForRoom(init.roomId, 0, init.furnished);
     return init.at ? { ...t, x: init.at[0], y: init.at[1], facing: (init.at[2] * Math.PI) / 180 } : t;
@@ -148,11 +150,16 @@ export function App() {
         </nav>
         {mode !== 'walk' && (
           <nav className="tabs" aria-label="Floor">
+            {mode === 'dollhouse' && (
+              <button className={roof ? 'active' : ''} onClick={() => (setFloorIndex(house.floors.length - 1), setRoof(true), setFocusRoom(null))}>
+                Roof
+              </button>
+            )}
             {house.floors
               .map((f, i) => ({ f, i }))
               .reverse()
               .map(({ f, i }) => (
-                <button key={f.id} className={i === floorIndex ? 'active' : ''} onClick={() => (setFloorIndex(i), setFocusRoom(null))}>
+                <button key={f.id} className={i === floorIndex && !(roof && mode === 'dollhouse') ? 'active' : ''} onClick={() => (setFloorIndex(i), setRoof(false), setFocusRoom(null))}>
                   {f.name}
                 </button>
               ))}
@@ -230,6 +237,7 @@ export function App() {
             house={house}
             mode={mode}
             floorIndex={floorIndex}
+            roof={roof && mode === 'dollhouse'}
             walkTarget={target}
             onWalk={setPosition}
             walkFloor={position.floor}
@@ -252,7 +260,7 @@ export function App() {
             </button>
           </div>
         )}
-        {mode === 'dollhouse' && furnished && !photo && <ProposalList floor={house.floors[floorIndex]} />}
+        {mode === 'dollhouse' && furnished && !photo && !roof && <ProposalList floor={house.floors[floorIndex]} />}
 
         {mode === 'walk' && (
           <>

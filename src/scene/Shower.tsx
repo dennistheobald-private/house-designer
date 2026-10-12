@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import type { ShowerSystem } from '../house/fixtures';
 import { cylinder, fabric, metal, roundedBox } from './furniture/look';
 import { material } from './materials';
+import { Rain, useRunning } from './Water';
 
 /*
  * A shower system after the photo Dennis chose (a square-profile showerpipe with a
@@ -37,8 +38,15 @@ export function Shower({ shower, level }: { shower: ShowerSystem; level: number 
   }, []);
   const top = 2.2;
   const arm = 0.42;
+  // Double-click the shower to turn the rain on or off.
+  const [running, toggle] = useRunning();
   return (
-    <group position={[shower.x, level, shower.y]}>
+    <group position={[shower.x, level, shower.y]} onDoubleClick={toggle}>
+      {running && (
+        <group position={[0, top - 0.025, RAIL_Z + arm - 0.04]}>
+          <Rain w={0.32} d={0.22} drop={top - 0.03} />
+        </group>
+      )}
       {/* Wall rail and the arm to the rain head */}
       <Part g={roundedBox(RAIL, top - 0.86, RAIL, 0.003)} m={gold} p={[0, (top + 0.86) / 2, RAIL_Z]} />
       <Part g={roundedBox(RAIL, RAIL, arm, 0.003)} m={gold} p={[0, top, RAIL_Z + arm / 2]} />

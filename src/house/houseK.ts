@@ -51,6 +51,10 @@ const basement: Floor = {
     { id: 'b-mid', rect: r(-3.33, 3.0, 5.45, 3.15) },
     { id: 'b-b1', rect: r(2.02, 3.15, 2.19, 5.7) },
     { id: 'b-wash', rect: r(5.45, 3.0, 5.59, 5.7) },
+    // The underground parking in front of the basement door, under the street half of the house and the front garden.
+    { id: 'b-park-n', rect: r(7.0, -0.25, 12.1, 0) },
+    { id: 'b-park-s', rect: r(7.0, 5.7, 12.1, 5.95) },
+    { id: 'b-park-e', rect: r(11.95, 0, 12.1, 5.7) },
   ],
   openings: [
     { wall: 'b-west', kind: 'window', from: 0.52, to: 1.46, sill: 1.6, head: 2.3 },
@@ -70,7 +74,10 @@ const basement: Floor = {
     // The plan's 9.7 m² for the corridor includes the stairwell.
     { id: 'basement-corridor', name: 'Corridor', rects: [r(4.42, 1.77, 6.7, 3.0), r(5.59, 3.0, 6.7, 5.7), r(4.42, 3.0, 5.45, 3.15)], finish: 'screed', spawn: { x: 6.1, y: 2.4, facing: Math.PI } },
   ],
-  outdoor: [],
+  outdoor: [
+    // Two parking spaces side by side, through the door at the end of the corridor.
+    { id: 'parking', name: 'Parking', rects: [r(7.0, 0, 11.95, 5.7)], finish: 'screed', spawn: { x: 7.5, y: 4.6, facing: -0.55 } },
+  ],
 };
 
 const mainFloor: Floor = {

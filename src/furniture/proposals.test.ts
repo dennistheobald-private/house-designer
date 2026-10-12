@@ -14,7 +14,7 @@ const onFloor = (it: FurnitureItem) => !it.z && BLOCKING.has(it.kind);
 
 describe('furnished proposals', () => {
   it('gives every room a proposal, except landings and the open garden', () => {
-    const skip = new Set(['first-landing', 'top-landing', 'basement-corridor', 'garden', 'front-garden', 'front-path', 'garden-terrace', 'street-terrace']);
+    const skip = new Set(['first-landing', 'top-landing', 'basement-corridor', 'garden', 'front-garden', 'front-path', 'garden-terrace', 'street-terrace', 'parking']);
     const rooms = houseK.floors.flatMap((f) => [...f.rooms, ...f.outdoor]).filter((r) => !skip.has(r.id));
     for (const room of rooms) expect(proposals.map((p) => p.room), room.id).toContain(room.id);
   });
@@ -98,7 +98,8 @@ describe('furnished proposals', () => {
     for (const { floor, items } of floors) {
       // Outdoors there is no ceiling; a garden tree may stand taller than a room.
       const indoors = new Set(floor.rooms.map((r) => r.id));
-      for (const it of items.filter((i) => indoors.has(i.room))) expect((it.z ?? 0) + it.h, it.id).toBeLessThanOrEqual(floor.clearHeight + 0.001);
+      // The stair wall's slats run on through the slab to the floor above.
+      for (const it of items.filter((i) => indoors.has(i.room) && !i.id.endsWith('-stair-slats'))) expect((it.z ?? 0) + it.h, it.id).toBeLessThanOrEqual(floor.clearHeight + 0.001);
     }
   });
 });

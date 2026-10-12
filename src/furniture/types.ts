@@ -34,6 +34,9 @@ export type FurnitureKind =
   | 'paint'
   | 'slats'
   | 'mirror'
+  | 'mirrorCabinet'
+  | 'fence'
+  | 'car'
   | 'hooks'
   | 'tv'
   // living things and small things
