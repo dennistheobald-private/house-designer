@@ -7,6 +7,7 @@ import type { Floor, House, Opening, Wall } from '../house/types';
 import { Furnishings, type PickHandler } from './furniture/Furnishings';
 import { BlockMesh, FloorPlane, PlanSlab, rectOutline } from './meshes';
 import { Shower } from './Shower';
+import { Shuttered } from './Shutters';
 
 const SLAB = 0.33;
 const TREAD = 0.06;
@@ -56,9 +57,18 @@ function FloorStructure({ house, floor, index }: { house: House; floor: Floor; i
       ))}
       {floor.openings
         .filter((o) => o.kind !== 'door' && o.kind !== 'niche')
-        .map((o, i) => (
-          <Window key={i} wall={floor.walls.find((w) => w.id === o.wall)!} opening={o} level={floor.level} />
-        ))}
+        .map((o, i) => {
+          const wall = floor.walls.find((w) => w.id === o.wall)!;
+          const window = <Window key={i} wall={wall} opening={o} level={floor.level} />;
+          // Roller shutters on every outside window above ground.
+          return wall.exterior && floor.level >= 0 ? (
+            <Shuttered key={i} wall={wall} opening={o} level={floor.level}>
+              {window}
+            </Shuttered>
+          ) : (
+            window
+          );
+        })}
       <BlockMesh block={{ ...core, z0: 0, z1: isTop ? 1.0 : floor.clearHeight }} level={floor.level} mat="wall" />
       {isTop && (
         <>

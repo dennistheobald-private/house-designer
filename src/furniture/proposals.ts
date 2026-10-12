@@ -191,7 +191,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Oat', hex: C.oat },
       { name: 'Pine', hex: C.pine },
     ],
-    summary: 'A built-in oak lounging nook along the window wall with its bookshelves built into one end and over the top, a 140 x 200 cm mattress that doubles as a guest bed, big cushions, a reading light and LED strips; speakers in the upper corners, a white standing desk along the east wall with two 24 inch screens and the Logitech MX keyboard and mouse, and one oak closet of storage boxes.',
+    summary: 'A built-in oak lounging nook along the window wall with its bookshelves built into one end and over the top, a 140 x 200 cm mattress that doubles as a guest bed, big cushions, a reading light and LED strips; speakers in the upper corners, a knitted pouf and a soft floor lamp, and oak closets of storage boxes along the east and south walls.',
   },
   {
     room: 'bastelraum-2',
@@ -275,7 +275,10 @@ const mainFloor: FurnitureItem[] = [
 const kitchenItems: FurnitureItem[] = [
   item('kitchen', 'herbs', 'Herbs in terracotta pots', 'herbs', 9.98, 3.7, 0.5, 0.15, 0.28, { rot: -90, z: 0.93 }),
   item('kitchen', 'boards', 'Oak chopping boards', 'boards', 7.3, 5.6, 0.6, 0.06, 0.45, { rot: 180, z: 0.93 }),
-  item('kitchen', 'bowl', 'Stoneware fruit bowl', 'bowl', 9.8, 5.35, 0.3, 0.3, 0.1, { z: 0.93, colour: C.sage, variant: 'fruit' }),
+  item('kitchen', 'bowl', 'Stoneware fruit bowl', 'bowl', 7.4, 5.3, 0.3, 0.3, 0.1, { z: 0.93, colour: C.sage, variant: 'fruit' }),
+  // Dennis's coffee corner: a light blue Profitec Go and a black Eureka Mignon Specialità.
+  item('kitchen', 'espresso', 'Espresso machine, Profitec Go, light blue', 'espresso', 9.4, 5.43, 0.25, 0.4, 0.36, { rot: 180, z: 0.93 }),
+  item('kitchen', 'grinder', 'Coffee grinder, Eureka Mignon Specialità, matt black', 'grinder', 9.85, 5.47, 0.13, 0.2, 0.35, { rot: 180, z: 0.93 }),
   item('kitchen', 'blind', 'Roller blind, sage linen', 'blind', 10.14, 4.28, 1.55, 0.04, 0.35, { rot: -90, z: 2.07, colour: C.sage }),
 ];
 
@@ -304,6 +307,7 @@ const gardenTerrace: FurnitureItem[] = [
   // A black aluminium pergola with a louvred roof over the whole terrace, after Dennis's photo, resting on the facade.
   item('garden-terrace', 'pergola', 'Pergola, black aluminium, louvred roof, 570 x 260 cm, 260 cm high', 'pergola', -1.65, 2.85, 5.7, 2.6, 2.6, { rot: -90 }),
   item('garden-terrace', 'planter-1', 'Planter with grasses', 'planter', -2.6, 0.75, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
+  item('garden-terrace', 'dining', 'Garden dining set: teak table 180 x 90 cm, six rope chairs; double-click to cover it for winter', 'gardenSet', -1.85, 2.85, 1.9, 1.9, 0.9, { rot: 90 }),
   item('garden-terrace', 'planter-2', 'Planter with grasses', 'planter', -2.6, 4.95, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
 ];
 
@@ -438,12 +442,10 @@ const basement: FurnitureItem[] = [
   // Reading room: the lounging nook along the window wall, its bookcase built into one end and a shelf over the top.
   item('bastelraum-1', 'nook', 'Built-in lounging nook, oak, with built-in bookshelves, mattress 140 x 200 cm (guest bed)', 'nook', -2.58, 4.425, 2.5, 1.5, 2.45, { rot: 90, variant: 'books' }),
   item('bastelraum-1', 'rug', 'Wool rug, oat', 'rug', -0.55, 4.45, 2.0, 1.6, 0.015, { colour: C.oat }),
-  // Office along the east wall, and one closet of storage boxes.
-  item('bastelraum-1', 'desk', 'Standing desk, white, 140 x 70 cm, 65 to 130 cm high', 'desk', 1.66, 4.05, 1.4, 0.7, 0.75, { rot: -90, variant: 'standing' }),
-  item('bastelraum-1', 'screen-1', 'Monitor, 24 inch', 'monitor', 1.86, 3.77, 0.54, 0.2, 0.48, { rot: -75, z: 0.75 }),
-  item('bastelraum-1', 'screen-2', 'Monitor, 24 inch', 'monitor', 1.86, 4.33, 0.54, 0.2, 0.48, { rot: -105, z: 0.75 }),
-  item('bastelraum-1', 'keyboard', 'Logitech MX Keys keyboard', 'keyboard', 1.55, 4.03, 0.43, 0.13, 0.02, { rot: -90, z: 0.754 }),
-  item('bastelraum-1', 'mouse', 'Logitech MX Master mouse', 'mouse', 1.55, 4.4, 0.085, 0.125, 0.05, { rot: -90, z: 0.754 }),
+  // Chill and storage: box closets along the east and south walls, a pouf and a soft light.
+  item('bastelraum-1', 'closet-e', 'Built-in closet, oak, open shelves with storage boxes', 'boxShelf', 1.795, 4.1, 1.6, 0.45, 2.4, { rot: -90, variant: 'oak' }),
+  item('bastelraum-1', 'pouf', 'Knitted pouf, oat', 'pouf', 0.9, 4.9, 0.55, 0.55, 0.4, { colour: C.oat }),
+  item('bastelraum-1', 'floor-lamp', 'Floor lamp, black with linen shade', 'floorLamp', -1.55, 3.45, 0.4, 0.4, 1.6, { colour: C.linen }),
   item('bastelraum-1', 'closet', 'Built-in closet, oak, open shelves with storage boxes', 'boxShelf', 1.1, 5.47, 1.8, 0.45, 2.4, { rot: 180, variant: 'oak' }),
   ...([
     [1.94, 3.23, -45, 2.2],
