@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { furnitureByFloor } from '../furniture/proposals';
-import type { FurnitureItem } from '../furniture/types';
+import { localParts, type FurnitureItem } from '../furniture/types';
 import { fixturesByFloor } from '../house/fixtures';
 import { roomArea, stairTreads, wallBlocks } from '../house/geometry';
 import type { FloorFinish, House, Rect } from '../house/types';
@@ -24,6 +24,15 @@ const SCALE = 60; // pixels per metre
 const onPlan = (it: FurnitureItem) =>
   (it.z ?? 0) < 0.5 && !['print', 'mural', 'paint', 'slats', 'mirror', 'hooks', 'tv', 'pendant', 'blind', 'curtain'].includes(it.kind);
 
+/** Outline of an L made of a back run and a chaise in front of one end. */
+function lShape([back, chaise]: { x0: number; y0: number; x1: number; y1: number }[]) {
+  const left = chaise.x0 <= back.x0 + 1e-6;
+  const pts = left
+    ? [[back.x0, back.y0], [back.x1, back.y0], [back.x1, back.y1], [chaise.x1, back.y1], [chaise.x1, chaise.y1], [chaise.x0, chaise.y1]]
+    : [[back.x0, back.y0], [back.x1, back.y0], [chaise.x1, chaise.y1], [chaise.x0, chaise.y1], [chaise.x0, back.y1], [back.x0, back.y1]];
+  return `M${pts.map((p) => p.join(' ')).join('L')}Z`;
+}
+
 function FurnitureShape({ it, onPick }: { it: FurnitureItem; onPick?: (item: FurnitureItem, screen: { x: number; y: number }) => void }) {
   const rug = it.kind === 'rug';
   const props = {
@@ -42,6 +51,8 @@ function FurnitureShape({ it, onPick }: { it: FurnitureItem; onPick?: (item: Fur
       {!onPick && <title>{it.name}</title>}
       {round ? (
         <ellipse rx={it.w / 2} ry={it.d / 2} {...props} />
+      ) : it.chaise ? (
+        <path d={lShape(localParts(it))} {...props} />
       ) : (
         <rect x={-it.w / 2} y={-it.d / 2} width={it.w} height={it.d} rx={['sofa', 'bed', 'loungeChair'].includes(it.kind) ? 0.06 : 0.01} {...props} />
       )}

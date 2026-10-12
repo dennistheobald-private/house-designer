@@ -20,7 +20,8 @@ export interface Wall {
   hedge?: boolean;
 }
 
-export type OpeningKind = 'door' | 'window' | 'glassDoor';
+/** A niche is a recess cut into a wall between `sill` and `head`, closed at the back by fixtures. */
+export type OpeningKind = 'door' | 'window' | 'glassDoor' | 'niche';
 
 /** A gap in a wall. `from`/`to` are absolute coordinates along the wall's long axis. */
 export interface Opening {

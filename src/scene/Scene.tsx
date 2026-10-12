@@ -104,6 +104,17 @@ function Exposure({ value }: { value: number }) {
   return null;
 }
 
+/** Redraws once a texture from an image has loaded, since Fast mode only renders on demand. */
+function TextureReady() {
+  const invalidate = useThree((s) => s.invalidate);
+  useEffect(() => {
+    const redraw = () => invalidate();
+    window.addEventListener('texture-loaded', redraw);
+    return () => window.removeEventListener('texture-loaded', redraw);
+  }, [invalidate]);
+  return null;
+}
+
 /**
  * Photo mode: a progressive path tracer renders the current view with real global
  * illumination, soft shadows and reflections. It refines with every frame; moving the camera
@@ -249,6 +260,7 @@ export function Scene({
       <Lighting time={time} quality={quality} />
       <LampShades on={evening} />
       {/* The path tracer lights rooms only through their windows, as a camera sees them, so it needs the exposure a photographer would use indoors. */}
+      <TextureReady />
       <Exposure value={photo ? (evening ? 1.8 : 2.6) : walking ? (evening ? 1.3 : 1.0) : evening ? 1.2 : 0.85} />
       <HouseModel house={house} visibleFloors={visible} showRoof={walking} showSurroundings={walking} furnished={furnished} litFloors={lit} litRoom={fast ? (litRoom ?? '') : null} onPick={onPick} />
       {walking ? (

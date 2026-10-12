@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { furnitureByFloor } from '../furniture/proposals';
-import { fixturesByFloor, showersByFloor } from '../house/fixtures';
+import { fittingsByFloor, fixturesByFloor, showersByFloor } from '../house/fixtures';
+import { Fittings } from './BathFittings';
 import { runsAlongX, stairTreads, STAIR_TURN_X, wallBlocks } from '../house/geometry';
 import type { Floor, House, Opening, Wall } from '../house/types';
 import { Furnishings, type PickHandler } from './furniture/Furnishings';
@@ -54,7 +55,7 @@ function FloorStructure({ house, floor, index }: { house: House; floor: Floor; i
         <BlockMesh key={i} block={b} level={floor.level} mat={mat} />
       ))}
       {floor.openings
-        .filter((o) => o.kind !== 'door')
+        .filter((o) => o.kind !== 'door' && o.kind !== 'niche')
         .map((o, i) => (
           <Window key={i} wall={floor.walls.find((w) => w.id === o.wall)!} opening={o} level={floor.level} />
         ))}
@@ -65,12 +66,13 @@ function FloorStructure({ house, floor, index }: { house: House; floor: Floor; i
           <BlockMesh block={{ x0: STAIR_TURN_X, y0: shaft.y1 - 0.02, x1: shaft.x1, y1: shaft.y1 + 0.02, z0: 1.0, z1: 1.04 }} level={floor.level} mat="steel" />
         </>
       )}
-      {fixturesByFloor[floor.id]?.map((fx, i) => (
+      {fixturesByFloor[floor.id]?.filter((fx) => !fx.planOnly).map((fx, i) => (
         <BlockMesh key={`fx-${i}`} block={fx} level={floor.level} mat={fx.material} shadows={fx.material !== 'glass' && fx.material !== 'light'} />
       ))}
       {showersByFloor[floor.id]?.map((s, i) => (
         <Shower key={`shower-${i}`} shower={s} level={floor.level} />
       ))}
+      <Fittings items={fittingsByFloor[floor.id] ?? []} level={floor.level} />
     </group>
   );
 }

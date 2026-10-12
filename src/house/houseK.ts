@@ -61,8 +61,8 @@ const basement: Floor = {
     { wall: 'b-mid', kind: 'door', from: 4.51, to: 5.38, sill: 0, head: 2.1 },
   ],
   rooms: [
-    { id: 'bastelraum-2', name: 'Bastelraum 2', planArea: 22.8, rects: [r(-3.33, 0, 4.27, 3.0)], finish: 'screed', spawn: { x: 1.5, y: 1.5, facing: Math.PI } },
-    { id: 'bastelraum-1', name: 'Bastelraum 1', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'carpet', spawn: { x: 1.2, y: 4.4, facing: Math.PI } },
+    { id: 'bastelraum-2', name: 'Gym, bikes and storage', planArea: 22.8, rects: [r(-3.33, 0, 4.27, 3.0)], finish: 'screed', spawn: { x: 1.5, y: 1.5, facing: Math.PI } },
+    { id: 'bastelraum-1', name: 'Reading room and guest bed', planArea: 13.6, rects: [r(-3.33, 3.15, 2.02, 5.7)], finish: 'carpet', spawn: { x: 1.2, y: 4.4, facing: Math.PI } },
     { id: 'laundry', name: 'Laundry and technical', planArea: 8.3, rects: [r(2.19, 3.15, 5.45, 5.7)], finish: 'screed', spawn: { x: 4.8, y: 4.4, facing: Math.PI } },
     // The plan's 9.7 m² for the corridor includes the stairwell.
     { id: 'basement-corridor', name: 'Corridor', rects: [r(4.42, 1.77, 6.7, 3.0), r(5.59, 3.0, 6.7, 5.7), r(4.42, 3.0, 5.45, 3.15)], finish: 'screed', spawn: { x: 6.1, y: 2.4, facing: Math.PI } },
@@ -93,6 +93,8 @@ const mainFloor: Floor = {
     // Garden boundaries: hedges to the neighbours, a low wall at the back.
     { id: 'm-hedge-n', rect: r(GARDEN_EDGE, PARTY_N - HEDGE, TERRACE_EDGE, PARTY_N + HEDGE), height: 1.2, hedge: true },
     { id: 'm-hedge-s', rect: r(GARDEN_EDGE, PARTY_S - HEDGE, TERRACE_EDGE, PARTY_S + HEDGE), height: 1.2, hedge: true },
+    // The same hedge closes the garden at the back, in front of the low boundary wall.
+    { id: 'm-hedge-w', rect: r(GARDEN_EDGE, PARTY_N + HEDGE, GARDEN_EDGE + 2 * HEDGE, PARTY_S - HEDGE), height: 1.2, hedge: true },
     { id: 'm-garden-wall', rect: r(GARDEN_EDGE - 0.2, PARTY_N - HEDGE, GARDEN_EDGE, PARTY_S + HEDGE), height: 0.4, exterior: true },
   ],
   openings: [
@@ -143,6 +145,7 @@ const firstFloor: Floor = {
     { wall: 'f-street', kind: 'window', from: 3.28, to: 5.0, sill: 0.9, head: 2.2 },
     { wall: 'f-z2', kind: 'door', from: 1.9, to: 2.72, sill: 0, head: 2.1 },
     { wall: 'f-bath', kind: 'door', from: 1.9, to: 2.72, sill: 0, head: 2.1 },
+    { wall: 'f-bath', kind: 'niche', from: 0.01, to: 1.21, sill: 1.2, head: 1.5 },
     { wall: 'f-mid', kind: 'door', from: 4.46, to: 5.29, sill: 0, head: 2.1 },
     { wall: 'f-mid', kind: 'door', from: 5.71, to: 6.57, sill: 0, head: 2.1 },
   ],

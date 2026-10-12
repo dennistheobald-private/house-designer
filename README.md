@@ -32,6 +32,7 @@ npm test        # checks the traced rooms against the plan areas, the stair and 
   so it wants a good graphics card. Photo always draws continuously. Links: `&quality=high`.
 - **Sizes**: click any piece of furniture, in 3D, Walk or the plan, to see its width, depth
   and height (and how high it hangs). Esc or a click elsewhere closes the card.
+- **Wall bed**: double-click the wall bed in the office (3D or Walk) to fold it down or up.
   The stairs are walkable between all floors, and "Go to" jumps to any room.
 - **Furnished / Empty** switches between the design proposal and the bare rooms. In 3D a
   panel lists each room's landscape, palette and pieces; in Walk the card shows the room

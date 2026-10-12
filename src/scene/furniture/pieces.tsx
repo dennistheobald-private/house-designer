@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
+import { useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
+import { useMemo, useRef, useState, type ReactNode } from 'react';
 import * as THREE from 'three';
-import type { FurnitureItem } from '../../furniture/types';
+import { CHAISE_WIDTH, SOFA_DEPTH, type FurnitureItem } from '../../furniture/types';
 import { rng } from '../textures';
+import { Toilet as BathToilet } from '../BathFittings';
 import {
   art,
   cached,
@@ -319,10 +321,11 @@ function Table({ it, desk = false }: { it: FurnitureItem; desk?: boolean }) {
       </group>
     );
   }
+  const tw = wood(it.variant === 'teak' ? 'teak' : 'oak');
   return (
     <group>
-      <Box w={w} h={top} d={d} y={h - top} m={wood()} r={0.006} />
-      <Legs w={w} d={d} h={h - top} inset={desk ? 0.04 : 0.09} r={desk ? 0.017 : 0.028} />
+      <Box w={w} h={top} d={d} y={h - top} m={tw} r={0.006} />
+      <Legs w={w} d={d} h={h - top} inset={desk ? 0.04 : 0.09} r={desk ? 0.017 : 0.028} m={tw} />
       {desk && <Box w={w - 0.1} h={0.1} d={0.02} y={h - top - 0.1} z={-d / 2 + 0.06} m={wood()} r={0.004} />}
       {desk && it.room !== 'bastelraum-1' && (
         <>
@@ -488,7 +491,7 @@ function Lowboard({ it }: { it: FurnitureItem }) {
 /* ---------------------------------------------------------------- soft furnishings */
 
 function Rug({ it }: { it: FurnitureItem }) {
-  const m = fabric(it.colour ?? '#e9e3d6', 'wool');
+  const m = it.variant === 'rubber' ? lacquer(it.colour ?? '#2e3032', 0.95) : fabric(it.colour ?? '#e9e3d6', 'wool');
   if (it.variant === 'round') return <M g={cylinder(it.w / 2, it.w / 2, it.h, 64)} m={m} p={[0, it.h / 2, 0]} shadow={false} />;
   return <M g={roundedBox(it.w, it.h, it.d, 0.006)} m={m} p={[0, it.h / 2, 0]} shadow={false} />;
 }
@@ -955,11 +958,11 @@ function Stool({ it }: { it: FurnitureItem }) {
 }
 
 function Toilet({ it }: { it: FurnitureItem }) {
+  // The same Laufen Pro pan as in the bathrooms, on a flush river-green pre-wall.
   return (
-    <group>
-      <Box w={it.w} h={0.36} d={it.d - 0.06} y={0.22} z={0.03} m={ceramic('#f7f7f4', 0.12)} r={0.12} />
-      <Box w={it.w + 0.02} h={0.02} d={it.d - 0.08} y={0.58} z={0.04} m={ceramic('#f7f7f4', 0.15)} r={0.01} />
-      <Box w={0.45} h={1.1} d={0.08} z={-it.d / 2 + 0.04} m={paint('#3d6262')} r={0.003} />
+    <group position={[0, 0, -it.d / 2]}>
+      <BathToilet w={it.w} d={it.d} />
+      <Box w={0.45} h={1.1} d={0.01} z={0.005} m={paint('#3d6262')} r={0.002} />
     </group>
   );
 }
@@ -1167,14 +1170,26 @@ function Pegboard({ it }: { it: FurnitureItem }) {
   );
 }
 
-function Washer({ it }: { it: FurnitureItem }) {
+function Washer({ it }: { it: FurnitureItem }): ReactNode {
+  if (it.variant === 'stack') {
+    // A washing machine with the dryer stacked on it.
+    const one = { ...it, h: it.h / 2 };
+    return (
+      <group>
+        <Washer it={{ ...one, variant: 'bare' }} />
+        <group position={[0, it.h / 2, 0]}>
+          <Washer it={{ ...one, variant: 'dryer' }} />
+        </group>
+      </group>
+    );
+  }
   return (
     <group>
       <Box w={it.w} h={it.h} d={it.d} m={lacquer('#f4f4f2', 0.3)} r={0.015} />
       <M g={torus(0.17, 0.025)} m={lacquer('#c9c9c9', 0.3)} p={[0, it.h * 0.45, it.d / 2 + 0.005]} />
       <M g={cylinder(0.16, 0.16, 0.01, 40)} m={screen()} p={[0, it.h * 0.45, it.d / 2]} r={[Math.PI / 2, 0, 0]} />
       <Box w={it.w - 0.04} h={0.1} d={0.01} y={it.h - 0.12} z={it.d / 2} m={lacquer('#e2e2df', 0.4)} r={0} />
-      {it.variant !== 'dryer' && <Box w={1.3} h={0.03} d={it.d + 0.03} x={0.33} y={it.h + 0.005} m={wood()} r={0.004} />}
+      {it.variant !== 'dryer' && it.variant !== 'bare' && <Box w={1.3} h={0.03} d={it.d + 0.03} x={0.33} y={it.h + 0.005} m={wood()} r={0.004} />}
     </group>
   );
 }
@@ -1196,17 +1211,798 @@ function DryingRack({ it }: { it: FurnitureItem }) {
   );
 }
 
+/* ---------------------------------------------------------------- October 2026 additions */
+
+/**
+ * A corner sofa: a full-width back run and a chaise coming forward on one side (`it.chaise`,
+ * as seen facing the sofa). `w` and `d` are the whole L.
+ */
+function CornerSofa({ it }: { it: FurnitureItem }) {
+  const { w, d } = it;
+  const up = fabric(it.colour ?? '#a9d6cf', weaveOf(it.variant));
+  const accent = fabric(it.accent ?? '#e9e3d6', 'linen');
+  const side = it.chaise === 'left' ? -1 : 1;
+  const legH = 0.1;
+  const arm = 0.16;
+  const backD = 0.22;
+  const seatH = 0.2;
+  const runD = SOFA_DEPTH;
+  const chD = d - runD;
+  const back = -d / 2;
+  const chX = side * (w / 2 - CHAISE_WIDTH / 2);
+  const seatTop = legH + 0.16;
+  // Two seats on the run beside the chaise.
+  const runInner0 = side < 0 ? -w / 2 + CHAISE_WIDTH : -w / 2 + arm;
+  const runInner1 = side < 0 ? w / 2 - arm : w / 2 - CHAISE_WIDTH;
+  const seats = 2;
+  const seatW = (runInner1 - runInner0) / seats;
+  const legs: [number, number][] = [
+    [-w / 2 + 0.06, back + 0.06],
+    [w / 2 - 0.06, back + 0.06],
+    [-side * (w / 2 - 0.06), back + runD - 0.06],
+    [side * (w / 2 - CHAISE_WIDTH + 0.06), d / 2 - 0.06],
+    [side * (w / 2 - 0.06), d / 2 - 0.06],
+  ];
+  return (
+    <group>
+      {legs.map(([x, z], i) => (
+        <M key={i} g={cylinder(0.02, 0.016, legH, 12)} m={metal('#2b2b2a', 0.5)} p={[x, legH / 2, z]} />
+      ))}
+      <Box w={w} h={0.18} d={runD} y={legH} z={back + runD / 2} m={up} r={0.04} />
+      <Box w={CHAISE_WIDTH} h={0.18} d={chD + 0.02} x={chX} y={legH} z={back + runD + chD / 2 - 0.01} m={up} r={0.04} />
+      <Box w={w - 0.02} h={it.h - legH} d={backD} y={legH} z={back + backD / 2} m={up} r={0.06} />
+      <Box w={arm} h={0.42} d={runD} x={-side * (w / 2 - arm / 2)} y={legH} z={back + runD / 2} m={up} r={0.06} />
+      {/* the chaise's outer side rises a little, as an armrest along its length */}
+      <Box w={arm} h={0.36} d={d} x={side * (w / 2 - arm / 2)} y={legH} m={up} r={0.06} />
+      {Array.from({ length: seats }, (_, i) => {
+        const cx = runInner0 + seatW * (i + 0.5);
+        return (
+          <group key={i}>
+            <Box w={seatW - 0.012} h={seatH} d={runD - backD - 0.02} x={cx} y={seatTop} z={back + backD + (runD - backD) / 2} m={up} r={0.07} />
+            <Box w={seatW - 0.02} h={0.42} d={0.2} x={cx} y={seatTop + seatH - 0.02} z={back + backD + 0.06} m={up} r={0.08} rot={[-0.12, 0, 0]} />
+          </group>
+        );
+      })}
+      <Box w={CHAISE_WIDTH - arm - 0.012} h={seatH} d={d - backD - 0.02} x={chX - (side * arm) / 2} y={seatTop} z={back + backD + (d - backD) / 2} m={up} r={0.07} />
+      <Box w={CHAISE_WIDTH - arm - 0.02} h={0.42} d={0.2} x={chX - (side * arm) / 2} y={seatTop + seatH - 0.02} z={back + backD + 0.06} m={up} r={0.08} rot={[-0.12, 0, 0]} />
+      {/* scatter cushions in snow and pine, and a throw on the chaise */}
+      <Box w={0.46} h={0.44} d={0.13} x={chX - (side * arm) / 2} y={seatTop + seatH + 0.12} z={back + backD + 0.25} m={accent} r={0.06} rot={[-0.25, side * 0.2, 0]} />
+      <Box w={0.42} h={0.4} d={0.13} x={-side * (w / 2 - arm - 0.32)} y={seatTop + seatH + 0.1} z={back + backD + 0.25} m={fabric('#34483e', 'wool')} r={0.06} rot={[-0.25, -side * 0.2, 0]} />
+      <Box w={0.42} h={0.4} d={0.13} x={-side * (w / 2 - arm - 0.75)} y={seatTop + seatH + 0.1} z={back + backD + 0.25} m={accent} r={0.06} rot={[-0.25, 0.1, 0]} />
+      <Box w={CHAISE_WIDTH - arm - 0.05} h={0.025} d={0.55} x={chX - (side * arm) / 2} y={seatTop + seatH} z={d / 2 - 0.4} m={fabric('#e9e3d6', 'knit')} r={0.01} />
+    </group>
+  );
+}
+
+/** A black aluminium pergola with a louvred roof, after Dennis's photo: front faces +z, the back rests on the facade. */
+function Pergola({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const alu = metal('#2a2b2c', 0.55);
+  const post = 0.12;
+  const beamH = 0.22;
+  const louvres = Math.floor((d - 0.2) / 0.16);
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <Box key={s} w={post} h={h} d={post} x={s * (w / 2 - post / 2)} z={d / 2 - post / 2} m={alu} r={0.004} />
+      ))}
+      {/* front beam, side beams and a wall plate along the facade */}
+      <Box w={w} h={beamH} d={post} y={h - beamH} z={d / 2 - post / 2} m={alu} r={0.004} />
+      {[-1, 1].map((s) => (
+        <Box key={`b${s}`} w={post} h={beamH} d={d} x={s * (w / 2 - post / 2)} y={h - beamH} m={alu} r={0.004} />
+      ))}
+      <Box w={w} h={beamH} d={0.08} y={h - beamH} z={-d / 2 + 0.04} m={alu} r={0.004} />
+      {/* louvres, parallel to the facade, half open */}
+      {Array.from({ length: louvres }, (_, i) => (
+        <Box key={`l${i}`} w={w - 2 * post} h={0.025} d={0.15} y={h - 0.12} z={-d / 2 + 0.16 + i * 0.16} m={alu} r={0.003} rot={[0.5, 0, 0]} />
+      ))}
+    </group>
+  );
+}
+
+/** Washing lines across the laundry, on two wall brackets, with a few things hanging. */
+function ClothesLine({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const lines = 4;
+  const steel = metal('#bfc1c2', 0.3);
+  const zs = Array.from({ length: lines }, (_, i) => -d / 2 + (d * (i + 0.5)) / lines);
+  const hanging: [number, number, string, number, number][] = [
+    [-0.9, 0, '#e9e3d6', 0.5, 0.3],
+    [-0.3, 0, '#8a9fab', 0.4, 0.28],
+    [0.5, 1, '#f3f0e8', 0.7, 0.36],
+    [-0.6, 2, '#5f6e40', 0.35, 0.25],
+    [0.3, 2, '#dcd3c4', 0.5, 0.4],
+    [0.9, 3, '#c8743f', 0.3, 0.22],
+  ];
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * (w / 2 - 0.02), h, 0]}>
+          <Box w={0.04} h={0.04} d={d + 0.06} m={steel} r={0.006} />
+          <Box w={0.03} h={0.12} d={0.03} y={0.02} m={steel} r={0.006} />
+        </group>
+      ))}
+      {zs.map((z, i) => (
+        <M key={i} g={cylinder(0.0025, 0.0025, w - 0.04, 6)} m={lacquer('#e8e6e0', 0.6)} p={[0, h + 0.02, z]} r={[0, 0, Math.PI / 2]} shadow={false} />
+      ))}
+      {hanging.map(([x, l, c, cw, ch], i) => (
+        <Box key={`c${i}`} w={cw} h={ch} d={0.008} x={x * (w / 2 - 0.4)} y={h + 0.02 - ch} z={zs[l]} m={fabric(c, 'linen')} r={0.003} />
+      ))}
+    </group>
+  );
+}
+
+/** A white ceramic utility sink on a white base cabinet, with a tall chrome tap. */
+function UtilitySink({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const white = lacquer('#f4f4f2', 0.35);
+  const sinkH = 0.22;
+  return (
+    <group>
+      <Box w={w - 0.02} h={0.08} d={d - 0.06} z={-0.03} m={lacquer('#d9d8d4', 0.6)} r={0} />
+      <Box w={w} h={h - sinkH - 0.08} d={d} y={0.08} m={white} r={0.006} />
+      <Box w={0.004} h={h - sinkH - 0.12} d={0.004} y={0.1} z={d / 2} m={lacquer('#c9c7c2', 0.6)} r={0} />
+      <Box w={w} h={sinkH} d={d} y={h - sinkH} m={ceramic('#f7f7f4', 0.1)} r={0.03} />
+      <Box w={w - 0.1} h={0.005} d={d - 0.1} y={h + 0.001} m={ceramic('#dcdcd8', 0.2)} r={0} />
+      <M g={cylinder(0.014, 0.014, 0.32, 16)} m={metal('#d9d9d6', 0.15)} p={[0, h + 0.16, -d / 2 + 0.06]} />
+      <M g={torus(0.08, 0.012, Math.PI)} m={metal('#d9d9d6', 0.15)} p={[0, h + 0.32, -d / 2 + 0.14]} r={[0, Math.PI / 2, 0]} />
+    </group>
+  );
+}
+
+/** A height-adjustable standing desk: a white top on two white telescopic legs with T-feet. */
+function StandingDesk({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const white = lacquer('#f5f5f3', 0.35);
+  const frame = lacquer('#eeeeec', 0.4);
+  const top = 0.025;
+  return (
+    <group>
+      <Box w={w} h={top} d={d} y={h - top} m={white} r={0.006} />
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * (w / 2 - 0.2), 0, 0]}>
+          <Box w={0.07} h={0.03} d={d - 0.04} m={frame} r={0.008} />
+          <Box w={0.08} h={(h - top) * 0.55} d={0.06} y={0.03} m={frame} r={0.006} />
+          <Box w={0.07} h={(h - top) * 0.5} d={0.05} y={(h - top) * 0.5} m={frame} r={0.006} />
+          <Box w={0.06} h={0.03} d={d - 0.1} y={h - top - 0.03} m={frame} r={0.004} />
+        </group>
+      ))}
+      <Box w={w - 0.46} h={0.05} d={0.04} y={h - top - 0.05} m={frame} r={0.004} />
+      {/* height control under the front edge, and a felt desk mat */}
+      <Box w={0.12} h={0.02} d={0.05} x={w / 2 - 0.15} y={h - top - 0.02} z={d / 2 - 0.04} m={lacquer('#2b2b2a', 0.4)} r={0.004} />
+      <Box w={Math.min(0.9, w - 0.3)} h={0.004} d={0.4} y={h} z={0.1} m={fabric('#8c8f91', 'wool')} r={0.002} />
+    </group>
+  );
+}
+
+/** A flat monitor on a stand: `w` is the screen's width, `h` the height to its top edge. */
+function Monitor({ it }: { it: FurnitureItem }) {
+  const { w, h } = it;
+  const black = metal('#1b1b1c', 0.45);
+  const sh = w * 0.59;
+  const cy = h - sh / 2;
+  return (
+    <group>
+      <Box w={0.24} h={0.012} d={0.18} z={-0.02} m={black} r={0.004} />
+      <Box w={0.05} h={cy} d={0.03} z={-0.06} m={black} r={0.006} />
+      <M g={roundedBox(w, sh, 0.025, 0.004)} m={black} p={[0, cy, -0.035]} />
+      <M g={plane(w - 0.012, sh - 0.03)} m={screen()} p={[0, cy + 0.006, -0.0218]} shadow={false} />
+    </group>
+  );
+}
+
+/** Logitech MX Keys: a low graphite keyboard with round-dished keys. */
+function Keyboard({ it }: { it: FurnitureItem }) {
+  const { w, d } = it;
+  const rows = 6;
+  const cols = 15;
+  const kw = (w - 0.03) / cols;
+  const kd = (d - 0.03) / rows;
+  const keys = merged(`keys${w},${d}`, () =>
+    Array.from({ length: rows * cols }, (_, i) => {
+      const r = Math.floor(i / cols);
+      const c = i % cols;
+      return { g: roundedBox(kw - 0.004, 0.006, kd - 0.004, 0.002), m: mat4([-w / 2 + 0.015 + kw * (c + 0.5), 0.016, -d / 2 + 0.015 + kd * (r + 0.5)]) };
+    }),
+  );
+  return (
+    <group>
+      <Box w={w} h={0.014} d={d} m={metal('#3a3b3d', 0.5)} r={0.004} />
+      <M g={keys} m={lacquer('#4a4b4e', 0.55)} shadow={false} />
+    </group>
+  );
+}
+
+/** Logitech MX Master: a sculpted graphite mouse with a thumb rest and a steel wheel. */
+function Mouse({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const g = metal('#35363a', 0.55);
+  return (
+    <group>
+      <M g={sphere(0.5, 3)} m={g} p={[0, h * 0.45, 0]} s={[w, h * 0.9, d]} />
+      <M g={sphere(0.5, 2)} m={g} p={[-w * 0.55, h * 0.18, 0.005]} s={[w * 0.45, h * 0.3, d * 0.55]} />
+      <M g={cylinder(0.009, 0.009, 0.008, 16)} m={metal('#b9bbbc', 0.25)} p={[0, h * 0.86, -d * 0.18]} r={[0, 0, Math.PI / 2]} />
+    </group>
+  );
+}
+
+/** A small black speaker on a wall bracket, turned towards the room. */
+function Speaker({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  return (
+    <group position={[0, 0, 0]}>
+      <Box w={0.04} h={0.04} d={0.06} y={h / 2 - 0.02} z={-d / 2} m={metal('#1b1b1c', 0.5)} r={0.004} />
+      <Box w={w} h={h} d={d} m={lacquer('#1d1d1e', 0.5)} r={0.012} />
+      <Box w={w - 0.02} h={h - 0.03} d={0.004} y={0.015} z={d / 2} m={fabric('#2a2a2b', 'knit')} r={0.002} />
+    </group>
+  );
+}
+
+/** A HÅG Capisco: a saddle seat and a cross-shaped backrest in blue, on a black five-star base. */
+function Capisco({ it }: { it: FurnitureItem }) {
+  const up = fabric(it.colour ?? '#1f4e79', 'wool');
+  const black = metal('#1c1c1d', 0.4);
+  const seatY = 0.55;
+  return (
+    <group>
+      {Array.from({ length: 5 }, (_, i) => (
+        <group key={i} rotation={[0, (i / 5) * Math.PI * 2, 0]}>
+          <Box w={0.045} h={0.03} d={0.32} z={0.16} y={0.06} m={black} r={0.01} rot={[0.08, 0, 0]} />
+          <M g={sphere(0.028, 1)} m={black} p={[0, 0.028, 0.31]} />
+        </group>
+      ))}
+      <M g={cylinder(0.03, 0.035, 0.12, 16)} m={black} p={[0, 0.13, 0]} />
+      <M g={cylinder(0.018, 0.018, seatY - 0.2, 16)} m={metal('#c9c9c9', 0.2)} p={[0, 0.2 + (seatY - 0.2) / 2, 0]} />
+      {/* saddle: wide at the back, with a raised horn at the front and dipped sides */}
+      <Box w={0.46} h={0.07} d={0.3} y={seatY} z={-0.03} m={up} r={0.03} />
+      <Box w={0.2} h={0.08} d={0.22} y={seatY + 0.01} z={0.13} m={up} r={0.035} />
+      {[-1, 1].map((s) => (
+        <Box key={s} w={0.1} h={0.07} d={0.22} x={s * 0.19} y={seatY + 0.025} z={0.02} m={up} r={0.03} rot={[0, s * 0.25, s * -0.12]} />
+      ))}
+      {/* backrest: a stem with a wide crossbar near the top */}
+      <Box w={0.05} h={0.3} d={0.03} y={seatY + 0.02} z={-0.19} m={black} r={0.008} rot={[-0.15, 0, 0]} />
+      <group position={[0, seatY + 0.3, -0.24]} rotation={[-0.12, 0, 0]}>
+        <Box w={0.14} h={0.42} d={0.06} m={up} r={0.03} />
+        <Box w={0.58} h={0.13} d={0.06} y={0.22} m={up} r={0.05} />
+      </group>
+    </group>
+  );
+}
+
+/** An upright bike stand: a black steel hoop set in the ground, to lean one bike against. */
+function BikeHoop({ it }: { it: FurnitureItem }) {
+  const black = metal('#1c1c1d', 0.5);
+  const r = it.w / 2 - 0.02;
+  const legs = it.h - r;
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <M key={s} g={cylinder(0.02, 0.02, legs, 12)} m={black} p={[s * r, legs / 2, 0]} />
+      ))}
+      <M g={torus(r, 0.02, Math.PI)} m={black} p={[0, legs, 0]} />
+      <M g={cylinder(0.014, 0.014, 2 * r, 10)} m={black} p={[0, 0.3, 0]} r={[0, 0, Math.PI / 2]} />
+    </group>
+  );
+}
+
+/**
+ * A barrel sauna after Dennis's photo, to match the ice bath: thermowood staves around a
+ * round body, black end rings, vertical boards at the ends and a glass door at the front.
+ * The barrel's axis runs along z; the door faces +z.
+ */
+function BarrelSauna({ it, lit }: { it: FurnitureItem; lit: boolean }) {
+  const { w, d } = it;
+  const R = w / 2 - 0.05;
+  const cy = R + 0.09;
+  const cedar = wood('cedar');
+  const n = 40;
+  const sw = ((2 * Math.PI * R) / n) * 0.985;
+  const staves = merged(`barrel${R},${d}`, () =>
+    Array.from({ length: n }, (_, i) => {
+      const a = (i / n) * Math.PI * 2;
+      return { g: roundedBox(sw, 0.042, d - 0.12, 0.004), m: mat4([R * Math.cos(a), cy + R * Math.sin(a), 0], [0, 0, a - Math.PI / 2]) };
+    }),
+  );
+  const ring = lathe(
+    [
+      [R - 0.03, -0.05],
+      [R + 0.05, -0.05],
+      [R + 0.05, 0.05],
+      [R - 0.03, 0.05],
+      [R - 0.03, -0.05],
+    ],
+    16,
+  );
+  const door = { w: 0.62, y0: cy - R + 0.16, h: 1.62 };
+  const board = 0.1;
+  const boards = Math.floor((2 * R) / board);
+  const end = (front: boolean) =>
+    merged(`barrelEnd${R},${front}`, () => {
+      const parts: { g: THREE.BufferGeometry; m: THREE.Matrix4 }[] = [];
+      for (let i = 0; i < boards; i++) {
+        const x = -R + board * (i + 0.5);
+        const half = Math.sqrt(Math.max(0, R * R - (Math.abs(x) + board / 2) ** 2)) + 0.02;
+        if (half < 0.05) continue;
+        const y0 = cy - half;
+        const y1 = cy + half;
+        const inDoor = front && Math.abs(x) < door.w / 2 + 0.04;
+        const spans: [number, number][] = inDoor ? [[y0, door.y0], [door.y0 + door.h, y1]] : [[y0, y1]];
+        for (const [a, b] of spans) if (b - a > 0.02) parts.push({ g: roundedBox(board - 0.004, b - a, 0.035, 0.002, true), m: mat4([x, (a + b) / 2, 0]) });
+      }
+      return parts;
+    });
+  const zEnd = d / 2 - 0.1;
+  return (
+    <group>
+      <M g={staves} m={cedar} />
+      {[-1, 1].map((s) => (
+        <M key={s} g={ring} m={lacquer('#262728', 0.6)} p={[0, cy, s * (d / 2 - 0.06)]} r={[Math.PI / 2, 0, 0]} />
+      ))}
+      <M g={end(true)} m={cedar} p={[0, 0, zEnd]} />
+      <M g={end(false)} m={cedar} p={[0, 0, -zEnd]} />
+      {/* glass door in a cedar frame, with a round wooden handle */}
+      <Box w={door.w} h={door.h} d={0.012} y={door.y0} z={zEnd + 0.01} m={cached('sauna-glass', () => new THREE.MeshPhysicalMaterial({ color: '#2c2a26', roughness: 0.04, transparent: true, opacity: 0.32, metalness: 0.1 }))} r={0} />
+      {[-1, 1].map((s) => (
+        <Box key={s} w={0.04} h={door.h} d={0.04} x={s * (door.w / 2 + 0.02)} y={door.y0} z={zEnd} m={cedar} r={0.004} grain />
+      ))}
+      <Box w={door.w + 0.08} h={0.04} d={0.04} y={door.y0 + door.h} z={zEnd} m={cedar} r={0.004} />
+      <M g={cylinder(0.035, 0.035, 0.05, 20)} m={wood('teak')} p={[-door.w / 2 + 0.08, door.y0 + door.h * 0.55, zEnd + 0.04]} r={[Math.PI / 2, 0, 0]} />
+      {/* inside: benches along both sides and a stove at the back */}
+      {[-1, 1].map((s) => (
+        <Box key={`bench${s}`} w={0.42} h={0.04} d={d - 0.5} x={s * (R - 0.32)} y={cy - 0.3} z={-0.05} m={cedar} r={0.004} />
+      ))}
+      <Box w={0.36} h={0.6} d={0.32} y={cy - R + 0.06} z={-zEnd + 0.25} m={metal('#1e1e1e', 0.6)} r={0.01} />
+      {/* the cradle it rests on */}
+      {[-1, 1].map((s) => (
+        <Box key={`c${s}`} w={w * 0.72} h={0.14} d={0.12} y={0} z={s * (d / 2 - 0.35)} m={lacquer('#262728', 0.6)} r={0.01} />
+      ))}
+      {lit && <pointLight position={[0, cy + 0.3, 0]} color="#ffb347" intensity={1.4} distance={2.6} decay={2} />}
+    </group>
+  );
+}
+
+/** A play tipi: natural cotton on five pine poles, open at the front (+z), with a cushion inside. */
+function Tipi({ it }: { it: FurnitureItem }) {
+  const r = Math.min(it.w, it.d) / 2 - 0.02;
+  const h = it.h;
+  const cloth = useMemo(() => new THREE.CylinderGeometry(0.06, r, h * 0.86, 5, 1, true, Math.PI * 0.2, Math.PI * 1.6), [r, h]);
+  const canvasM = cached('tipi-canvas', () => new THREE.MeshPhysicalMaterial({ color: '#efe7d8', roughness: 0.95, side: THREE.DoubleSide, sheen: 0.5, sheenColor: new THREE.Color('#ffffff') }));
+  return (
+    <group>
+      <mesh geometry={cloth} material={canvasM} position={[0, (h * 0.86) / 2, 0]} castShadow receiveShadow />
+      {Array.from({ length: 5 }, (_, i) => {
+        const a = Math.PI * 0.2 + (i / 5) * Math.PI * 2;
+        const bx = Math.sin(a) * r;
+        const bz = Math.cos(a) * r;
+        const len = Math.hypot(r, h);
+        return <M key={i} g={cylinder(0.014, 0.018, len, 8)} m={wood('birch')} p={[bx * 0.5, len / 2, bz * 0.5]} r={[Math.atan2(bz, h) * 1, 0, -Math.atan2(bx, h)]} />;
+      })}
+      <M g={cylinder(r * 0.8, r * 0.8, 0.08, 32)} m={fabric('#c9b79c', 'knit')} p={[0, 0.04, 0]} />
+      <Box w={0.4} h={0.32} d={0.12} y={0.08} z={-r * 0.45} m={fabric('#c8743f', 'linen')} r={0.06} rot={[-0.25, 0.3, 0]} />
+      <Box w={0.38} h={0.3} d={0.12} x={0.2} y={0.08} z={-r * 0.35} m={fabric('#a7b494', 'linen')} r={0.06} rot={[-0.2, -0.4, 0]} />
+      {/* a garland of little flags over the entrance */}
+      {Array.from({ length: 5 }, (_, i) => (
+        <M key={`f${i}`} g={cylinder(0.035, 0.001, 0.07, 3)} m={fabric(['#c8743f', '#e3c96f', '#a7b494'][i % 3], 'linen')} p={[-0.2 + i * 0.1, h * 0.62 - Math.abs(i - 2) * -0.01, r * 0.42]} r={[Math.PI, 0, 0]} shadow={false} />
+      ))}
+    </group>
+  );
+}
+
+/** A soft toy: a teddy bear or a fox, sitting. */
+function Plush({ it }: { it: FurnitureItem }) {
+  const s = it.h;
+  const fox = it.variant === 'fox';
+  const fur = fabric(fox ? '#c8743f' : '#a67c58', 'boucle');
+  const light = fabric('#f4ede1', 'boucle');
+  return (
+    <group>
+      <M g={sphere(s * 0.3, 2)} m={fur} p={[0, s * 0.3, 0]} s={[1, 1.05, 0.9]} />
+      <M g={sphere(s * 0.18, 2)} m={light} p={[0, s * 0.3, s * 0.16]} s={[1, 1.2, 0.5]} />
+      <M g={sphere(s * 0.24, 2)} m={fur} p={[0, s * 0.74, 0]} />
+      <M g={sphere(s * 0.1, 2)} m={fox ? light : fabric('#d8c3a5', 'boucle')} p={[0, s * 0.7, s * 0.2]} s={[1, 0.8, fox ? 1.5 : 1]} />
+      <M g={sphere(s * 0.025, 1)} m={lacquer('#1d1d1d', 0.3)} p={[0, s * 0.72, s * (fox ? 0.35 : 0.29)]} />
+      {[-1, 1].map((k) => (
+        <group key={k}>
+          {fox ? (
+            <M g={cylinder(0.001, s * 0.08, s * 0.16, 4)} m={fur} p={[k * s * 0.13, s * 0.98, 0]} />
+          ) : (
+            <M g={sphere(s * 0.08, 2)} m={fur} p={[k * s * 0.17, s * 0.93, 0]} s={[1, 1, 0.6]} />
+          )}
+          <M g={sphere(s * 0.025, 1)} m={lacquer('#1d1d1d', 0.3)} p={[k * s * 0.09, s * 0.8, s * 0.2]} />
+          <M g={sphere(s * 0.1, 2)} m={fur} p={[k * s * 0.27, s * 0.35, s * 0.08]} s={[0.8, 1.4, 0.8]} />
+          <M g={sphere(s * 0.11, 2)} m={fur} p={[k * s * 0.15, s * 0.08, s * 0.22]} s={[0.9, 0.8, 1.4]} />
+        </group>
+      ))}
+      {fox && <M g={sphere(s * 0.14, 2)} m={fur} p={[s * 0.3, s * 0.12, -s * 0.2]} s={[1.6, 0.8, 1]} />}
+    </group>
+  );
+}
+
+/**
+ * A built-in oak bookcase to the ceiling: open shelves full of books, a few objects, and a
+ * warm LED strip under each shelf.
+ */
+function Bookcase({ it, lit }: { it: FurnitureItem; lit: boolean }) {
+  const { w, d, h } = it;
+  const oak = wood('oakBrushed');
+  const plinth = 0.08;
+  const levels = Math.round((h - plinth) / 0.38);
+  const lh = (h - plinth) / levels;
+  const cols = Math.max(1, Math.round(w / 0.6));
+  const cw = w / cols;
+  const rand = rng(Math.round(it.x * 31 + it.y * 7));
+  const books: ReactNode[] = [];
+  for (let l = 0; l < levels - 1; l++) {
+    for (let c = 0; c < cols; c++) {
+      const x0 = -w / 2 + c * cw + 0.04;
+      const y = plinth + l * lh + 0.025;
+      if (rand() < 0.2) {
+        books.push(<M key={`o${l}${c}`} g={sphere(0.07, 2)} m={ceramic(['#b4704f', '#e9e3d6', '#5f6e40'][Math.floor(rand() * 3)], 0.4)} p={[x0 + cw / 2, y + 0.07, 0]} s={[1, 1.3, 1]} />);
+        continue;
+      }
+      let bx = x0;
+      const end = x0 + cw - 0.08 - rand() * 0.15;
+      while (bx < end) {
+        const bw = 0.02 + rand() * 0.035;
+        const bh = 0.2 + rand() * 0.1;
+        const tone = ['#e9e3d6', '#a7b494', '#34483e', '#c8a97e', '#6b5242', '#dcd3c4', '#8a9fab', '#b4704f'][Math.floor(rand() * 8)];
+        books.push(<Box key={`k${l}${c}${bx.toFixed(3)}`} w={bw} h={bh} d={d * 0.72} x={bx + bw / 2} y={y} z={-0.01} m={lacquer(tone, 0.85)} r={0.002} />);
+        bx += bw + 0.002;
+      }
+    }
+  }
+  const led = cached('led-strip', () => new THREE.MeshStandardMaterial({ color: '#ffe0b0', emissive: '#ffbe7a', emissiveIntensity: 2.2 }));
+  return (
+    <group>
+      <Box w={w} h={plinth} d={d - 0.04} z={-0.02} m={lacquer('#3b2f25', 0.7)} r={0} />
+      <Box w={w} h={h - plinth} d={0.015} y={plinth} z={-d / 2 + 0.008} m={oak} r={0} grain />
+      {Array.from({ length: levels + 1 }, (_, l) => (
+        <Box key={l} w={w} h={0.025} d={d} y={Math.min(h - 0.025, plinth + l * lh)} m={oak} r={0.003} grain />
+      ))}
+      {Array.from({ length: cols + 1 }, (_, c) => (
+        <Box key={`s${c}`} w={0.025} h={h - plinth} d={d} x={-w / 2 + 0.0125 + ((w - 0.025) * c) / cols} y={plinth} m={oak} r={0.003} grain />
+      ))}
+      {Array.from({ length: levels }, (_, l) => (
+        <Box key={`led${l}`} w={w - 0.06} h={0.006} d={0.012} y={plinth + (l + 1) * lh - 0.008} z={d / 2 - 0.03} m={led} r={0} />
+      ))}
+      {books}
+      {lit && <LampLight y={h * 0.55} intensity={1.0} distance={3.5} />}
+    </group>
+  );
+}
+
+/**
+ * A built-in lounging nook after Dennis's photos: a deep oak box with a thick frame, a sage
+ * plaster back, a wide upholstered mattress that doubles as a guest bed, big cushions, a reading
+ * light and a warm LED strip under the canopy. The opening faces +z.
+ */
+function Nook({ it, lit }: { it: FurnitureItem; lit: boolean }) {
+  const { w, d, h } = it;
+  const oak = wood('oakBrushed');
+  const t = 0.06;
+  const frame = 0.12;
+  const base = 0.4;
+  const iw = w - 2 * t;
+  const led = cached('led-strip', () => new THREE.MeshStandardMaterial({ color: '#ffe0b0', emissive: '#ffbe7a', emissiveIntensity: 2.2 }));
+  const cushions: [number, string, number][] = [
+    [-0.62, '#dcd3c4', -0.15],
+    [-0.12, '#e9e3d6', 0.05],
+    [0.4, '#dcd3c4', -0.1],
+    [0.12, '#34483e', 0.15],
+  ];
+  return (
+    <group>
+      {/* the box: sides, canopy, a sage plaster back */}
+      {[-1, 1].map((s) => (
+        <Box key={s} w={t} h={h} d={d} x={s * (w / 2 - t / 2)} m={oak} r={0.004} grain />
+      ))}
+      <Box w={w} h={t} d={d} y={h - t} m={oak} r={0.004} grain />
+      <Box w={iw} h={h - t} d={0.03} z={-d / 2 + 0.015} m={paint('#8f9a8c')} r={0} />
+      {/* a deep frame round the opening */}
+      <Box w={w} h={0.22} d={0.05} y={h - 0.22} z={d / 2 - 0.025} m={oak} r={0.004} grain />
+      {[-1, 1].map((s) => (
+        <Box key={`f${s}`} w={frame} h={h} d={0.05} x={s * (w / 2 - frame / 2)} z={d / 2 - 0.025} m={oak} r={0.004} grain />
+      ))}
+      {/* base and mattress: 140 x 200 cm */}
+      <Box w={iw} h={0.04} d={d - 0.08} z={-0.02} m={lacquer('#1e1e1e', 0.7)} r={0} />
+      <Box w={w} h={base - 0.04} d={d - 0.03} y={0.04} z={-0.015} m={oak} r={0.004} grain />
+      <Box w={iw - 0.02} h={0.16} d={d - 0.08} y={base} z={-0.02} m={fabric('#dcd3c4', 'linen')} r={0.04} />
+      {cushions.map(([x, c, r], i) => (
+        <Box key={`c${i}`} w={0.55} h={0.5} d={0.16} x={x * (iw / 2)} y={base + 0.12} z={-d / 2 + 0.16 + (i === 3 ? 0.12 : 0)} m={fabric(c, i === 3 ? 'wool' : 'linen')} r={0.08} rot={[-0.2, r, 0]} />
+      ))}
+      <Box w={0.8} h={0.03} d={0.6} x={iw / 2 - 0.5} y={base + 0.16} z={0.25} m={fabric('#a7b494', 'knit')} r={0.012} rot={[0, 0.2, 0]} />
+      {/* LED strip behind the top frame and a black reading light on one side */}
+      <Box w={iw - 0.04} h={0.012} d={0.012} y={h - 0.24} z={d / 2 - 0.08} m={led} r={0} />
+      <group position={[w / 2 - t, base + 0.75, -d / 2 + 0.45]}>
+        <Box w={0.03} h={0.06} d={0.06} x={-0.015} m={metal('#1c1c1d', 0.5)} r={0.008} />
+        <M g={cylinder(0.022, 0.028, 0.1, 16)} m={metal('#1c1c1d', 0.5)} p={[-0.07, 0.02, 0.02]} r={[0, 0, Math.PI / 2.6]} />
+      </group>
+      {lit && (
+        <>
+          <pointLight position={[0, h - 0.4, d / 2 - 0.3]} color={LAMP_COLOUR} intensity={1.2} distance={3} decay={2} userData={{ lamp: true }} />
+          <pointLight position={[w / 2 - 0.25, base + 0.6, -d / 2 + 0.45]} color={LAMP_COLOUR} intensity={0.5} distance={1.6} decay={2} userData={{ lamp: true }} />
+        </>
+      )}
+    </group>
+  );
+}
+
+const ease = (t: number) => t * t * (3 - 2 * t);
+
+/**
+ * A modular wall bed: a 140 x 200 cm bed that folds into an oak cabinet, with an open shelf
+ * module beside it. Double-click it to open or close it; the bed swings down on its hinge and
+ * its legs fold out as it lands.
+ */
+function WallBed({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const [open, setOpen] = useState(false);
+  const t = useRef(0);
+  const pivot = useRef<THREE.Group>(null);
+  const leg = useRef<THREE.Group>(null);
+  const invalidate = useThree((s) => s.invalidate);
+  const angle = (k: number) => (-Math.PI / 2) * (1 - ease(k));
+  const legAngle = (k: number) => (Math.PI / 2) * (1 - Math.min(1, Math.max(0, (k - 0.7) / 0.3)));
+  useFrame((_, dt) => {
+    const target = open ? 1 : 0;
+    if (t.current === target) return;
+    const step = Math.min(dt, 0.2) / 1.8;
+    t.current = target > t.current ? Math.min(target, t.current + step) : Math.max(target, t.current - step);
+    if (pivot.current) pivot.current.rotation.x = angle(t.current);
+    if (leg.current) leg.current.rotation.x = legAngle(t.current);
+    invalidate();
+  });
+  const toggle = (e: ThreeEvent<MouseEvent>) => {
+    e.stopPropagation();
+    setOpen((o) => !o);
+    invalidate();
+  };
+  const oak = wood('oakBrushed');
+  const front = lacquer('#f3f2ee', 0.45);
+  const p = 0.025;
+  const bw = 1.56;
+  const sw = w - bw - 3 * p;
+  const shelfX = -w / 2 + p + sw / 2;
+  const bedX = w / 2 - p - bw / 2;
+  const pivotY = 0.22;
+  const L = 2.05;
+  return (
+    <group onDoubleClick={toggle}>
+      {/* carcass */}
+      {[-w / 2 + p / 2, -w / 2 + p * 1.5 + sw, w / 2 - p / 2].map((x, i) => (
+        <Box key={i} w={p} h={h} d={d} x={x} m={oak} r={0.003} grain />
+      ))}
+      <Box w={w} h={p} d={d} y={h - p} m={oak} r={0.003} grain />
+      <Box w={w - 2 * p} h={h - p} d={0.012} z={-d / 2 + 0.006} m={oak} r={0} grain />
+      <Box w={bw} h={0.08} d={d - 0.04} x={bedX} z={-0.02} m={lacquer('#3b2f25', 0.7)} r={0} />
+      {/* the shelf module */}
+      {[0.1, 0.5, 0.9, 1.3, 1.7].map((y, i) => (
+        <Box key={`s${i}`} w={sw} h={0.022} d={d - 0.03} x={shelfX} y={y} z={-0.015} m={oak} r={0.002} grain />
+      ))}
+      {[0.12, 0.52, 0.92].map((y, i) => (
+        <group key={`k${i}`}>
+          {Array.from({ length: 6 }, (_, b) => (
+            <Box key={b} w={0.028} h={0.22 + ((b * 7 + i * 3) % 5) * 0.015} d={0.2} x={shelfX - sw / 2 + 0.05 + b * 0.031} y={y + 0.022} z={-0.04} m={lacquer(['#e9e3d6', '#8a9fab', '#34483e', '#c8a97e'][(b + i) % 4], 0.85)} r={0.002} />
+          ))}
+        </group>
+      ))}
+      <M g={sphere(0.07, 2)} m={ceramic('#e9e3d6', 0.4)} p={[shelfX, 1.39, -0.02]} s={[1, 1.3, 1]} />
+      {/* the bed on its hinge at the cabinet's foot */}
+      <group ref={pivot} position={[0, pivotY, d / 2]} rotation={[angle(t.current), 0, 0]}>
+        <Box w={bw - 0.01} h={0.025} d={L} x={bedX} z={L / 2} m={front} r={0.004} />
+        <Box w={0.3} h={0.012} d={0.03} x={bedX} y={-0.012} z={L - 0.12} m={oak} r={0.003} />
+        {[-1, 1].map((s) => (
+          <Box key={s} w={0.03} h={0.25} d={L} x={bedX + s * (bw / 2 - 0.02)} y={0.025} z={L / 2} m={oak} r={0.003} grain />
+        ))}
+        <Box w={bw - 0.02} h={0.25} d={0.03} x={bedX} y={0.025} z={L - 0.015} m={oak} r={0.003} grain />
+        <Box w={bw - 0.08} h={0.2} d={L - 0.06} x={bedX} y={0.03} z={L / 2} m={fabric('#f2efe8', 'linen')} r={0.05} />
+        <Box w={bw - 0.06} h={0.06} d={L * 0.62} x={bedX} y={0.21} z={L * 0.62} m={fabric('#e9e3d6', 'linen')} r={0.03} />
+        <Box w={bw - 0.04} h={0.03} d={0.4} x={bedX} y={0.26} z={L - 0.3} m={fabric('#8a9fab', 'knit')} r={0.01} />
+        {[-1, 1].map((s) => (
+          <Box key={`p${s}`} w={0.62} h={0.13} d={0.4} x={bedX + s * 0.36} y={0.22} z={0.3} m={fabric('#f4f1ea', 'linen')} r={0.06} />
+        ))}
+        <group ref={leg} position={[bedX, 0.02, L - 0.08]} rotation={[legAngle(t.current), 0, 0]}>
+          <Box w={bw - 0.3} h={pivotY + 0.02} d={0.035} y={-pivotY - 0.02} m={metal('#2b2b2a', 0.5)} r={0.004} />
+        </group>
+      </group>
+    </group>
+  );
+}
+
+/** A bike on a floor stand that holds its front wheel, so each of the four comes out on its own. Front faces +z. */
+function ParkedBike({ it }: { it: FurnitureItem }) {
+  const { d } = it;
+  const black = metal('#1c1c1d', 0.5);
+  const frameM = lacquer(it.colour ?? '#34483e', 0.35);
+  const wheelR = 0.34;
+  const wb = Math.min(1.05, d - 2 * wheelR - 0.05);
+  const fz = wb / 2;
+  const rz = -wb / 2;
+  const tube = (a: [number, number], b: [number, number], r = 0.016) => {
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    return <M key={`${a}${b}`} g={cylinder(r, r, len, 10)} m={frameM} p={[0, (a[1] + b[1]) / 2, (a[0] + b[0]) / 2]} r={[Math.atan2(b[0] - a[0], b[1] - a[1]), 0, 0]} />;
+  };
+  // frame points in (z, y)
+  const bb: [number, number] = [-0.05, 0.3];
+  const seat: [number, number] = [-0.18, 0.82];
+  const head: [number, number] = [fz - 0.13, 0.8];
+  const headLow: [number, number] = [fz - 0.1, 0.62];
+  return (
+    <group>
+      {/* the stand: a rail on the floor and a cradle round the front wheel */}
+      <Box w={0.08} h={0.03} d={d - 0.1} m={black} r={0.006} />
+      {[-1, 1].map((s) => (
+        <M key={s} g={cylinder(0.008, 0.008, 0.36, 8)} m={metal('#9a9a9a', 0.3)} p={[s * 0.045, 0.2, fz + 0.05]} r={[0.5, 0, 0]} />
+      ))}
+      {[fz, rz].map((z) => (
+        <group key={z} position={[0, wheelR + 0.03, z]} rotation={[0, Math.PI / 2, 0]}>
+          <M g={torus(wheelR - 0.02, 0.022)} m={black} />
+          <M g={torus(wheelR - 0.05, 0.008)} m={metal('#b9bbbc', 0.3)} />
+          <M g={cylinder(0.03, 0.03, 0.08, 12)} m={metal('#b9bbbc', 0.3)} r={[Math.PI / 2, 0, 0]} />
+        </group>
+      ))}
+      {tube([rz, wheelR + 0.03], bb)}
+      {tube([rz, wheelR + 0.03], seat, 0.012)}
+      {tube(bb, seat, 0.019)}
+      {tube(bb, headLow, 0.022)}
+      {tube(seat, head, 0.019)}
+      {tube(headLow, head, 0.024)}
+      {tube([fz, wheelR + 0.03], headLow, 0.016)}
+      <Box w={0.13} h={0.04} d={0.26} y={0.86} z={seat[0] - 0.03} m={lacquer('#1d1d1d', 0.6)} r={0.015} />
+      <M g={cylinder(0.012, 0.012, 0.6, 10)} m={black} p={[0, 0.92, head[0] + 0.02]} r={[0, 0, Math.PI / 2]} />
+      <M g={cylinder(0.015, 0.015, 0.12, 10)} m={black} p={[0, 0.86, head[0] + 0.01]} />
+    </group>
+  );
+}
+
+/** Open pantry shelving against the wall: dry stock in jars, tins and boxes. */
+function Pantry({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const oak = wood();
+  const levels = 5;
+  const lh = (h - 0.1) / levels;
+  const rand = rng(Math.round(it.x * 13 + 5));
+  const stock: ReactNode[] = [];
+  for (let l = 0; l < levels; l++) {
+    let x = -w / 2 + 0.04;
+    const y = 0.1 + l * lh + 0.022;
+    while (x < w / 2 - 0.1) {
+      const kind = rand();
+      if (kind < 0.4) {
+        const r = 0.045 + rand() * 0.02;
+        const jh = 0.16 + rand() * 0.08;
+        stock.push(<M key={`j${l}${x.toFixed(2)}`} g={cylinder(r, r, jh, 16)} m={cached('jar', () => new THREE.MeshPhysicalMaterial({ color: '#e8e6dc', roughness: 0.1, transparent: true, opacity: 0.55 }))} p={[x + r, y + jh / 2, 0]} />);
+        stock.push(<M key={`f${l}${x.toFixed(2)}`} g={cylinder(r * 0.92, r * 0.92, jh * 0.7, 12)} m={lacquer(['#d6bf8a', '#b4704f', '#e9e3d6', '#8e9a6c'][Math.floor(rand() * 4)], 0.9)} p={[x + r, y + jh * 0.36, 0]} shadow={false} />);
+        stock.push(<M key={`l${l}${x.toFixed(2)}`} g={cylinder(r, r, 0.02, 16)} m={wood()} p={[x + r, y + jh + 0.01, 0]} />);
+        x += 2 * r + 0.02;
+      } else if (kind < 0.7) {
+        const bw = 0.16 + rand() * 0.1;
+        const bh = 0.2 + rand() * 0.1;
+        stock.push(<Box key={`b${l}${x.toFixed(2)}`} w={bw} h={bh} d={d * 0.7} x={x + bw / 2} y={y} m={lacquer(['#c9a184', '#e9e3d6', '#a7a49b', '#d6bf8a'][Math.floor(rand() * 4)], 0.85)} r={0.004} />);
+        x += bw + 0.02;
+      } else {
+        for (let k = 0; k < 3; k++) stock.push(<M key={`t${l}${x.toFixed(2)}${k}`} g={cylinder(0.038, 0.038, 0.11, 16)} m={metal('#c9c9c6', 0.3)} p={[x + 0.04 + k * 0.08, y + 0.055, 0.02]} />);
+        x += 0.26;
+      }
+    }
+  }
+  return (
+    <group>
+      {Array.from({ length: levels + 1 }, (_, l) => (
+        <Box key={l} w={w} h={0.022} d={d} y={0.08 + l * lh} m={oak} r={0.003} grain />
+      ))}
+      {[-1, 0, 1].map((s) => (
+        <Box key={`u${s}`} w={0.03} h={h} d={d} x={s * (w / 2 - 0.015)} m={metal('#2b2b2a', 0.5)} r={0.004} />
+      ))}
+      {stock}
+    </group>
+  );
+}
+
+/** A wall rack for skis and poles standing upright, with boots and helmets on a shelf below. */
+function SkiRack({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const oak = wood();
+  const pairs = Math.floor((w - 0.2) / 0.22);
+  const colours = ['#c8743f', '#34483e', '#e9e3d6', '#2f4f6f', '#bf5640'];
+  return (
+    <group>
+      <Box w={w} h={0.1} d={0.03} y={h - 0.4} z={-d / 2 + 0.015} m={oak} r={0.004} />
+      <Box w={w} h={0.03} d={d} y={0.35} m={oak} r={0.004} />
+      {[-1, 1].map((s) => (
+        <Box key={s} w={0.03} h={0.38} d={d} x={s * (w / 2 - 0.015)} m={oak} r={0.004} />
+      ))}
+      {Array.from({ length: pairs }, (_, i) => {
+        const x = -w / 2 + 0.15 + i * 0.22;
+        const c = colours[i % colours.length];
+        return (
+          <group key={i} position={[x, 0.4, -d / 2 + 0.08]}>
+            {[-0.035, 0.035].map((o) => (
+              <Box key={o} w={0.07} h={h - 0.45} d={0.02} x={o} m={lacquer(c, 0.4)} r={0.008} />
+            ))}
+            <M g={cylinder(0.008, 0.008, 1.2, 8)} m={metal('#2b2b2a', 0.4)} p={[0.09, 0.6, 0.03]} r={[0, 0, -0.04]} />
+          </group>
+        );
+      })}
+      {Array.from({ length: Math.min(4, Math.floor(w / 0.38)) }, (_, i) => (
+        <group key={`boot${i}`} position={[-w / 2 + 0.22 + i * 0.36, 0, 0.02]}>
+          <Box w={0.12} h={0.3} d={0.3} x={-0.07} m={lacquer(i % 2 ? '#2b2b2a' : '#e9e3d6', 0.5)} r={0.03} />
+          <Box w={0.12} h={0.3} d={0.3} x={0.07} m={lacquer(i % 2 ? '#2b2b2a' : '#e9e3d6', 0.5)} r={0.03} />
+          <M g={sphere(0.12, 2)} m={lacquer(colours[(i + 2) % colours.length], 0.3)} p={[0, 0.48, 0]} s={[1, 0.85, 1.15]} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** A low steel rack with pairs of hex dumbbells on top and kettlebells on the shelf below. */
+function DumbbellRack({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const black = metal('#1c1c1d', 0.5);
+  const pairs = 5;
+  return (
+    <group>
+      {[-1, 1].map((sx) =>
+        [-1, 1].map((sz) => <Box key={`${sx}${sz}`} w={0.04} h={h} d={0.04} x={sx * (w / 2 - 0.02)} z={sz * (d / 2 - 0.02)} m={black} r={0.004} />),
+      )}
+      <Box w={w} h={0.03} d={d} y={h - 0.03} m={black} r={0.004} rot={[0.15, 0, 0]} />
+      <Box w={w} h={0.03} d={d} y={0.12} m={black} r={0.004} />
+      {Array.from({ length: pairs }, (_, i) => {
+        const x = -w / 2 + 0.13 + i * ((w - 0.26) / (pairs - 1));
+        const s = 0.035 + i * 0.006;
+        return [-0.05, 0.05].map((o) => (
+          <group key={`${i}${o}`} position={[x + o, h + 0.02 + s, 0]} rotation={[Math.PI / 2, 0, 0]}>
+            <M g={cylinder(0.014, 0.014, 0.14, 10)} m={metal('#b9bbbc', 0.3)} />
+            {[-1, 1].map((e) => (
+              <M key={e} g={cylinder(s, s, 0.05, 6)} m={black} p={[0, e * 0.085, 0]} />
+            ))}
+          </group>
+        ));
+      })}
+      {[-0.4, -0.1, 0.2, 0.45].map((x, i) => (
+        <group key={`kb${i}`} position={[x * w, 0.15, 0]}>
+          <M g={sphere(0.08 + i * 0.012, 2)} m={black} p={[0, 0.09 + i * 0.01, 0]} />
+          <M g={torus(0.05, 0.012, Math.PI)} m={black} p={[0, 0.17 + i * 0.02, 0]} />
+        </group>
+      ))}
+    </group>
+  );
+}
+
+/** A soft wall ball (medicine ball). */
+function WallBall({ it }: { it: FurnitureItem }) {
+  const r = it.w / 2;
+  return (
+    <group>
+      <M g={sphere(r, 3)} m={fabric(it.colour ?? '#2b2b2a', 'linen')} p={[0, r, 0]} />
+      <M g={torus(r * 0.995, 0.006)} m={lacquer(it.accent ?? '#c8743f', 0.5)} p={[0, r, 0]} r={[Math.PI / 2, 0, 0]} />
+    </group>
+  );
+}
+
+/** A plywood plyo box. */
+function PlyoBox({ it }: { it: FurnitureItem }) {
+  return (
+    <group>
+      <Box w={it.w} h={it.h} d={it.d} m={wood('birch')} r={0.01} grain />
+      {[-1, 1].map((s) => (
+        <Box key={s} w={0.14} h={0.04} d={0.004} x={0} y={it.h * 0.7} z={s * (it.d / 2)} m={lacquer('#2b2b2a', 0.6)} r={0.002} />
+      ))}
+    </group>
+  );
+}
+
 /** Draws one furniture item in its own frame. */
 export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
   switch (it.kind) {
     case 'sofa':
-      return <Sofa it={it} />;
+      return it.chaise ? <CornerSofa it={it} /> : <Sofa it={it} />;
     case 'loungeChair':
       return <LoungeChair it={it} />;
     case 'diningChair':
       return <DiningChair it={it} />;
     case 'deskChair':
-      return <DeskChair it={it} />;
+      return it.variant === 'capisco' ? <Capisco it={it} /> : <DeskChair it={it} />;
     case 'pouf':
       return <Pouf it={it} />;
     case 'bench':
@@ -1220,7 +2016,7 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
     case 'diningTable':
       return <Table it={it} />;
     case 'desk':
-      return <Table it={it} desk />;
+      return it.variant === 'standing' ? <StandingDesk it={it} /> : <Table it={it} desk />;
     case 'bed':
       return <Bed it={it} />;
     case 'bedsideTable':
@@ -1292,10 +2088,46 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
     case 'dryingRack':
       return <DryingRack it={it} />;
     case 'sauna':
-      return <Sauna it={it} lit={lit} />;
+      return it.variant === 'barrel' ? <BarrelSauna it={it} lit={lit} /> : <Sauna it={it} lit={lit} />;
     case 'iceBath':
       return <IceBath it={it} />;
     case 'bikeRack':
-      return <BikeRack it={it} />;
+      return it.variant === 'hoop' ? <BikeHoop it={it} /> : <BikeRack it={it} />;
+    case 'pergola':
+      return <Pergola it={it} />;
+    case 'clothesLine':
+      return <ClothesLine it={it} />;
+    case 'utilitySink':
+      return <UtilitySink it={it} />;
+    case 'monitor':
+      return <Monitor it={it} />;
+    case 'keyboard':
+      return <Keyboard it={it} />;
+    case 'mouse':
+      return <Mouse it={it} />;
+    case 'speaker':
+      return <Speaker it={it} />;
+    case 'wallBed':
+      return <WallBed it={it} />;
+    case 'nook':
+      return <Nook it={it} lit={lit} />;
+    case 'bookcase':
+      return <Bookcase it={it} lit={lit} />;
+    case 'tipi':
+      return <Tipi it={it} />;
+    case 'plush':
+      return <Plush it={it} />;
+    case 'bike':
+      return <ParkedBike it={it} />;
+    case 'pantry':
+      return <Pantry it={it} />;
+    case 'skiRack':
+      return <SkiRack it={it} />;
+    case 'dumbbells':
+      return <DumbbellRack it={it} />;
+    case 'wallBall':
+      return <WallBall it={it} />;
+    case 'plyoBox':
+      return <PlyoBox it={it} />;
   }
 }

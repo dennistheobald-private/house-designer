@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { FloorFinish } from '../house/types';
 import type { FixtureMaterial } from '../house/fixtures';
+import tilePhoto from '../assets/bath-tile.jpg';
 import { parquetMaps, plasterMaps } from './textures';
 
 /*
@@ -88,6 +89,48 @@ function tiles(base: [number, number, number], tileMetres: number, joint: string
   });
 }
 
+/**
+ * Dennis's bathroom tile, a beige stone-look porcelain, from his photo: 60 x 60 cm, laid 2 x 2
+ * with each tile turned a quarter so the pattern does not visibly repeat, with fine grout.
+ * The canvas shows the tile's average colour until the photo has loaded.
+ */
+function photoTiles(tileMetres = 0.6) {
+  const size = 1024;
+  const t = size / 2;
+  const tex = canvasTexture((ctx) => {
+    ctx.fillStyle = 'rgb(219,208,195)';
+    ctx.fillRect(0, 0, size, size);
+  }, size);
+  tex.repeat.set(TEXTURE_METRES / (2 * tileMetres), TEXTURE_METRES / (2 * tileMetres));
+  const img = new Image();
+  img.onload = () => {
+    const ctx = (tex.image as HTMLCanvasElement).getContext('2d')!;
+    for (let i = 0; i < 2; i++) {
+      for (let j = 0; j < 2; j++) {
+        ctx.save();
+        ctx.translate(i * t + t / 2, j * t + t / 2);
+        ctx.rotate(((i * 2 + j) * Math.PI) / 2);
+        ctx.drawImage(img, -t / 2, -t / 2, t, t);
+        ctx.restore();
+      }
+    }
+    ctx.strokeStyle = 'rgba(184,172,156,0.95)';
+    ctx.lineWidth = 3;
+    for (let i = 0; i <= 2; i++) {
+      ctx.beginPath();
+      ctx.moveTo(i * t, 0);
+      ctx.lineTo(i * t, size);
+      ctx.moveTo(0, i * t);
+      ctx.lineTo(size, i * t);
+      ctx.stroke();
+    }
+    tex.needsUpdate = true;
+    window.dispatchEvent(new Event('texture-loaded'));
+  };
+  img.src = tilePhoto;
+  return tex;
+}
+
 function speckle(base: [number, number, number], amount: number, seed: number) {
   return canvasTexture((ctx, size) => {
     const rand = rng(seed);
@@ -116,6 +159,30 @@ function pebbles() {
   });
 }
 
+let tileMap: THREE.Texture | null = null;
+const bathTileMap = () => (tileMap ??= photoTiles());
+
+/** Dark walnut for the vanities: the oak boards, toned down. */
+function walnutBoards() {
+  return canvasTexture((ctx, size) => {
+    const rand = rng(23);
+    const plankW = size / 8;
+    for (let col = 0; col < 8; col++) {
+      const tone = 0.88 + rand() * 0.2;
+      ctx.fillStyle = `rgb(${Math.round(104 * tone)},${Math.round(70 * tone)},${Math.round(42 * tone)})`;
+      ctx.fillRect(col * plankW, 0, plankW, size);
+      ctx.strokeStyle = 'rgba(40,24,12,0.18)';
+      for (let g = 0; g < 9; g++) {
+        const gx = col * plankW + rand() * plankW;
+        ctx.beginPath();
+        ctx.moveTo(gx, 0);
+        ctx.bezierCurveTo(gx + 6, size / 3, gx - 6, (2 * size) / 3, gx + 3, size);
+        ctx.stroke();
+      }
+    }
+  });
+}
+
 let cache: Record<string, THREE.Material> | null = null;
 
 function build() {
@@ -125,8 +192,8 @@ function build() {
     // Floors
     parquet: new THREE.MeshPhysicalMaterial({ ...parquetMaps(), roughness: 1, clearcoat: 0.12, clearcoatRoughness: 0.45 }),
     tile: std({ map: tiles([214, 210, 202], 0.4, 'rgba(150,145,138,0.8)'), roughness: 0.35 }),
-    // Light beige 60 x 60 cm porcelain in both bathrooms.
-    bathTile: std({ map: tiles([228, 216, 196], 0.6, 'rgba(196,184,166,0.9)', 0.025), roughness: 0.3 }),
+    // Dennis's beige stone-look 60 x 60 cm porcelain in both bathrooms, floors and walls.
+    bathTile: std({ map: bathTileMap(), roughness: 0.45 }),
     stoneTile: std({ map: tiles([205, 199, 188], 0.6, 'rgba(160,152,140,0.7)', 0.03), roughness: 0.4 }),
     screed: std({ map: speckle([168, 166, 160], 0.12, 3), roughness: 0.9 }),
     carpet: std({ map: speckle([190, 182, 168], 0.18, 5), roughness: 1 }),
@@ -148,13 +215,15 @@ function build() {
     mirror: std({ color: '#e4e8ea', roughness: 0.05, metalness: 0.9, envMapIntensity: 2.5 }),
     light: std({ color: '#fff4dc', emissive: '#ffe2b0', emissiveIntensity: 2 }),
     slate: std({ map: tiles([92, 96, 98], 0.6, 'rgba(60,62,64,0.9)', 0.08), roughness: 0.5 }),
-    beige: std({ map: tiles([232, 220, 200], 0.3, 'rgba(200,188,170,0.9)', 0.03), roughness: 0.25 }),
+    beige: std({ map: bathTileMap(), roughness: 0.35 }),
+    walnut: std({ map: walnutBoards(), roughness: 0.55 }),
     roseGold: new THREE.MeshPhysicalMaterial({ color: '#e9bba8', roughness: 0.28, metalness: 1 }),
     forest: std({ map: tiles([52, 82, 64], 0.25, 'rgba(30,45,36,0.9)', 0.12), roughness: 0.3 }),
     // Building
-    wall: std({ color: '#f3f0e8', ...plaster, normalScale: new THREE.Vector2(0.35, 0.35), roughness: 1 }),
-    facade: std({ color: '#ebe7df', roughness: 0.95 }),
-    slab: std({ color: '#f6f4ef', roughness: 0.95 }),
+    // Pure white walls and ceilings, as Dennis asked.
+    wall: std({ color: '#fafafa', ...plaster, normalScale: new THREE.Vector2(0.35, 0.35), roughness: 1 }),
+    facade: std({ color: '#f7f7f6', roughness: 0.95 }),
+    slab: std({ color: '#fbfbfa', roughness: 0.95 }),
     frame: std({ color: '#4a4744', roughness: 0.5, metalness: 0.3 }),
     neighbour: std({ color: '#e9e6e0', roughness: 0.95 }),
     hedge: std({ map: speckle([62, 92, 56], 0.35, 17), roughness: 1 }),

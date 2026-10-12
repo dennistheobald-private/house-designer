@@ -10,6 +10,8 @@ import type { FurnitureItem, RoomProposal } from './types';
 
 export const C = {
   // base
+  turquoise: '#a9d6cf',
+  fox: '#c8743f',
   oat: '#dcd3c4',
   linen: '#e9e3d6',
   stone: '#bdb7ae',
@@ -51,13 +53,13 @@ export const proposals: RoomProposal[] = [
     view: { x: 6.1, y: 5.2, facing: -2.26 },
     theme: 'Mountains',
     palette: [
+      { name: 'Light turquoise', hex: C.turquoise },
       { name: 'Granite', hex: C.granite },
       { name: 'Snow', hex: C.snow },
-      { name: 'Glacier', hex: C.glacier },
       { name: 'Pine', hex: C.pine },
     ],
     summary:
-      'A stone-grey bouclé sofa under a large black and white alpine print, a round quartzite coffee table on a snowfield-cream rug, an oak and wool lounge chair, and an oak table for six under a cloud-like linen pendant.',
+      'A light turquoise bouclé corner sofa with a chaise on the left under a large black and white alpine print, a round quartzite coffee table on a snowfield-cream rug, an oak and wool lounge chair, and an oak table for six under a cloud-like linen pendant.',
   },
   {
     room: 'kitchen',
@@ -92,13 +94,14 @@ export const proposals: RoomProposal[] = [
   {
     room: 'zimmer-1',
     view: { x: 1.45, y: 3.6, facing: 0.35 },
-    theme: 'Alpine lake',
+    theme: 'Woodland animals',
     palette: [
-      { name: 'Lake', hex: C.lake },
-      { name: 'Mist', hex: C.mist },
-      { name: 'Reed', hex: C.reed },
+      { name: 'Fox', hex: C.fox },
+      { name: 'Moss', hex: C.moss },
+      { name: 'Oat', hex: C.oat },
+      { name: 'Birch', hex: C.birch },
     ],
-    summary: 'An oak bed with a blue-grey linen headboard, an oak desk under the garden window, low open shelves with baskets, a lake print and a round mirror like still water, a reading nook of floor cushions.',
+    summary: 'A woodland mural of a deer, foxes, hares and an owl behind an oak bed with a teddy, fox, owl and deer prints over low shelves with baskets, an oak desk under the garden window, a moss play rug and a cotton play tipi with a plush fox.',
   },
   {
     room: 'zimmer-2',
@@ -122,7 +125,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Charcoal', hex: C.charcoal },
       { name: 'Wool', hex: C.oat },
     ],
-    summary: 'An oat wool sofa bed against a wall of pale birch slats, a 160 cm oak desk under the street window with a sheepskin on the chair, the wardrobe on the end wall and a birch print.',
+    summary: 'A modular oak wall bed for guests, 140 x 200 cm, with a shelf module beside it (double-click it to fold it down), and at the street window a white standing desk with two 27 inch screens, a Logitech MX Keys keyboard and MX Master mouse, and a blue HÅG Capisco saddle chair.',
   },
   {
     room: 'bathroom',
@@ -133,7 +136,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Oak', hex: '#c8a97e' },
       { name: 'Moss', hex: C.moss },
     ],
-    summary: 'Layout as sketched, in light beige tiles with rose gold taps and a rose gold rain shower with a thermostat tablet; waffle towels in stone and moss on an oak ladder, a moss bath mat, an oak stool by the tub and a fern by the window.',
+    summary: "Dennis's beige stone-look tile on the floor and walls, a walk-in shower with an LED-lit niche, a rose gold rain shower and bath mixer, a walnut vanity with a Villeroy & Boch Loop & Friends basin under a built-in mirror cabinet, and a Laufen Pro WC; oak towel ladder, moss bath mat and a fern.",
   },
   {
     room: 'bedroom',
@@ -157,7 +160,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Oak', hex: '#c8a97e' },
       { name: 'Moss', hex: C.moss },
     ],
-    summary: 'Layout as sketched, in light beige tiles with rose gold taps and a rose gold rain shower with a thermostat tablet; a moss bath mat, an oak stool in the shower, moss towels and a fern.',
+    summary: "In the style of the first-floor bathroom: Dennis's beige tile on the floor, the whole vanity and shower wall and the WC pre-wall up to 1.2 m, a walnut vanity with a Loop & Friends basin and a tall rose gold mixer under a hanging mirror, a Laufen Pro WC; moss mat and towels and a fern.",
   },
   {
     room: 'roof-terrace',
@@ -166,7 +169,8 @@ export const proposals: RoomProposal[] = [
       { name: 'Pine', hex: C.pine },
       { name: 'Teak', hex: '#9a6b47' },
     ],
-    summary: 'Planters of mountain pine and birch along the edge, two teak loungers and a small round table, and in the sheltered corner a two-person cabin sauna with a black frame, a glass front and a dark wood interior, with a teak ice bath beside it.',
+    view: { x: 3.7, y: 1.3, facing: 2.3 },
+    summary: 'A barrel sauna in thermowood with black end rings in the corner, with the pine planter behind it, and the teak ice bath beside it; planters of mountain pine and birch along the edge, and a lounge of an outdoor sofa, two lounge chairs and a teak coffee table.',
   },
   {
     room: 'street-terrace',
@@ -179,23 +183,25 @@ export const proposals: RoomProposal[] = [
   },
   {
     room: 'bastelraum-1',
-    theme: 'Earth and clay',
+    theme: 'Forest retreat',
     palette: [
-      { name: 'Terracotta', hex: C.terracotta },
-      { name: 'Clay', hex: C.clay },
+      { name: 'Oak', hex: '#c8a97e' },
+      { name: 'Sage plaster', hex: '#8f9a8c' },
       { name: 'Oat', hex: C.oat },
+      { name: 'Pine', hex: C.pine },
     ],
-    summary: 'A terracotta wall, an oat linen sofa bed, an oak desk under the high window and a ceramic lamp.',
+    summary: 'A built-in oak lounging nook with a 140 x 200 cm mattress that doubles as a guest bed, big cushions, a reading light and LED strips, between built-in oak bookcases to the ceiling; speakers in the upper corners, and a small white standing desk under the window with two 24 inch screens and the Logitech MX keyboard and mouse.',
   },
   {
     room: 'bastelraum-2',
-    theme: 'Quarry',
+    theme: 'Mountain sunrise',
     palette: [
-      { name: 'Concrete', hex: '#a8a6a0' },
+      { name: 'Sunrise', hex: '#f0b979' },
+      { name: 'Granite', hex: C.granite },
+      { name: 'Rubber black', hex: '#2e3032' },
       { name: 'Oak', hex: '#c8a97e' },
-      { name: 'Black', hex: C.black },
     ],
-    summary: 'Raw concrete kept as it is; a solid oak workbench under an oak pegboard, black industrial pendants and a large cliff photograph.',
+    summary: 'Energy and focus: a large mural of alpine ridges at sunrise, a rubber sports floor over the whole training area with dumbbells, kettlebells, wall balls and a plyo box and room for burpees; four bikes side by side on their own stands by the door, each free to take out, and storage along the wall for dry food and for skis, poles, boots and helmets.',
   },
   {
     room: 'laundry',
@@ -204,7 +210,7 @@ export const proposals: RoomProposal[] = [
       { name: 'White', hex: '#f7f7f4' },
       { name: 'Light grey', hex: C.pale },
     ],
-    summary: 'Washer and dryer side by side under an oak worktop, and a wooden drying rack.',
+    summary: 'A washing machine with the dryer stacked on top, a utility sink by the door, and washing lines across the room overhead.',
   },
 ];
 
@@ -228,15 +234,16 @@ const living = (id: string, name: string, kind: FurnitureItem['kind'], x: number
 
 const mainFloor: FurnitureItem[] = [
   // Lounge, by the garden doors
-  living('sofa', 'Sofa, stone-grey bouclé, 220 cm', 'sofa', 2.2, 0.5, 2.2, 0.95, 0.78, { colour: C.stone, accent: C.glacier, variant: 'boucle' }),
-  living('print', 'Alpine print, black and white, 150 x 100 cm', 'print', 2.2, 0.02, 1.5, 0.03, 1.0, { z: 1.12, art: 'mountain', accent: C.black }),
-  living('rug', 'Wool rug, snow cream, 300 x 200 cm', 'rug', 2.2, 1.85, 3.0, 2.0, 0.015, { colour: '#ebe6dc' }),
-  living('coffee', 'Round coffee table, honed quartzite, 90 cm', 'coffeeTable', 2.2, 1.65, 0.9, 0.9, 0.36, { variant: 'quartzite' }),
-  living('bowl', 'Stoneware bowl', 'bowl', 2.05, 1.6, 0.26, 0.26, 0.08, { z: 0.36, colour: C.charcoal }),
-  living('books', 'Mountain books', 'books', 2.42, 1.75, 0.3, 0.22, 0.08, { z: 0.36, rot: 20 }),
+  // A corner sofa with the chaise on the left as you face it (the garden side), so the way to the dining table stays open.
+  living('sofa', 'Corner sofa, light turquoise bouclé, 260 x 165 cm, chaise on the left', 'sofa', 2.1, 0.85, 2.6, 1.65, 0.78, { colour: C.turquoise, accent: C.snow, variant: 'boucle', chaise: 'left' }),
+  living('print', 'Alpine print, black and white, 150 x 100 cm', 'print', 2.1, 0.02, 1.5, 0.03, 1.0, { z: 1.12, art: 'mountain', accent: C.black }),
+  living('rug', 'Wool rug, snow cream, 300 x 200 cm', 'rug', 2.4, 1.95, 3.0, 2.0, 0.015, { colour: '#ebe6dc' }),
+  living('coffee', 'Round coffee table, honed quartzite, 90 cm', 'coffeeTable', 2.55, 1.65, 0.9, 0.9, 0.36, { variant: 'quartzite' }),
+  living('bowl', 'Stoneware bowl', 'bowl', 2.4, 1.6, 0.26, 0.26, 0.08, { z: 0.36, colour: C.charcoal }),
+  living('books', 'Mountain books', 'books', 2.77, 1.75, 0.3, 0.22, 0.08, { z: 0.36, rot: 20 }),
   living('lounge-chair', 'Lounge chair, oak and pine-green wool', 'loungeChair', 3.65, 1.75, 0.76, 0.82, 0.78, { rot: -105, colour: C.pine }),
   living('pouf', 'Knitted pouf, oat', 'pouf', 1.05, 2.45, 0.5, 0.5, 0.4, { colour: C.oat }),
-  living('floor-lamp', 'Floor lamp, black with linen shade', 'floorLamp', 0.6, 0.35, 0.4, 0.4, 1.6, { colour: C.linen }),
+  living('floor-lamp', 'Floor lamp, black with linen shade', 'floorLamp', 0.5, 0.35, 0.4, 0.4, 1.6, { colour: C.linen }),
   living('side-table', 'Side table, oak', 'sideTable', 3.62, 0.35, 0.42, 0.42, 0.5),
   living('table-lamp', 'Ceramic table lamp', 'tableLamp', 3.62, 0.35, 0.26, 0.26, 0.45, { z: 0.5, colour: C.linen, accent: C.stone }),
   living('olive', 'Olive tree in a clay pot', 'plant', 0.45, 5.15, 0.6, 0.6, 1.9, { variant: 'olive', accent: C.clay }),
@@ -284,24 +291,30 @@ const wc: FurnitureItem[] = [
 ];
 
 const gardenTerrace: FurnitureItem[] = [
-  item('garden-terrace', 'planter-1', 'Planter with grasses', 'planter', -2.7, 0.6, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
-  item('garden-terrace', 'planter-2', 'Planter with grasses', 'planter', -2.7, 5.1, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
+  // A black aluminium pergola with a louvred roof over the whole terrace, after Dennis's photo, resting on the facade.
+  item('garden-terrace', 'pergola', 'Pergola, black aluminium, louvred roof, 570 x 260 cm, 260 cm high', 'pergola', -1.65, 2.85, 5.7, 2.6, 2.6, { rot: -90 }),
+  item('garden-terrace', 'planter-1', 'Planter with grasses', 'planter', -2.6, 0.75, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
+  item('garden-terrace', 'planter-2', 'Planter with grasses', 'planter', -2.6, 4.95, 0.9, 0.4, 0.5, { rot: 90, variant: 'grass' }),
 ];
 
 /* ---------------------------------------------------------------- first floor */
 
 const zimmer1: FurnitureItem[] = [
-  item('zimmer-1', 'bed', 'Bed, oak, 90 x 200 cm, blue-grey linen headboard', 'bed', 4.26, 5.2, 0.98, 2.12, 0.95, { rot: -90, colour: C.mist, accent: C.reed, variant: 'upholstered' }),
+  item('zimmer-1', 'mural', 'Woodland mural: a deer, foxes, hares and an owl', 'mural', 5.315, 4.325, 2.75, 0.01, 2.5, { rot: -90, art: 'animals' }),
+  item('zimmer-1', 'bed', 'Bed, oak, 90 x 200 cm', 'bed', 4.26, 5.2, 0.98, 2.12, 0.95, { rot: -90, colour: C.linen, accent: C.fox, variant: 'oak' }),
+  item('zimmer-1', 'teddy', 'Teddy bear', 'plush', 4.95, 5.45, 0.3, 0.25, 0.32, { rot: -90, z: 0.52 }),
   item('zimmer-1', 'desk', 'Desk, oak, 120 cm', 'desk', 0.3, 4.12, 1.2, 0.6, 0.74, { rot: 90 }),
-  item('zimmer-1', 'chair', 'Desk chair, oak', 'deskChair', 0.88, 4.12, 0.44, 0.48, 0.8, { rot: -90, colour: C.lake }),
-  item('zimmer-1', 'desk-lamp', 'Desk lamp', 'tableLamp', 0.2, 3.7, 0.18, 0.18, 0.4, { z: 0.74, colour: C.mist, accent: C.lake }),
-  item('zimmer-1', 'shelf', 'Low open shelves with toy baskets', 'shelf', 2.0, 3.13, 1.8, 0.35, 0.78, { variant: 'baskets', colour: C.lake }),
-  item('zimmer-1', 'shelf-plant', 'Trailing plant', 'plant', 1.35, 3.13, 0.22, 0.22, 0.3, { z: 0.78, variant: 'trailing', accent: C.mist }),
+  item('zimmer-1', 'chair', 'Desk chair, oak', 'deskChair', 0.88, 4.12, 0.44, 0.48, 0.8, { rot: -90, colour: C.moss }),
+  item('zimmer-1', 'desk-lamp', 'Desk lamp', 'tableLamp', 0.2, 3.7, 0.18, 0.18, 0.4, { z: 0.74, colour: C.mist, accent: C.fox }),
+  item('zimmer-1', 'shelf', 'Low open shelves with toy baskets', 'shelf', 2.0, 3.13, 1.8, 0.35, 0.78, { variant: 'baskets', colour: C.fox }),
+  item('zimmer-1', 'shelf-bear', 'Small plush bear', 'plush', 1.35, 3.13, 0.2, 0.18, 0.22, { z: 0.78, variant: 'bear' }),
+  ...(['fox', 'owl', 'deer'] as const).map((art, i) =>
+    item('zimmer-1', `print-${art}`, `${art[0].toUpperCase()}${art.slice(1)} print`, 'print', 1.5 + i * 0.5, 2.965, 0.36, 0.03, 0.48, { z: 1.2, art, accent: '#c8a97e' }),
+  ),
   item('zimmer-1', 'wardrobe', 'Wardrobe, white with oak handles', 'wardrobe', 3.6, 3.25, 1.2, 0.6, 2.2, { colour: '#f1efea' }),
-  item('zimmer-1', 'rug', 'Round play rug, lake blue-grey', 'rug', 2.3, 4.45, 1.6, 1.6, 0.015, { colour: C.lake, variant: 'round' }),
-  item('zimmer-1', 'nook', 'Reading nook, floor cushions', 'floorCushions', 0.5, 5.32, 0.9, 0.62, 0.35, { colour: C.mist, accent: C.reed }),
-  item('zimmer-1', 'print', 'Alpine lake print', 'print', 2.0, 2.965, 0.9, 0.03, 0.66, { z: 1.25, art: 'lake', accent: '#c8a97e' }),
-  item('zimmer-1', 'mirror', 'Round mirror, like a still lake', 'mirror', 2.5, 5.685, 0.7, 0.03, 0.7, { rot: 180, z: 0.95 }),
+  item('zimmer-1', 'rug', 'Round play rug, moss green', 'rug', 2.4, 4.45, 1.6, 1.6, 0.015, { colour: '#8e9a6c', variant: 'round' }),
+  item('zimmer-1', 'tipi', 'Play tipi, natural cotton on birch poles', 'tipi', 1.2, 5.1, 1.1, 1.1, 1.6, { rot: 90 }),
+  item('zimmer-1', 'plush-fox', 'Plush fox', 'plush', 2.05, 5.35, 0.3, 0.3, 0.3, { rot: -60, variant: 'fox' }),
   item('zimmer-1', 'pendant', 'Linen drum pendant', 'pendant', 2.4, 4.3, 0.5, 0.5, 0.25, { z: 2.05, variant: 'drum', colour: C.mist }),
 ];
 
@@ -321,15 +334,16 @@ const zimmer2: FurnitureItem[] = [
 ];
 
 const zimmer3: FurnitureItem[] = [
-  item('zimmer-3', 'slats', 'Birch slat wall', 'slats', 5.495, 4.33, 2.6, 0.03, 2.5, { rot: 90, colour: '#e6d9c3' }),
-  item('zimmer-3', 'sofa-bed', 'Sofa bed, oat wool, opens to 140 cm', 'sofa', 5.96, 4.6, 1.9, 0.95, 0.8, { rot: 90, colour: C.oat, accent: C.charcoal, variant: 'wool' }),
-  item('zimmer-3', 'desk', 'Desk, oak, 160 cm', 'desk', 9.85, 4.14, 1.6, 0.6, 0.74, { rot: -90 }),
-  item('zimmer-3', 'chair', 'Office chair with a sheepskin', 'deskChair', 9.2, 4.14, 0.6, 0.6, 1.0, { rot: 90, colour: C.charcoal, variant: 'office' }),
-  item('zimmer-3', 'desk-lamp', 'Desk lamp, black', 'tableLamp', 9.95, 4.75, 0.18, 0.18, 0.45, { z: 0.74, colour: C.white, accent: C.black }),
-  item('zimmer-3', 'desk-plant', 'Small plant', 'plant', 9.95, 3.55, 0.18, 0.18, 0.3, { z: 0.74, variant: 'trailing', accent: C.white }),
-  item('zimmer-3', 'wardrobe', 'Wardrobe, white, one section for guests', 'wardrobe', 7.6, 5.4, 2.0, 0.6, 2.3, { rot: 180, colour: '#f1efea' }),
-  item('zimmer-3', 'rug', 'Thick wool rug, cream', 'rug', 7.6, 4.15, 2.0, 1.4, 0.02, { colour: '#efe9de' }),
-  item('zimmer-3', 'floor-lamp', 'Floor lamp, black', 'floorLamp', 6.75, 4.86, 0.35, 0.35, 1.55, { colour: C.white }),
+  // A modular wall bed on the wall to Zimmer 1, clear of the door; folded down it reaches 2.05 m into the room.
+  item('zimmer-3', 'wall-bed', 'Wall bed, oak, 140 x 200 cm, with a shelf module (double-click to open)', 'wallBed', 5.705, 4.76, 1.86, 0.45, 2.35, { rot: 90 }),
+  item('zimmer-3', 'desk', 'Standing desk, white, 160 x 70 cm, 65 to 130 cm high', 'desk', 9.79, 4.14, 1.6, 0.7, 0.75, { rot: -90, variant: 'standing' }),
+  item('zimmer-3', 'screen-1', 'Monitor, 27 inch', 'monitor', 10.0, 3.83, 0.615, 0.2, 0.52, { rot: -75, z: 0.75 }),
+  item('zimmer-3', 'screen-2', 'Monitor, 27 inch', 'monitor', 10.0, 4.45, 0.615, 0.2, 0.52, { rot: -105, z: 0.75 }),
+  item('zimmer-3', 'keyboard', 'Logitech MX Keys keyboard', 'keyboard', 9.66, 4.1, 0.43, 0.13, 0.02, { rot: -90, z: 0.754 }),
+  item('zimmer-3', 'mouse', 'Logitech MX Master mouse', 'mouse', 9.66, 4.5, 0.085, 0.125, 0.05, { rot: -90, z: 0.754 }),
+  item('zimmer-3', 'chair', 'HÅG Capisco saddle chair, blue', 'deskChair', 9.05, 4.14, 0.66, 0.66, 1.05, { rot: 90, colour: '#1f4e79', variant: 'capisco' }),
+  item('zimmer-3', 'desk-plant', 'Small plant', 'plant', 10.0, 3.42, 0.18, 0.18, 0.3, { z: 0.75, variant: 'trailing', accent: C.white }),
+  item('zimmer-3', 'rug', 'Thick wool rug, cream', 'rug', 7.4, 4.3, 2.2, 1.6, 0.02, { colour: '#efe9de' }),
   item('zimmer-3', 'print', 'Birch forest print', 'print', 8.35, 2.965, 0.6, 0.03, 0.8, { z: 1.15, art: 'birch', accent: C.white }),
   item('zimmer-3', 'pendant', 'Paper pendant', 'pendant', 7.6, 4.15, 0.55, 0.55, 0.4, { z: 1.95, variant: 'paper', colour: '#f6f2ea' }),
 ];
@@ -367,18 +381,21 @@ const ensuite: FurnitureItem[] = [
   item('ensuite', 'mat', 'Bath mat, moss', 'rug', 7.3, 0.85, 0.6, 0.4, 0.012, { colour: C.moss }),
   item('ensuite', 'stool', 'Oak stool in the shower', 'stool', 8.45, 0.35, 0.3, 0.3, 0.45),
   item('ensuite', 'towels', 'Towel rail, moss towels', 'towels', 7.0, 2.27, 0.5, 0.08, 1.2, { rot: 180, z: 0.5, colour: C.moss, accent: C.mushroom, variant: 'rail' }),
-  item('ensuite', 'fern', 'Small fern', 'plant', 7.45, 0.25, 0.18, 0.18, 0.25, { z: 0.87, variant: 'fern', accent: C.white }),
+  item('ensuite', 'fern', 'Small fern', 'plant', 8.55, 2.21, 0.18, 0.18, 0.25, { z: 1.23, variant: 'fern', accent: C.white }),
 ];
 
 const roofTerrace: FurnitureItem[] = [
   ...[0.9, 2.85, 4.8].map((y, i) =>
     item('roof-terrace', `planter-${i}`, i === 1 ? 'Planter with birch and ferns' : 'Planter with mountain pine', 'planter', 0.05, y, 1.6, 0.45, 0.55, { rot: 90, variant: i === 1 ? 'birch' : 'pine' }),
   ),
-  item('roof-terrace', 'lounger-1', 'Teak lounger', 'lounger', 2.2, 1.0, 0.65, 1.9, 0.4, { rot: -90, colour: C.oat }),
-  item('roof-terrace', 'lounger-2', 'Teak lounger', 'lounger', 2.2, 2.0, 0.65, 1.9, 0.4, { rot: -90, colour: C.oat }),
-  item('roof-terrace', 'table', 'Small round teak table', 'sideTable', 3.4, 1.5, 0.45, 0.45, 0.45, { variant: 'teak' }),
-  item('roof-terrace', 'sauna', 'Two-person cabin sauna, black frame, glass front, dark wood inside', 'sauna', 1.2, 4.8, 1.25, 1.05, 1.95, { rot: 90 }),
-  item('roof-terrace', 'ice-bath', 'Ice bath, teak tub, 100 cm', 'iceBath', 2.75, 5.05, 1.0, 1.0, 0.9),
+  // The barrel sauna in the corner, its back to the pine planter and its door towards the house.
+  item('roof-terrace', 'sauna', 'Barrel sauna, thermowood with black end rings, 190 cm across, 200 cm long', 'sauna', 1.35, 4.7, 1.9, 2.0, 2.0, { rot: 90, variant: 'barrel' }),
+  item('roof-terrace', 'ice-bath', 'Ice bath, teak tub, 100 cm', 'iceBath', 2.95, 5.15, 1.0, 1.0, 0.9),
+  // Lounge at the north end
+  item('roof-terrace', 'lounge-sofa', 'Outdoor sofa, teak with oat cushions, 200 cm', 'sofa', 1.6, 0.48, 2.0, 0.85, 0.75, { colour: '#d8d0c0', accent: C.pine, variant: 'linen' }),
+  item('roof-terrace', 'lounge-chair-1', 'Outdoor lounge chair, teak with oat cushions', 'loungeChair', 0.95, 2.4, 0.76, 0.82, 0.78, { rot: 160, colour: '#d8d0c0' }),
+  item('roof-terrace', 'lounge-chair-2', 'Outdoor lounge chair, teak with oat cushions', 'loungeChair', 2.3, 2.4, 0.76, 0.82, 0.78, { rot: -160, colour: '#d8d0c0' }),
+  item('roof-terrace', 'lounge-table', 'Coffee table, teak, 90 x 60 cm', 'diningTable', 1.6, 1.5, 0.9, 0.6, 0.4, { variant: 'teak' }),
 ];
 
 const streetTerrace: FurnitureItem[] = [
@@ -389,27 +406,52 @@ const streetTerrace: FurnitureItem[] = [
 
 const frontGarden: FurnitureItem[] = [
   item('front-garden', 'tree', 'Small garden tree', 'plant', 11.7, 0.95, 0.5, 0.5, 3.6, { variant: 'tree' }),
-  item('front-path', 'bike-rack-1', 'Bike rack, black steel, 110 cm', 'bikeRack', 11.6, 3.85, 1.1, 0.12, 0.75, { rot: 90 }),
-  item('front-path', 'bike-rack-2', 'Bike rack, black steel, 110 cm', 'bikeRack', 11.6, 5.05, 1.1, 0.12, 0.75, { rot: 90 }),
+  // Two separate upright hoops along the hedge, one bike leaning against each.
+  item('front-path', 'bike-rack-1', 'Bike stand, black steel hoop, 70 x 85 cm', 'bikeRack', 11.2, 5.5, 0.7, 0.05, 0.85, { variant: 'hoop' }),
+  item('front-path', 'bike-rack-2', 'Bike stand, black steel hoop, 70 x 85 cm', 'bikeRack', 12.3, 5.5, 0.7, 0.05, 0.85, { variant: 'hoop' }),
 ];
 
 /* ---------------------------------------------------------------- basement */
 
 const basement: FurnitureItem[] = [
-  item('bastelraum-1', 'paint', 'Wall paint, terracotta', 'paint', 2.016, 4.425, 2.55, 0.008, 2.5, { rot: -90, colour: C.terracotta }),
-  item('bastelraum-1', 'sofa-bed', 'Sofa bed, oat linen', 'sofa', -1.0, 5.22, 2.0, 0.95, 0.8, { rot: 180, colour: C.oat, accent: C.terracotta, variant: 'linen' }),
-  item('bastelraum-1', 'desk', 'Desk, oak, 140 cm', 'desk', -3.03, 4.35, 1.4, 0.6, 0.74, { rot: 90 }),
-  item('bastelraum-1', 'chair', 'Desk chair, oak', 'deskChair', -2.45, 4.35, 0.44, 0.48, 0.8, { rot: -90, colour: C.clay }),
-  item('bastelraum-1', 'lamp', 'Ceramic lamp', 'tableLamp', -3.15, 4.85, 0.24, 0.24, 0.42, { z: 0.74, colour: C.linen, accent: C.terracotta }),
-  item('bastelraum-1', 'rug', 'Jute rug', 'rug', -0.6, 4.3, 2.4, 1.6, 0.015, { colour: '#b9a17c' }),
-  item('bastelraum-1', 'plant', 'Snake plant in clay', 'plant', 1.7, 5.4, 0.35, 0.35, 0.8, { variant: 'snake', accent: C.terracotta }),
-  item('bastelraum-2', 'workbench', 'Workbench, solid oak, 200 cm', 'workbench', 0.0, 0.38, 2.0, 0.7, 0.9),
-  item('bastelraum-2', 'pegboard', 'Oak pegboard with tools', 'pegboard', 0.0, 0.012, 2.0, 0.02, 1.0, { z: 1.1 }),
-  item('bastelraum-2', 'print', 'Cliff photograph', 'print', -2.2, 0.02, 1.4, 0.03, 0.95, { z: 1.1, art: 'mountain', accent: C.black }),
-  ...[-0.6, 0.6].map((x, i) => item('bastelraum-2', `pendant-${i}`, 'Black industrial pendant', 'pendant', x, 0.6, 0.35, 0.35, 0.25, { z: 1.85, variant: 'metal', colour: C.black })),
-  item('laundry', 'washer', 'Washing machine', 'washer', 2.6, 5.38, 0.6, 0.62, 0.85, { rot: 180 }),
-  item('laundry', 'dryer', 'Tumble dryer', 'washer', 3.25, 5.38, 0.6, 0.62, 0.85, { rot: 180, variant: 'dryer' }),
-  item('laundry', 'rack', 'Wooden drying rack', 'dryingRack', 3.0, 4.0, 1.0, 0.55, 1.0),
+  // Reading room: a built-in oak nook between built-in bookcases along the south wall.
+  item('bastelraum-1', 'nook', 'Built-in lounging nook, oak, mattress 140 x 200 cm (guest bed)', 'nook', -0.95, 4.95, 2.2, 1.5, 2.1, { rot: 180 }),
+  item('bastelraum-1', 'bookcase-w', 'Built-in bookcase, oak, to the ceiling', 'bookcase', -2.69, 5.525, 1.28, 0.35, 2.5, { rot: 180 }),
+  item('bastelraum-1', 'bookcase-e', 'Built-in bookcase, oak, to the ceiling', 'bookcase', 1.085, 5.525, 1.87, 0.35, 2.5, { rot: 180 }),
+  item('bastelraum-1', 'rug', 'Wool rug, oat', 'rug', -0.95, 3.85, 2.2, 1.2, 0.015, { colour: C.oat }),
+  item('bastelraum-1', 'desk', 'Standing desk, white, 120 x 60 cm, 65 to 130 cm high', 'desk', -3.03, 4.1, 1.2, 0.6, 0.75, { rot: 90, variant: 'standing' }),
+  item('bastelraum-1', 'screen-1', 'Monitor, 24 inch', 'monitor', -3.2, 4.37, 0.54, 0.2, 0.48, { rot: 105, z: 0.75 }),
+  item('bastelraum-1', 'screen-2', 'Monitor, 24 inch', 'monitor', -3.2, 3.83, 0.54, 0.2, 0.48, { rot: 75, z: 0.75 }),
+  item('bastelraum-1', 'keyboard', 'Logitech MX Keys keyboard', 'keyboard', -2.92, 4.12, 0.43, 0.13, 0.02, { rot: 90, z: 0.754 }),
+  item('bastelraum-1', 'mouse', 'Logitech MX Master mouse', 'mouse', -2.92, 3.75, 0.085, 0.125, 0.05, { rot: 90, z: 0.754 }),
+  ...([
+    [-3.25, 3.23, 45, 2.2],
+    [1.94, 3.23, -45, 2.2],
+    [-3.1, 5.45, 180, 2.12],
+    [1.85, 5.45, 180, 2.12],
+  ] as const).map(([x, y, rot, z], i) => item('bastelraum-1', `speaker-${i}`, 'Speaker, black, wall-mounted', 'speaker', x, y, 0.15, 0.14, 0.24, { rot, z })),
+  item('bastelraum-1', 'plant', 'Snake plant in clay', 'plant', -2.2, 3.42, 0.35, 0.35, 0.8, { variant: 'snake', accent: C.terracotta }),
+  // Gym, bikes and storage: bikes by the door to the stair, storage along the north wall, a sports floor over the rest.
+  ...['#34483e', '#2f4f6f', '#bf5640', '#e9e3d6'].map((colour, i) =>
+    item('bastelraum-2', `bike-${i}`, 'Bike on its own floor stand', 'bike', 2.25 + i * 0.5, 0.92, 0.5, 1.8, 1.05, { rot: 180, colour }),
+  ),
+  item('bastelraum-2', 'pantry', 'Pantry shelving for dry food, oak on black uprights', 'pantry', -2.33, 0.23, 2.0, 0.45, 2.2),
+  item('bastelraum-2', 'ski-rack', 'Ski rack: skis and poles upright, boots and helmets below', 'skiRack', -0.55, 0.21, 1.5, 0.42, 2.0),
+  item('bastelraum-2', 'cabinet', 'Storage cabinet, oak, for ski clothes and gear', 'wardrobe', 1.07, 0.3, 1.5, 0.6, 2.2, { variant: 'oak' }),
+  item('bastelraum-2', 'floor', 'Rubber sports floor', 'rug', -0.665, 1.76, 5.33, 2.48, 0.015, { variant: 'rubber', colour: '#2e3032' }),
+  item('bastelraum-2', 'mural', 'Mural: alpine ridges at sunrise', 'mural', -1.365, 2.995, 3.9, 0.01, 2.5, { rot: 180, art: 'sunrise' }),
+  item('bastelraum-2', 'dumbbells', 'Dumbbell rack with kettlebells', 'dumbbells', -2.4, 2.78, 1.2, 0.4, 0.75, { rot: 180 }),
+  ...([
+    [-1.35, 2.78, '#2b2b2a'],
+    [-0.95, 2.8, '#34483e'],
+    [-1.15, 2.42, '#2f4f6f'],
+  ] as const).map(([x, y, colour], i) => item('bastelraum-2', `wall-ball-${i}`, 'Wall ball, 6 kg', 'wallBall', x, y, 0.35, 0.35, 0.35, { colour })),
+  item('bastelraum-2', 'plyo-box', 'Plyo box, birch plywood', 'plyoBox', 0.1, 2.65, 0.6, 0.5, 0.6, { rot: 180 }),
+  ...[-1.8, 0.6].map((x, i) => item('bastelraum-2', `pendant-${i}`, 'Black industrial pendant', 'pendant', x, 1.7, 0.35, 0.35, 0.15, { z: 2.3, variant: 'metal', colour: C.black })),
+  // Laundry
+  item('laundry', 'washer', 'Washing machine with the dryer stacked on top', 'washer', 2.55, 5.38, 0.6, 0.62, 1.7, { rot: 180, variant: 'stack' }),
+  item('laundry', 'sink', 'Utility sink on a white cabinet', 'utilitySink', 4.05, 3.4, 0.6, 0.5, 0.9),
+  item('laundry', 'lines', 'Washing lines across the room', 'clothesLine', 3.82, 4.55, 3.2, 1.2, 0.4, { z: 1.85 }),
 ];
 
 export const furnitureByFloor: Record<string, FurnitureItem[]> = {

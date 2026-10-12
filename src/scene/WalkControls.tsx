@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { collisionRects, contains, moveWithCollisions, stairHeight, stairLengths, stairProgress } from '../house/geometry';
 import { furnitureByFloor } from '../furniture/proposals';
-import { BLOCKING, footprint } from '../furniture/types';
+import { BLOCKING, footprints } from '../furniture/types';
 import type { House } from '../house/types';
 
 export const EYE_HEIGHT = 1.65;
@@ -56,7 +56,7 @@ export function WalkControls({
   const rects = useMemo(() => {
     const last = house.floors.length - 1;
     const furniture = (floorId: string) =>
-      furnished ? (furnitureByFloor[floorId] ?? []).filter((it) => BLOCKING.has(it.kind) && !it.z).map(footprint) : [];
+      furnished ? (furnitureByFloor[floorId] ?? []).filter((it) => BLOCKING.has(it.kind) && !it.z).flatMap(footprints) : [];
     return {
       onFloor: house.floors.map((f, i) => [...collisionRects(f, house.stair, { top: i === last, bottom: i === 0 }), ...furniture(f.id)]),
       onFlight: house.floors.map((f) => collisionRects(f, house.stair)),
