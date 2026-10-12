@@ -1,7 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
-import { collisionRects, contains, moveWithCollisions, stairHeight, stairLengths, stairProgress } from '../house/geometry';
+import { collisionRects, contains, moveWithCollisions, stairGuide, stairHeight, stairLengths, stairProgress } from '../house/geometry';
 import { furnitureByFloor } from '../furniture/proposals';
 import { BLOCKING, footprints } from '../furniture/types';
 import type { House } from '../house/types';
@@ -123,8 +123,24 @@ export function WalkControls({
       const fz = forward.z / len;
       const speed = (k.has('ShiftLeft') || k.has('ShiftRight') ? RUN_SPEED : WALK_SPEED) * dt;
       const norm = Math.hypot(fwd, side);
-      const dx = ((fwd * fx - side * fz) / norm) * speed;
-      const dy = ((fwd * fz + side * fx) / norm) * speed;
+      let dx = ((fwd * fx - side * fz) / norm) * speed;
+      let dy = ((fwd * fz + side * fx) / norm) * speed;
+      if (s.flight !== null && fwd) {
+        // On a flight, walking forward or back follows the stair up or down and round its turn, drifting
+        // towards the middle of the treads, and the view turns with it.
+        const g = stairGuide(s.x, s.y);
+        const along = Math.sign(fx * g.tx + fz * g.ty || 1) * fwd;
+        const pull = Math.min(1, dt * 3);
+        dx = along * g.tx * speed + (g.cx - s.x) * pull * (g.ty !== 0 && g.tx === 0 ? 1 : 0.5);
+        dy = along * g.ty * speed + (g.cy - s.y) * pull * (g.tx !== 0 && g.ty === 0 ? 1 : 0.5);
+        if (!turn && !frozen) {
+          const want = Math.atan2(-along * g.tx * fwd, -along * g.ty * fwd);
+          const v = view.current;
+          const diff = Math.atan2(Math.sin(want - v.yaw), Math.cos(want - v.yaw));
+          v.yaw += diff * Math.min(1, dt * 4);
+          camera.rotation.set(v.pitch, v.yaw, 0, 'YXZ');
+        }
+      }
       const walls = s.flight !== null ? rects.onFlight[s.flight] : rects.onFloor[s.floor];
       const next = moveWithCollisions(s.x, s.y, dx, dy, walls);
       s.x = next.x;

@@ -202,7 +202,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Rubber black', hex: '#2e3032' },
       { name: 'Oak', hex: '#c8a97e' },
     ],
-    summary: 'Energy: charcoal walls with a burnt-orange wall, a rubber floor and bright ceiling spots. A road bike on a smart trainer facing a 43-inch screen on the back of the pantry shelves, a deadlift platform with a loaded bar, a black jump box, farmer handles, dumbbells, wall balls with a target at 2 m, a pull-up bar, and a closed gym closet.',
+    summary: 'Energy: charcoal walls with a burnt-orange wall, a rubber floor and bright ceiling spots. A road bike on a smart trainer facing a 43-inch screen on the back of the pantry shelves, a deadlift platform with a loaded bar, a black jump box, farmer handles, wall balls with a target at 2 m, and a pull-up bar.',
   },
   {
     room: 'storage',
@@ -469,12 +469,10 @@ const basement: FurnitureItem[] = [
     [-1.0, 3.23, 20, 2.2],
   ] as const).map(([x, y, rot, z], i) => item('bastelraum-1', `speaker-${i}`, 'Speaker, black, wall-mounted', 'speaker', x, y, 0.15, 0.14, 0.24, { rot, z })),
   item('bastelraum-1', 'plant', 'Snake plant in clay', 'plant', -1.5, 5.42, 0.35, 0.35, 0.8, { variant: 'snake', accent: C.terracotta }),
-  // Gym: charcoal walls, a burnt-orange wall behind the platform, spots, and a closed gym closet.
+  // Gym: charcoal walls, a burnt-orange wall behind the platform, and spots.
   item('bastelraum-2', 'floor', 'Rubber sports floor', 'rug', -1.378, 1.5, 3.9, 2.98, 0.015, { variant: 'rubber', colour: '#2e3032' }),
   item('bastelraum-2', 'paint-n', 'Wall paint, charcoal', 'paint', -1.378, 0.004, 3.9, 0.01, 2.5, { colour: '#34373b' }),
   item('bastelraum-2', 'paint-s', 'Wall paint, burnt orange', 'paint', -1.89, 2.996, 2.88, 0.01, 2.5, { rot: 180, colour: '#c85a2a' }),
-  item('bastelraum-2', 'closet', 'Gym closet: mats, bands, kettlebells, towels', 'wardrobe', -3.03, 2.3, 1.4, 0.6, 2.4, { rot: 90, variant: 'gym', colour: '#2f3236' }),
-  item('bastelraum-2', 'dumbbells', 'Dumbbell rack with kettlebells', 'dumbbells', -3.13, 0.95, 1.2, 0.4, 0.75, { rot: 90 }),
   item('bastelraum-2', 'pull-up', 'Wall-mounted pull-up bar', 'pullUpBar', -2.0, 0.3, 1.2, 0.6, 0.35, { z: 2.1 }),
   // A road bike on a smart trainer, facing a 43-inch screen on the back of the pantry shelves.
   item('bastelraum-2', 'tv', 'Television, 43 inch, on the back of the pantry shelves', 'tv', 0.585, 1.0, 0.97, 0.03, 0.56, { rot: -90, z: 1.05, art: 'mountain' }),
