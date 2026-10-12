@@ -11,6 +11,7 @@ import { BlockMesh, FloorPlane, PlanSlab, rectOutline } from './meshes';
 import { Shower } from './Shower';
 import { Shuttered } from './Shutters';
 import { Stream } from './Water';
+import { KitchenCabinets } from './KitchenCabinets';
 
 const SLAB = 0.33;
 
@@ -128,6 +129,7 @@ function FloorStructure({ house, floor, index, onPick }: { house: House; floor: 
           <Shower shower={s} level={floor.level} />
         </group>
       ))}
+      {floor.id === 'main' && <KitchenCabinets level={floor.level} />}
       <Fittings
         items={fittingsByFloor[floor.id] ?? []}
         level={floor.level}
@@ -153,8 +155,9 @@ function Flight({ house, flight }: { house: House; flight: number }) {
   return (
     <group>
       {treads.map((t, i) => (
-        // Closed steps in the oak of the main floor: each one solid down to the floor, so nothing shows through between them.
-        <PlanSlab key={i} outline={t.outline} top={base + rise * (t.step + 1)} thickness={rise * (t.step + 1) - 0.004} mat="parquet" />
+        // Closed steps in the oak of the main floor: each block reaches a little below the step under it, so nothing
+        // shows through between them, yet leaves headroom where the winding flight passes over itself.
+        <PlanSlab key={i} outline={t.outline} top={base + rise * (t.step + 1)} thickness={Math.min(rise * (t.step + 1), rise + 0.08) - 0.004} mat="parquet" />
       ))}
     </group>
   );

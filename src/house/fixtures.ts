@@ -39,14 +39,15 @@ const f = (name: string, material: FixtureMaterial, x0: number, y0: number, x1: 
  * party wall with the cooktop, and the sink run under the street window. Worktop at 93 cm,
  * wall cabinets from 1.55 m to 2.19 m.
  */
+// The cabinet carcasses are drawn in 3D by KitchenCabinets, with fronts that open; here they are for the plan.
 const kitchen: Fixture[] = [
-  f('Tall units', 'taupe', 6.57, 2.91, 8.535, 3.51, 0.1, 2.5),
+  f('Tall units', 'taupe', 6.57, 2.91, 8.535, 3.51, 0.1, 2.5, true),
   f('Tall units plinth', 'plinth', 6.6, 2.91, 8.5, 3.46, 0, 0.1),
   f('Oven', 'black', 6.605, 3.505, 7.2, 3.52, 0.87, 1.47),
   f('Oven', 'black', 7.21, 3.505, 7.805, 3.52, 0.87, 1.47),
-  f('Base run', 'taupe', 6.57, 5.08, 10.15, 5.7, 0.1, 0.91),
+  f('Base run', 'taupe', 6.57, 5.08, 10.15, 5.7, 0.1, 0.91, true),
   f('Base run plinth', 'plinth', 6.57, 5.13, 10.15, 5.7, 0, 0.1),
-  f('Sink run', 'taupe', 9.55, 3.27, 10.15, 5.08, 0.1, 0.91),
+  f('Sink run', 'taupe', 9.55, 3.27, 10.15, 5.08, 0.1, 0.91, true),
   f('Sink run plinth', 'plinth', 9.6, 3.27, 10.15, 5.08, 0, 0.1),
   f('Grip rail', 'shadow', 6.57, 5.07, 9.55, 5.08, 0.86, 0.88),
   f('Grip rail', 'shadow', 9.54, 3.27, 9.55, 5.07, 0.86, 0.88),
@@ -58,7 +59,7 @@ const kitchen: Fixture[] = [
   f('Tap', 'copper', 10.04, 4.265, 10.07, 4.295, 0.93, 1.25),
   f('Tap spout', 'copper', 9.9, 4.265, 10.07, 4.295, 1.22, 1.25),
   f('Cooktop', 'black', 8.25, 5.15, 9.05, 5.65, 0.93, 0.936),
-  f('Wall cabinets', 'taupe', 6.6, 5.35, 10.1, 5.7, 1.55, 2.185),
+  f('Wall cabinets', 'taupe', 6.6, 5.35, 10.1, 5.7, 1.55, 2.185, true),
   f('Extractor', 'black', 8.2, 5.36, 9.1, 5.62, 1.53, 1.55),
 ];
 

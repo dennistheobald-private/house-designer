@@ -387,7 +387,7 @@ function Bed({ it }: { it: FurnitureItem }) {
  * A part of a cabinet that opens when double-clicked: a door that swings on its hinge, or a
  * drawer or box that slides out (+z). Double-clicking it again closes it.
  */
-function Opens({ swing, slide, at = [0, 0, 0], children }: { swing?: number; slide?: number; at?: [number, number, number]; children: ReactNode }) {
+export function Opens({ swing, slide, at = [0, 0, 0], children }: { swing?: number; slide?: number; at?: [number, number, number]; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const t = useRef(0);
   const g = useRef<THREE.Group>(null);
@@ -1046,10 +1046,12 @@ function Hooks({ it }: { it: FurnitureItem }) {
 }
 
 function Tv({ it }: { it: FurnitureItem }) {
+  // With art set, the screen is on and shows that picture (a ride through the mountains in the gym).
+  const on = it.art && cached(`tv-${it.art}`, () => new THREE.MeshBasicMaterial({ map: (art(it.art!) as THREE.MeshPhysicalMaterial).map, toneMapped: false, color: '#d8d8d8' }));
   return (
     <group position={[0, it.h / 2, 0]}>
       <M g={roundedBox(it.w, it.h, it.d, 0.004)} m={metal('#1b1b1b', 0.5)} />
-      <M g={plane(it.w - 0.01, it.h - 0.01)} m={screen()} p={[0, 0, it.d / 2 + 0.001]} shadow={false} />
+      <M g={plane(it.w - 0.01, it.h - 0.01)} m={on || screen()} p={[0, 0, it.d / 2 + 0.001]} shadow={false} />
     </group>
   );
 }
@@ -2265,7 +2267,8 @@ function WallBed({ it }: { it: FurnitureItem }) {
 /** A bike on a floor stand that holds its front wheel, so each of the four comes out on its own. Front faces +z. */
 function ParkedBike({ it }: { it: FurnitureItem }) {
   if (it.variant === 'steadyrack') return <HangingBike it={it} />;
-  const hung = it.variant === 'hung';
+  const hung = it.variant === 'hung' || it.variant === 'trainer';
+  const trainer = it.variant === 'trainer';
   const { d } = it;
   const black = metal('#1c1c1d', 0.5);
   const frameM = lacquer(it.colour ?? '#34483e', 0.35);
@@ -2284,6 +2287,16 @@ function ParkedBike({ it }: { it: FurnitureItem }) {
   const headLow: [number, number] = [fz - 0.1, 0.62];
   return (
     <group>
+      {trainer && (
+        <>
+          {/* Smart trainer round the rear wheel: a black body with splayed legs, and a riser block under the front wheel */}
+          <Box w={0.2} h={0.3} d={0.36} y={0.14} z={rz - 0.05} m={lacquer('#1d1d1e', 0.4)} r={0.04} />
+          <Box w={0.7} h={0.04} d={0.08} z={rz - 0.05} m={lacquer('#1d1d1e', 0.5)} r={0.01} />
+          <Box w={0.5} h={0.04} d={0.08} z={rz + 0.2} m={lacquer('#1d1d1e', 0.5)} r={0.01} />
+          <Box w={0.3} h={0.04} d={0.3} z={fz} m={lacquer('#2a2a2b', 0.8)} r={0.02} />
+          <Box w={0.9} h={0.006} d={1.9} y={0} m={lacquer('#1a1a1a', 0.95)} r={0} />
+        </>
+      )}
       {/* the stand: a rail on the floor and a cradle round the front wheel */}
       {!hung && <Box w={0.08} h={0.03} d={d - 0.1} m={black} r={0.006} />}
       {!hung && [-1, 1].map((s) => (
@@ -2350,6 +2363,8 @@ function Pantry({ it }: { it: FurnitureItem }) {
       {[-1, 0, 1].map((s) => (
         <Box key={`u${s}`} w={0.03} h={h} d={d} x={s * (w / 2 - 0.015)} m={birch ? lacquer('#f4f3ef', 0.5) : metal('#2b2b2a', 0.5)} r={0.004} />
       ))}
+      {/* The white shelves have a closed back, so they can stand free as a divider. */}
+      {birch && <Box w={w} h={h} d={0.016} z={-d / 2 + 0.008} m={lacquer('#f4f3ef', 0.5)} r={0} />}
       {stock}
     </group>
   );
@@ -2852,6 +2867,8 @@ function BoxShelf({ it }: { it: FurnitureItem }) {
   const doorM = oak ? wood('oakBrushed') : lacquer('#f4f3ef', 0.5);
   const t = 0.022;
   const plinth = oak ? 0.08 : 0.05;
+  // Open shelving: no doors, the boxes within reach.
+  const open = it.variant === 'open';
   const levels = Math.max(3, Math.round((h - plinth) / 0.4));
   const lh = (h - plinth - t) / levels;
   const bays = Math.max(1, Math.round(w / 0.62));
@@ -2892,7 +2909,7 @@ function BoxShelf({ it }: { it: FurnitureItem }) {
       <Box w={w} h={h - plinth} d={0.012} y={plinth} z={-d / 2 + 0.006} m={ply} r={0} grain />
       {boxes}
       {/* closed doors over each bay; double-click one to open it */}
-      {Array.from({ length: bays }, (_, b) => {
+      {!open && Array.from({ length: bays }, (_, b) => {
         const left = b % 2 === 0;
         const sign = left ? 1 : -1;
         const dwB = bw - 0.004;

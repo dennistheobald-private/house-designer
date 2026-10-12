@@ -191,7 +191,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Moss', hex: '#8e9a6c' },
       { name: 'Pine', hex: C.pine },
     ],
-    summary: 'A calm forest room: a misty forest mural on the end wall, oak panelling, the oak lounging nook along the window wall with built-in books (also the guest bed), a bouclé daybed facing the forest, a moss rug, warm low light, speakers in the corners and one closed oak closet of storage boxes.',
+    summary: 'A calm forest room: a misty forest mural on the end wall, oak panelling, the oak lounging nook along the window wall with built-in books (also the guest bed), a moss rug, warm low light, speakers in the corners and one closed oak closet of storage boxes.',
   },
   {
     room: 'bastelraum-2',
@@ -202,7 +202,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Rubber black', hex: '#2e3032' },
       { name: 'Oak', hex: '#c8a97e' },
     ],
-    summary: 'Energy: charcoal walls with a burnt-orange wall, a rubber floor and bright ceiling spots. An indoor cycling bike facing a ride projected on the wall by a small beamer, a deadlift platform with a loaded bar, a black jump box, farmer handles, dumbbells, wall balls with a target at 2 m, a pull-up bar and TRX straps, and a closed gym closet.',
+    summary: 'Energy: charcoal walls with a burnt-orange wall, a rubber floor and bright ceiling spots. A road bike on a smart trainer facing a 43-inch screen on the back of the pantry shelves, a deadlift platform with a loaded bar, a black jump box, farmer handles, dumbbells, wall balls with a target at 2 m, a pull-up bar and TRX straps, and a closed gym closet.',
   },
   {
     room: 'storage',
@@ -212,7 +212,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Birch ply', hex: '#e2cfa8' },
       { name: 'Light grey', hex: C.pale },
     ],
-    summary: 'Open to the gym, with a white pantry cupboard for dry food as the divider. Four bikes hang on Steadyrack wall mounts, each free to take down; a closed closet of storage boxes and the ski rack.',
+    summary: 'Open to the gym, with open white pantry shelves for dry food as the divider. Four bikes hang on Steadyrack wall mounts, each free to take down; open shelving with storage boxes and the ski rack.',
   },
   {
     room: 'laundry',
@@ -457,11 +457,10 @@ const basement: FurnitureItem[] = [
   // Reading room: a built-in oak nook between built-in bookcases along the south wall.
   // Reading room: the lounging nook along the window wall, its bookcase built into one end and a shelf over the top.
   item('bastelraum-1', 'nook', 'Built-in lounging nook, oak, with built-in bookshelves, mattress 140 x 200 cm (guest bed)', 'nook', -2.58, 4.425, 2.5, 1.5, 2.45, { rot: 90, variant: 'books' }),
-  // Chill room: the nook, a nature mural, oak panelling and a bouclé daybed, with a closed closet of boxes.
+  // Chill room: the nook, a nature mural, oak panelling and a moss rug, with a closed closet of boxes.
   item('bastelraum-1', 'mural', 'Mural: misty forest', 'mural', 2.015, 4.195, 2.05, 0.01, 2.5, { rot: -90, art: 'forest' }),
   item('bastelraum-1', 'panel-w', 'Oak wall panelling', 'panel', -1.14, 3.16, 1.38, 0.02, 2.5),
   item('bastelraum-1', 'panel-e', 'Oak wall panelling', 'panel', 1.185, 3.16, 1.67, 0.02, 2.5),
-  item('bastelraum-1', 'daybed', 'Daybed, oat bouclé, 80 x 190 cm', 'daybed', 0.8, 4.2, 0.8, 1.9, 0.75, { rot: 90 }),
   item('bastelraum-1', 'floor-lamp', 'Floor lamp, black with linen shade', 'floorLamp', -1.55, 3.45, 0.4, 0.4, 1.6, { colour: C.linen }),
   item('bastelraum-1', 'closet', 'Built-in closet, oak doors, storage boxes inside', 'boxShelf', 0.375, 5.47, 3.25, 0.45, 2.4, { rot: 180, variant: 'oak' }),
   item('bastelraum-1', 'rug', 'Wool rug, moss', 'rug', -0.55, 4.45, 2.0, 1.6, 0.015, { colour: '#8e9a6c' }),
@@ -478,9 +477,9 @@ const basement: FurnitureItem[] = [
   item('bastelraum-2', 'dumbbells', 'Dumbbell rack with kettlebells', 'dumbbells', -3.13, 0.95, 1.2, 0.4, 0.75, { rot: 90 }),
   item('bastelraum-2', 'pull-up', 'Wall-mounted pull-up bar', 'pullUpBar', -2.0, 0.3, 1.2, 0.6, 0.35, { z: 2.1 }),
   item('bastelraum-2', 'trx', 'Suspension trainer (TRX) from a ceiling anchor', 'trx', -1.6, 1.35, 0.3, 0.1, 1.45, { z: 1.0 }),
-  item('bastelraum-2', 'indoor-bike', 'Indoor cycling bike', 'indoorBike', -0.4, 1.15, 0.55, 1.2, 1.1, { rot: 180 }),
-  item('bastelraum-2', 'projection', 'Projected ride on the wall', 'projection', -0.4, 0.012, 1.6, 0.01, 0.9, { z: 1.05, art: 'mountain' }),
-  item('bastelraum-2', 'beamer', 'Small projector on the ceiling', 'beamer', -0.4, 2.2, 0.25, 0.2, 0.08, { rot: 180, z: 2.3 }),
+  // A road bike on a smart trainer, facing a 43-inch screen on the back of the pantry shelves.
+  item('bastelraum-2', 'tv', 'Television, 43 inch, on the back of the pantry shelves', 'tv', 0.585, 1.0, 0.97, 0.03, 0.56, { rot: -90, z: 1.05, art: 'mountain' }),
+  item('bastelraum-2', 'trainer-bike', 'Road bike on a smart trainer', 'bike', -0.45, 1.0, 0.55, 1.75, 1.1, { rot: 90, colour: '#2f4f6f', variant: 'trainer' }),
   item('bastelraum-2', 'deadlift', 'Deadlift platform with a loaded barbell', 'deadlift', -1.65, 2.3, 2.0, 1.1, 0.45),
   item('bastelraum-2', 'farmer', "Farmer's walk handles", 'farmer', -2.25, 1.35, 1.0, 0.45, 0.25),
   item('bastelraum-2', 'plyo-box', 'Jump box, black', 'plyoBox', 0.25, 1.6, 0.6, 0.5, 0.6, { variant: 'black' }),
@@ -490,13 +489,13 @@ const basement: FurnitureItem[] = [
   ] as const).map(([x, y, colour], i) => item('bastelraum-2', `wall-ball-${i}`, 'Wall ball, 6 kg', 'wallBall', x, y, 0.35, 0.35, 0.35, { colour })),
   item('bastelraum-2', 'target', 'Wall ball target at 2 m', 'wallTarget', -1.65, 2.98, 0.45, 0.02, 0.45, { rot: 180, z: 1.78 }),
   ...[-2.6, -1.4, -0.2].flatMap((x) => [0.8, 2.2].map((y) => item('bastelraum-2', `spot-${x}-${y}`, 'Ceiling spot', 'spot', x, y, 0.09, 0.09, 0.03, { z: 2.47 }))),
-  // Store: a pantry cupboard as the divider, bikes on Steadyracks, a closed box closet and the ski rack.
-  item('storage', 'pantry', 'Pantry cupboard, white, dry food inside; it also divides the gym from the store', 'wardrobe', 0.9, 1.0, 2.0, 0.6, 2.4, { rot: 90, variant: 'pantry', colour: '#f4f3ef' }),
+  // Store: open pantry shelves as the divider, bikes on Steadyracks, open box shelving and the ski rack.
+  item('storage', 'pantry', 'Open pantry shelves, white, dry food within reach; its closed back divides the gym from the store', 'pantry', 0.9, 1.0, 2.0, 0.6, 2.4, { rot: 90, variant: 'birch' }),
   ...['#34483e', '#2f4f6f', '#bf5640', '#e9e3d6'].map((colour, i) =>
     item('storage', `bike-${i}`, 'Bike on a Steadyrack wall mount', 'bike', 1.6 + i * 0.6, 0.55, 0.55, 1.1, 2.0, { colour, variant: 'steadyrack' }),
   ),
   item('storage', 'ski-rack', 'Ski rack: skis and poles upright, boots and helmets below', 'skiRack', 4.06, 0.7, 0.95, 0.42, 2.0, { rot: -90 }),
-  item('storage', 'boxes', 'Closet with storage boxes, white doors', 'boxShelf', 2.45, 2.775, 2.4, 0.45, 2.2, { rot: 180, variant: 'birch' }),
+  item('storage', 'boxes', 'Open shelving with storage boxes, birch', 'boxShelf', 2.45, 2.775, 2.4, 0.45, 2.2, { rot: 180, variant: 'open' }),
   item('storage', 'light', 'Linen pendant', 'pendant', 2.45, 1.5, 0.4, 0.4, 0.2, { z: 2.2, colour: C.linen }),
   // Laundry
   item('laundry', 'washer', 'Washing machine with the dryer stacked on top', 'washer', 2.55, 5.38, 0.6, 0.62, 1.7, { rot: 180, variant: 'stack' }),
