@@ -293,9 +293,6 @@ const kitchenItems: FurnitureItem[] = [
   item('kitchen', 'herbs', 'Herbs in terracotta pots', 'herbs', 9.98, 3.7, 0.5, 0.15, 0.28, { rot: -90, z: 0.93 }),
   item('kitchen', 'boards', 'Oak chopping boards', 'boards', 7.3, 5.6, 0.6, 0.06, 0.45, { rot: 180, z: 0.93 }),
   item('kitchen', 'bowl', 'Stoneware fruit bowl', 'bowl', 7.4, 5.3, 0.3, 0.3, 0.1, { z: 0.93, colour: C.sage, variant: 'fruit' }),
-  // Dennis's coffee corner: a light blue Profitec Go and a black Eureka Mignon Specialità.
-  item('kitchen', 'espresso', 'Espresso machine, Profitec Go, light blue', 'espresso', 9.4, 5.43, 0.25, 0.4, 0.36, { rot: 180, z: 0.93 }),
-  item('kitchen', 'grinder', 'Coffee grinder, Eureka Mignon Specialità, matt black', 'grinder', 9.85, 5.47, 0.13, 0.2, 0.35, { rot: 180, z: 0.93 }),
   item('kitchen', 'blind', 'Roller blind, sage linen', 'blind', 10.14, 4.28, 1.55, 0.04, 0.35, { rot: -90, z: 2.07, colour: C.sage }),
 ];
 
