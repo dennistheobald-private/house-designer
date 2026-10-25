@@ -81,7 +81,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Pebble', hex: C.pebble },
       { name: 'Oak', hex: '#c8a97e' },
     ],
-    summary: 'A full-height matt white wardrobe, an oak bench with a pebble-grey cushion, an oak chest of drawers under a round mirror on the kitchen wall, pebble hooks, a long wool runner and a photo of the Rhine facing the front door.',
+    summary: 'A full-height handleless taupe wardrobe matching the kitchen, an oak bench with a pebble-grey cushion, an oak chest of drawers under a round mirror on the kitchen wall, pebble hooks, a long wool runner and a photo of the Rhine facing the front door.',
   },
   {
     room: 'wc',
@@ -303,7 +303,7 @@ const kitchenItems: FurnitureItem[] = [
 ];
 
 const entrance: FurnitureItem[] = [
-  item('entrance', 'wardrobe', 'Built-in wardrobe, matt white, full height', 'wardrobe', 7.81, 0.31, 1.98, 0.6, 2.48, { colour: '#f1efea', variant: 'flush' }),
+  item('entrance', 'wardrobe', 'Built-in wardrobe, handleless taupe like the kitchen, full height', 'wardrobe', 7.81, 0.31, 1.98, 0.6, 2.48, { colour: '#b39f92', variant: 'taupe' }),
   item('entrance', 'bench', 'Bench, oak, with a pebble-grey cushion', 'bench', 7.03, 1.2, 1.0, 0.38, 0.46, { rot: 90, accent: C.pebble }),
   item('entrance', 'dresser', 'Chest of drawers, oak, 100 cm', 'dresser', 7.95, 2.59, 1.0, 0.4, 0.85, { rot: 180 }),
   item('entrance', 'mirror', 'Round mirror, oak rim, 70 cm', 'mirror', 7.95, 2.775, 0.7, 0.03, 0.7, { rot: 180, z: 1.15 }),
