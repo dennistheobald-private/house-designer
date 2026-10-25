@@ -191,7 +191,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Moss', hex: '#8e9a6c' },
       { name: 'Pine', hex: C.pine },
     ],
-    summary: 'A calm forest room: a misty forest mural on the end wall, oak panelling, the oak lounging nook along the window wall with built-in books (also the guest bed), a moss rug, warm low light, speakers in the corners and one closed oak closet of storage boxes.',
+    summary: 'A calm forest room: a misty forest mural on the end wall, oak panelling, the oak lounging nook along the window wall with built-in books (also the guest bed), a moss rug, warm low light, speakers in the corners, one closed oak closet of storage boxes, and a small oak desk with one screen in the corner by the door.',
   },
   {
     room: 'bastelraum-2',
@@ -472,6 +472,13 @@ const basement: FurnitureItem[] = [
     [-1.0, 3.23, 20, 2.2],
   ] as const).map(([x, y, rot, z], i) => item('bastelraum-1', `speaker-${i}`, 'Speaker, black, wall-mounted', 'speaker', x, y, 0.15, 0.14, 0.24, { rot, z })),
   item('bastelraum-1', 'plant', 'Snake plant in clay', 'plant', -1.5, 5.42, 0.35, 0.35, 0.8, { variant: 'snake', accent: C.terracotta }),
+  // A small oak desk in the open corner beside the door, against the panelled wall, with one screen and an oak chair.
+  item('bastelraum-1', 'desk', 'Desk, oak, 100 x 55 cm', 'desk', 1.49, 3.45, 1.0, 0.55, 0.74),
+  item('bastelraum-1', 'screen', 'Monitor, 24 inch', 'monitor', 1.49, 3.3, 0.54, 0.2, 0.48, { z: 0.74 }),
+  item('bastelraum-1', 'keyboard', 'Keyboard, graphite', 'keyboard', 1.45, 3.58, 0.43, 0.13, 0.02, { z: 0.744 }),
+  item('bastelraum-1', 'mouse', 'Mouse, graphite', 'mouse', 1.8, 3.6, 0.085, 0.125, 0.05, { z: 0.744 }),
+  item('bastelraum-1', 'desk-lamp', 'Desk lamp, black with linen shade', 'tableLamp', 1.85, 3.3, 0.18, 0.18, 0.4, { z: 0.74, colour: C.linen }),
+  item('bastelraum-1', 'chair', 'Desk chair, oak with oat bouclé seat', 'deskChair', 1.49, 3.99, 0.44, 0.48, 0.8, { rot: 180, colour: '#d9d2c4' }),
   // Gym: charcoal walls, a burnt-orange wall behind the platform, and spots.
   item('bastelraum-2', 'floor', 'Rubber sports floor', 'rug', -1.378, 1.5, 3.9, 2.98, 0.015, { variant: 'rubber', colour: '#2e3032' }),
   item('bastelraum-2', 'paint-n', 'Wall paint, charcoal', 'paint', -1.378, 0.004, 3.9, 0.01, 2.5, { colour: '#34373b' }),
