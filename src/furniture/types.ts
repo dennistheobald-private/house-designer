@@ -64,6 +64,7 @@ export type FurnitureKind =
   | 'pergola'
   | 'clothesLine'
   | 'utilitySink'
+  | 'boiler'
   // work
   | 'monitor'
   | 'keyboard'
@@ -191,6 +192,7 @@ export const BLOCKING: ReadonlySet<FurnitureKind> = new Set<FurnitureKind>([
   'iceBath',
   'bikeRack',
   'utilitySink',
+  'boiler',
   'wallBed',
   'nook',
   'bookcase',

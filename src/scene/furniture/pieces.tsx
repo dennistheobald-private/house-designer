@@ -1717,6 +1717,56 @@ function UtilitySink({ it }: { it: FurnitureItem }) {
   );
 }
 
+/**
+ * A floor-standing hot water boiler: a white enamelled tank on a grey plinth with a domed lid,
+ * a small control panel with a display on the front, and the copper cold and hot pipes rising
+ * from the lid to the ceiling, with the safety valve on the cold side. `w` is the tank's
+ * diameter; the pipes run up to `ceiling` (default 2.5 m) at the back.
+ */
+function Boiler({ it }: { it: FurnitureItem }) {
+  const { w, h } = it;
+  const R = w / 2;
+  const white = lacquer('#f3f3f0', 0.3);
+  const grey = lacquer('#8f9193', 0.5);
+  const copper = metal('#b8734a', 0.3);
+  const brass = metal('#c9a24a', 0.35);
+  const plinth = 0.08;
+  const dome = 0.1;
+  const body = h - plinth - dome;
+  const top = h - dome;
+  const ceiling = 2.5;
+  const panelY = top - 0.32;
+  return (
+    <group>
+      {/* plinth, tank and domed lid */}
+      <M g={cylinder(R - 0.03, R - 0.03, plinth, 40)} m={grey} p={[0, plinth / 2, 0]} />
+      <M g={cylinder(R, R, body, 48)} m={white} p={[0, plinth + body / 2, 0]} />
+      <M g={lathe([[0, dome], [R * 0.45, dome * 0.92], [R * 0.8, dome * 0.6], [R, 0]], 48)} m={grey} p={[0, top, 0]} />
+      {/* thin grey rings where the jacket meets plinth and lid */}
+      <M g={torus(R, 0.008)} m={grey} p={[0, plinth + 0.01, 0]} r={[Math.PI / 2, 0, 0]} />
+      <M g={torus(R, 0.008)} m={grey} p={[0, top - 0.01, 0]} r={[Math.PI / 2, 0, 0]} />
+      {/* control panel with display and knob on the front */}
+      <Box w={0.2} h={0.12} d={0.03} y={panelY} z={R - 0.005} m={grey} r={0.01} />
+      <M g={plane(0.09, 0.04)} m={screen()} p={[-0.035, panelY + 0.065, R + 0.012]} />
+      <M g={cylinder(0.018, 0.018, 0.02, 24)} m={white} p={[0.055, panelY + 0.06, R + 0.018]} r={[Math.PI / 2, 0, 0]} />
+      {/* cold in and hot out: copper pipes from the lid up to the ceiling at the back */}
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * 0.12, 0, 0]}>
+          <M g={cylinder(0.014, 0.014, 0.12, 12)} m={copper} p={[0, h + 0.06, -0.05]} />
+          <M g={cylinder(0.014, 0.014, R + 0.02, 12)} m={copper} p={[0, h + 0.12, -0.05 - (R - 0.03) / 2]} r={[Math.PI / 2, 0, 0]} />
+          <M g={cylinder(0.014, 0.014, ceiling - h - 0.12, 12)} m={copper} p={[0, (ceiling + h + 0.12) / 2, -R - 0.03]} />
+          <M g={cylinder(0.022, 0.022, 0.05, 12)} m={brass} p={[0, h + 0.005, -0.05]} />
+        </group>
+      ))}
+      {/* safety valve group on the cold pipe, with its drain line */}
+      <Box w={0.06} h={0.1} d={0.06} x={-0.12} y={h + 0.35} z={-R - 0.03} m={brass} r={0.01} />
+      <M g={cylinder(0.035, 0.035, 0.02, 16)} m={lacquer('#2f6fb3', 0.4)} p={[-0.12, h + 0.42, -R + 0.01]} r={[Math.PI / 2, 0, 0]} />
+      {/* a hot-water label so it reads as a boiler, not a column */}
+      <M g={plane(0.06, 0.06)} m={lacquer('#c4402f', 0.5)} p={[0, plinth + body * 0.18, R + 0.002]} />
+    </group>
+  );
+}
+
 /** A height-adjustable standing desk: a white top on two white telescopic legs with T-feet. */
 function StandingDesk({ it }: { it: FurnitureItem }) {
   const { w, d, h } = it;
@@ -3499,6 +3549,8 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
       return <ClothesLine it={it} />;
     case 'utilitySink':
       return <UtilitySink it={it} />;
+    case 'boiler':
+      return <Boiler it={it} />;
     case 'monitor':
       return <Monitor it={it} />;
     case 'keyboard':
