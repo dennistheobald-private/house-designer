@@ -118,7 +118,7 @@ export const proposals: RoomProposal[] = [
   },
   {
     room: 'zimmer-3',
-    view: { x: 9.0, y: 3.3, facing: 2.8 },
+    view: { x: 6.3, y: 4.6, facing: -0.38 },
     theme: 'Birch and snow',
     palette: [
       { name: 'Birch', hex: C.birch },
@@ -126,7 +126,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Charcoal', hex: C.charcoal },
       { name: 'Wool', hex: C.oat },
     ],
-    summary: 'A modular oak wall bed for guests, 140 x 200 cm, with a shelf module beside it (double-click it to fold it down), and at the street window a white standing desk with two 27 inch screens, a Logitech MX Keys keyboard and MX Master mouse, and a blue HÅG Capisco saddle chair.',
+    summary: 'A modular oak wall bed for guests, 140 x 200 cm, with a shelf module beside it (double-click it to fold it down), and along the door wall two white standing desks facing each other with a grey wool felt acoustic screen between them, each with two 27 inch screens, a Logitech MX Keys keyboard and MX Master mouse and a HÅG Capisco saddle chair (blue and grey), under an oak slat acoustic panel.',
   },
   {
     room: 'bathroom',
@@ -369,16 +369,26 @@ const zimmer2: FurnitureItem[] = [
 const zimmer3: FurnitureItem[] = [
   // A modular wall bed on the wall to Zimmer 1, clear of the door; folded down it reaches 2.05 m into the room.
   item('zimmer-3', 'wall-bed', 'Wall bed, oak, 140 x 200 cm, with a shelf module (double-click to open)', 'wallBed', 5.705, 4.76, 1.86, 0.45, 2.35, { rot: 90 }),
-  item('zimmer-3', 'desk', 'Standing desk, white, 160 x 70 cm, 65 to 130 cm high', 'desk', 9.79, 4.14, 1.6, 0.7, 0.75, { rot: -90, variant: 'standing' }),
-  item('zimmer-3', 'screen-1', 'Monitor, 27 inch', 'monitor', 10.0, 3.83, 0.615, 0.2, 0.52, { rot: -75, z: 0.75 }),
-  item('zimmer-3', 'screen-2', 'Monitor, 27 inch', 'monitor', 10.0, 4.45, 0.615, 0.2, 0.52, { rot: -105, z: 0.75 }),
-  item('zimmer-3', 'keyboard', 'Logitech MX Keys keyboard', 'keyboard', 9.66, 4.1, 0.43, 0.13, 0.02, { rot: -90, z: 0.754 }),
-  item('zimmer-3', 'mouse', 'Logitech MX Master mouse', 'mouse', 9.66, 4.5, 0.085, 0.125, 0.05, { rot: -90, z: 0.754 }),
-  item('zimmer-3', 'chair', 'HÅG Capisco saddle chair, blue', 'deskChair', 9.05, 4.14, 0.66, 0.66, 1.05, { rot: 90, colour: '#1f4e79', variant: 'capisco' }),
-  item('zimmer-3', 'desk-plant', 'Small plant', 'plant', 10.0, 3.42, 0.18, 0.18, 0.3, { z: 0.75, variant: 'trailing', accent: C.white }),
-  item('zimmer-3', 'rug', 'Thick wool rug, cream', 'rug', 7.4, 4.3, 2.2, 1.6, 0.02, { colour: '#efe9de' }),
-  item('zimmer-3', 'print', 'Birch forest print', 'print', 8.35, 2.965, 0.6, 0.03, 0.8, { z: 1.15, art: 'birch', accent: C.white }),
-  item('zimmer-3', 'pendant', 'Paper pendant', 'pendant', 7.6, 4.15, 0.55, 0.55, 0.4, { z: 1.95, variant: 'paper', colour: '#f6f2ea' }),
+  // Two standing desks face to face along the door wall, with a felt screen between them. The block
+  // starts past the wall bed's foot (7.98 when it's open) and leaves 0.9 m for a chair at the window.
+  item('zimmer-3', 'desk', 'Standing desk, white, 160 x 60 cm, 65 to 130 cm high', 'desk', 8.31, 3.76, 1.6, 0.6, 0.75, { rot: -90, variant: 'standing' }),
+  item('zimmer-3', 'desk-2', 'Standing desk, white, 160 x 60 cm, 65 to 130 cm high', 'desk', 8.94, 3.76, 1.6, 0.6, 0.75, { rot: 90, variant: 'standing' }),
+  item('zimmer-3', 'divider', 'Acoustic screen, grey wool felt, 160 x 145 cm, 3 cm thick, free-standing between the desks', 'acousticScreen', 8.625, 3.76, 1.6, 0.03, 1.45, { rot: 90, colour: '#c9c6bf' }),
+  item('zimmer-3', 'screen-1', 'Monitor, 27 inch', 'monitor', 8.46, 3.45, 0.615, 0.2, 0.52, { rot: -75, z: 0.75 }),
+  item('zimmer-3', 'screen-2', 'Monitor, 27 inch', 'monitor', 8.46, 4.07, 0.615, 0.2, 0.52, { rot: -105, z: 0.75 }),
+  item('zimmer-3', 'keyboard', 'Logitech MX Keys keyboard', 'keyboard', 8.2, 3.72, 0.43, 0.13, 0.02, { rot: -90, z: 0.754 }),
+  item('zimmer-3', 'mouse', 'Logitech MX Master mouse', 'mouse', 8.2, 4.12, 0.085, 0.125, 0.05, { rot: -90, z: 0.754 }),
+  item('zimmer-3', 'screen-3', 'Monitor, 27 inch', 'monitor', 8.79, 4.07, 0.615, 0.2, 0.52, { rot: 75, z: 0.75 }),
+  item('zimmer-3', 'screen-4', 'Monitor, 27 inch', 'monitor', 8.79, 3.45, 0.615, 0.2, 0.52, { rot: 105, z: 0.75 }),
+  item('zimmer-3', 'keyboard-2', 'Logitech MX Keys keyboard', 'keyboard', 9.05, 3.8, 0.43, 0.13, 0.02, { rot: 90, z: 0.754 }),
+  item('zimmer-3', 'mouse-2', 'Logitech MX Master mouse', 'mouse', 9.05, 3.4, 0.085, 0.125, 0.05, { rot: 90, z: 0.754 }),
+  item('zimmer-3', 'chair', 'HÅG Capisco saddle chair, blue', 'deskChair', 7.6, 3.76, 0.66, 0.66, 1.05, { rot: 90, colour: '#1f4e79', variant: 'capisco' }),
+  item('zimmer-3', 'chair-2', 'HÅG Capisco saddle chair, grey', 'deskChair', 9.71, 3.76, 0.66, 0.66, 1.05, { rot: -90, colour: '#6f7376', variant: 'capisco' }),
+  item('zimmer-3', 'desk-plant', 'Small plant', 'plant', 9.1, 4.42, 0.18, 0.18, 0.3, { z: 0.75, variant: 'trailing', accent: C.white }),
+  item('zimmer-3', 'rug', 'Thick wool rug, cream', 'rug', 8.62, 3.9, 2.8, 1.7, 0.02, { colour: '#efe9de' }),
+  item('zimmer-3', 'slats', 'Acoustic panel, oak slats on black felt, 120 x 180 cm', 'slats', 7.3, 2.965, 1.2, 0.03, 1.8, { z: 0.45, variant: 'oak' }),
+  item('zimmer-3', 'print', 'Birch forest print', 'print', 9.1, 5.685, 0.6, 0.03, 0.8, { z: 1.15, rot: 180, art: 'birch', accent: C.white }),
+  item('zimmer-3', 'pendant', 'Paper pendant', 'pendant', 8.62, 3.76, 0.55, 0.55, 0.4, { z: 1.95, variant: 'paper', colour: '#f6f2ea' }),
 ];
 
 const bathroom: FurnitureItem[] = [

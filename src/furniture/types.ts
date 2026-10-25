@@ -69,6 +69,7 @@ export type FurnitureKind =
   | 'keyboard'
   | 'mouse'
   | 'speaker'
+  | 'acousticScreen'
   // built in
   | 'wallBed'
   | 'nook'
@@ -172,6 +173,7 @@ export const BLOCKING: ReadonlySet<FurnitureKind> = new Set<FurnitureKind>([
   'sideTable',
   'diningTable',
   'desk',
+  'acousticScreen',
   'bed',
   'bedsideTable',
   'wardrobe',

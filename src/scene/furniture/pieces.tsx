@@ -1717,6 +1717,27 @@ function UtilitySink({ it }: { it: FurnitureItem }) {
   );
 }
 
+/** A free-standing acoustic screen between two desks: a thick felt panel on two slim steel feet. */
+function AcousticScreen({ it }: { it: FurnitureItem }) {
+  const { w, d, h } = it;
+  const felt = fabric(it.colour ?? '#c9c6bf', 'wool');
+  const steel = metal('#2b2b2a', 0.5);
+  const lift = 0.06;
+  return (
+    <group>
+      {[-1, 1].map((s) => (
+        <group key={s} position={[s * (w / 2 - 0.25), 0, 0]}>
+          <Box w={0.05} h={0.015} d={0.42} m={steel} r={0.005} />
+          <Box w={0.025} h={lift + 0.1} d={0.025} y={0.015} m={steel} r={0.004} />
+        </group>
+      ))}
+      <Box w={w} h={h - lift} d={d} y={lift} m={felt} r={0.012} />
+      {/* stitched seam a hand's width from the top */}
+      <Box w={w - 0.04} h={0.004} d={d + 0.002} y={h - 0.12} m={fabric('#a9a59d', 'wool')} r={0.001} />
+    </group>
+  );
+}
+
 /** A height-adjustable standing desk: a white top on two white telescopic legs with T-feet. */
 function StandingDesk({ it }: { it: FurnitureItem }) {
   const { w, d, h } = it;
@@ -3507,6 +3528,8 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
       return <Mouse it={it} />;
     case 'speaker':
       return <Speaker it={it} />;
+    case 'acousticScreen':
+      return <AcousticScreen it={it} />;
     case 'wallBed':
       return <WallBed it={it} />;
     case 'nook':
