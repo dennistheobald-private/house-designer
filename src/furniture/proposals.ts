@@ -221,7 +221,7 @@ export const proposals: RoomProposal[] = [
       { name: 'White', hex: '#f7f7f4' },
       { name: 'Light grey', hex: C.pale },
     ],
-    summary: 'A washing machine with the dryer stacked on top, a utility sink by the door, and washing lines across the room overhead.',
+    summary: 'A floor-standing hot water boiler in the corner, a washing machine with the dryer stacked on top, a utility sink by the door, and washing lines across the room overhead.',
   },
 ];
 
@@ -500,6 +500,8 @@ const basement: FurnitureItem[] = [
   // Laundry
   item('laundry', 'washer', 'Washing machine with the dryer stacked on top', 'washer', 2.55, 5.38, 0.6, 0.62, 1.7, { rot: 180, variant: 'stack' }),
   item('laundry', 'sink', 'Utility sink on a white cabinet', 'utilitySink', 4.05, 3.4, 0.6, 0.5, 0.9),
+  // In the plan's top-left corner of the room, clear of the washing lines.
+  item('laundry', 'boiler', 'Hot water boiler, 300 l, floor-standing', 'boiler', 2.55, 3.51, 0.62, 0.62, 1.8),
   item('laundry', 'lines', 'Washing lines across the room', 'clothesLine', 3.82, 4.55, 3.2, 1.2, 0.4, { z: 1.85 }),
 ];
 
