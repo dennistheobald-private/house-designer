@@ -2807,11 +2807,14 @@ function Pampas({ it }: { it: FurnitureItem }) {
 /**
  * A flush door in its frame. Double-click opens or closes it. The default is the warm grey
  * door to the basement stair, with a plastered panel above it up to the ceiling; 'front' is
- * the front door, set in the facade, which opens inwards.
+ * the front door, set in the facade, which opens inwards; 'glass' is the hall door to the
+ * living room after Dennis's photo: a slim black steel leaf with clear glass in 2 x 3 panes
+ * and a black lever handle on a narrow plate.
  */
 function Door({ it }: { it: FurnitureItem }) {
   const { w, d, h } = it;
   const front = it.variant === 'front';
+  const glazed = it.variant === 'glass';
   const [open, setOpen] = useState(false);
   const t = useRef(0);
   const leafRef = useRef<THREE.Group>(null);
@@ -2835,7 +2838,7 @@ function Door({ it }: { it: FurnitureItem }) {
   const leafW = w - 2 * jamb - 0.006;
   const leafH = doorH - jamb - 0.01;
   const leafT = 0.042;
-  const frameM = front ? lacquer(it.colour ?? '#55585a', 0.5) : lacquer('#f4f3ef', 0.45);
+  const frameM = front || glazed ? lacquer(it.colour ?? '#55585a', 0.5) : lacquer('#f4f3ef', 0.45);
   const leafM = lacquer(it.colour ?? '#8c8378', 0.55);
   const handleM = metal(it.accent ?? '#2a2a2a', 0.45);
   // The leaf sits flush with the face it opens towards.
@@ -2848,8 +2851,19 @@ function Door({ it }: { it: FurnitureItem }) {
       <Box w={w} h={jamb} d={d} y={doorH - jamb} m={frameM} r={0.003} />
       {!front && h > doorH + 0.02 && <Box w={w} h={h - doorH} d={d} y={doorH} m={paint('#fafafa')} r={0} />}
       <group ref={leafRef} position={[-w / 2 + jamb + 0.003, 0.008, leafZ]}>
-        <Box w={leafW} h={leafH} d={leafT} x={leafW / 2} m={leafM} r={0.004} />
-        {[-1, 1].map((s) => (
+        {glazed ? (
+          <GlassLeaf w={leafW} h={leafH} t={leafT} m={leafM} />
+        ) : (
+          <Box w={leafW} h={leafH} d={leafT} x={leafW / 2} m={leafM} r={0.004} />
+        )}
+        {glazed && [-1, 1].map((s) => (
+          <group key={s} position={[leafW - 0.035, 1.05, s * (leafT / 2 + 0.004)]}>
+            <Box w={0.026} h={0.2} d={0.008} y={-0.1} m={handleM} r={0.003} />
+            <M g={cylinder(0.008, 0.008, 0.04, 10)} m={handleM} p={[0, 0.06, s * 0.02]} r={[Math.PI / 2, 0, 0]} />
+            <Box w={0.13} h={0.016} d={0.016} x={-0.06} y={0.06} z={s * 0.04} m={handleM} r={0.005} />
+          </group>
+        ))}
+        {!glazed && [-1, 1].map((s) => (
           <group key={s} position={[leafW - 0.07, 1.05, s * (leafT / 2 + 0.006)]}>
             <M g={cylinder(0.025, 0.025, 0.01, 24)} m={handleM} r={[Math.PI / 2, 0, 0]} />
             <M g={cylinder(0.009, 0.009, 0.05, 10)} m={handleM} p={[0, 0, s * 0.025]} r={[Math.PI / 2, 0, 0]} />
@@ -2858,6 +2872,30 @@ function Door({ it }: { it: FurnitureItem }) {
         ))}
         {front && <Box w={0.03} h={0.9} d={0.02} x={leafW - 0.09} y={0.6} z={d / 2 + 0.01 - leafZ} m={handleM} r={0.008} />}
       </group>
+    </group>
+  );
+}
+
+/** A steel door leaf from its hinge edge (x = 0): stiles and rails round clear glass, split into 2 x 3 panes. */
+function GlassLeaf({ w, h, t, m }: { w: number; h: number; t: number; m: Mat }) {
+  const rim = 0.045;
+  const bar = 0.022;
+  const inW = w - 2 * rim;
+  const inH = h - 2 * rim;
+  const glass = cached('door-glass', () => new THREE.MeshPhysicalMaterial({ color: '#e4eeee', roughness: 0.02, transparent: true, opacity: 0.16, metalness: 0 }));
+  return (
+    <group>
+      {[rim / 2, w - rim / 2].map((x) => (
+        <Box key={x} w={rim} h={h} d={t} x={x} m={m} r={0.003} />
+      ))}
+      {[0, h - rim].map((y) => (
+        <Box key={y} w={inW} h={rim} d={t} x={w / 2} y={y} m={m} r={0.003} />
+      ))}
+      <Box w={bar} h={inH} d={t * 0.6} x={w / 2} y={rim} m={m} r={0.002} />
+      {[1, 2].map((i) => (
+        <Box key={i} w={inW} h={bar} d={t * 0.6} x={w / 2} y={rim + (inH * i) / 3 - bar / 2} m={m} r={0.002} />
+      ))}
+      <M g={roundedBox(inW, inH, 0.008, 0)} m={glass} p={[w / 2, rim + inH / 2, 0]} shadow={false} />
     </group>
   );
 }
