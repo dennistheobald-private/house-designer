@@ -179,6 +179,8 @@ const topFloor: Floor = {
     { id: 't-south', rect: r(4.07, 5.7, 9.04, 5.95), exterior: true },
     { id: 't-bath', rect: r(6.66, 0, 6.76, 2.31) },
     { id: 't-mid', rect: r(4.42, 2.31, 8.69, 2.41) },
+    // The top floor is the end of the stair: a wall closes the stairwell between the core and the bathroom.
+    { id: 't-stair', rect: r(5.45, 1.77, 6.66, 1.87) },
     { id: 't-parapet-garden', rect: r(-0.35, -0.25, -0.2, 5.95), height: 1.0, exterior: true },
     { id: 't-parapet-street', rect: r(10.2, -0.25, 10.35, 5.95), height: 1.0, exterior: true },
   ],

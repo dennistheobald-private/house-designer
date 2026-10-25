@@ -4,7 +4,7 @@ import type { FurnitureItem } from '../furniture/types';
 import { furnitureByFloor } from '../furniture/proposals';
 import { fittingsByFloor, fixturesByFloor, showersByFloor } from '../house/fixtures';
 import { Fittings } from './BathFittings';
-import { type Block, runsAlongX, stairTreads, STAIR_TURN_X, wallBlocks } from '../house/geometry';
+import { type Block, runsAlongX, stairTreads, wallBlocks } from '../house/geometry';
 import type { Floor, House, Opening, Wall } from '../house/types';
 import { Furnishings, type PickHandler } from './furniture/Furnishings';
 import { BlockMesh, FloorPlane, PlanSlab, rectOutline } from './meshes';
@@ -103,13 +103,8 @@ function FloorStructure({ house, floor, index, onPick }: { house: House; floor: 
             window
           );
         })}
-      <BlockMesh block={{ ...core, z0: 0, z1: isTop ? 1.0 : floor.clearHeight }} level={floor.level} mat="wall" />
-      {isTop && (
-        <>
-          <BlockMesh block={{ x0: STAIR_TURN_X, y0: shaft.y1 - 0.01, x1: shaft.x1, y1: shaft.y1 + 0.01, z0: 0.1, z1: 1.0 }} level={floor.level} mat="glass" shadows={false} />
-          <BlockMesh block={{ x0: STAIR_TURN_X, y0: shaft.y1 - 0.02, x1: shaft.x1, y1: shaft.y1 + 0.02, z0: 1.0, z1: 1.04 }} level={floor.level} mat="steel" />
-        </>
-      )}
+      {/* The stair core runs on through the slab above, so it reads as one wall from floor to floor. */}
+      <BlockMesh block={{ ...core, z0: 0, z1: isTop ? floor.clearHeight : house.storeyHeight }} level={floor.level} mat="wall" />
       {fixturesByFloor[floor.id]?.filter((fx) => !fx.planOnly).map((fx, i) => (
         <group key={`fx-${i}`} onClick={pickBuiltIn(onPick, () => builtIn(floor, fx.name, fx))} onDoubleClick={TAP_PARTS.includes(fx.name) ? toggleTap : undefined}>
           <BlockMesh block={fx} level={floor.level} mat={fx.material} shadows={fx.material !== 'glass' && fx.material !== 'light'} />
