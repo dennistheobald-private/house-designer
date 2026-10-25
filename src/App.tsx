@@ -9,6 +9,7 @@ import { PlanView } from './ui/PlanView';
 import { ItemInfo } from './ui/ItemInfo';
 import { ProposalCard, ProposalList } from './ui/Proposal';
 import { RecordWalkButton, RenderExport } from './ui/RenderExport';
+import { saveFile } from './export/saveFile';
 import { floorGroup, ROOF_GROUP, SURROUNDINGS_GROUP } from './export/shots';
 
 type Mode = 'dollhouse' | 'plan' | 'walk';
@@ -104,10 +105,8 @@ export function App() {
   const savePhoto = useCallback(() => {
     const canvas = document.querySelector<HTMLCanvasElement>('.stage canvas');
     if (!canvas) return;
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL('image/png');
-    a.download = `house-k-${roomAt(position)?.id ?? 'view'}-${time}.png`;
-    a.click();
+    const name = `house-k-${roomAt(position)?.id ?? 'view'}-${time}.png`;
+    canvas.toBlob((png) => png && saveFile(name, png).catch((err) => console.error(err)), 'image/png');
   }, [time, position]);
 
   const jump = useCallback((roomId: string) => {

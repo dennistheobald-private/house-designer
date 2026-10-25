@@ -8,6 +8,7 @@ import { lampMaterials } from '../scene/furniture/look';
 import { HouseModel, Neighbours, Roof } from '../scene/HouseModel';
 import { SUN_DAY, SUN_EVENING, type TimeOfDay } from '../scene/Scene';
 import { liveCamera } from './liveView';
+import { saveFile } from './saveFile';
 import { floorGroup, roomShots, ROOF_GROUP, SURROUNDINGS_GROUP, tourVideo, walkVideo, type Shot, type Video, type WalkSample } from './shots';
 import renderScript from '../../blender/render_house.py?raw';
 import readme from '../../blender/README.txt?raw';
@@ -156,17 +157,12 @@ export function packageZip(glb: ArrayBuffer, job: RenderJob, folder: string): Ui
   return zipSync(files, { level: 6 });
 }
 
-/** Builds the render package and hands it to the browser as a download. */
+/** Builds the render package and hands it to the viewer as a download. */
 export async function downloadRenderPackage(house: House, o: ExportOptions) {
   const glb = await exportModel(house, { furnished: o.furnished, evening: o.time === 'evening' });
   const job = renderJob(house, o);
   const folder = `house-k-render-${stamp(new Date())}`;
   const zip = packageZip(glb, job, folder);
-  const url = URL.createObjectURL(new Blob([zip as BlobPart], { type: 'application/zip' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${folder}.zip`;
-  a.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  return { bytes: zip.byteLength, stills: job.stills.length, frames: job.video?.frames.length ?? 0 };
+  const saved = await saveFile(`${folder}.zip`, new Blob([zip as BlobPart], { type: 'application/zip' }));
+  return { saved, bytes: zip.byteLength, stills: job.stills.length, frames: job.video?.frames.length ?? 0 };
 }

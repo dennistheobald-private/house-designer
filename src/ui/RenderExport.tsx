@@ -69,6 +69,10 @@ export function RenderExport({ house, time, furnished, currentView, onClose }: {
         walk: recordedWalk(),
       });
       const parts = [r.stills ? `${r.stills} photos` : '', r.frames ? `a ${clock(r.frames / 25)} video` : ''].filter(Boolean).join(' and ');
+      if (r.saved === 'declined') {
+        setState({ busy: false, error: 'The download was cancelled. Click Download for Blender to try again.' });
+        return;
+      }
       setState({ busy: false, result: `Downloaded (${(r.bytes / 1e6).toFixed(0)} MB): ${parts}. Unzip it and double-click the starter for your computer.` });
     } catch (err) {
       console.error(err);
