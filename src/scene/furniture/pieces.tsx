@@ -34,6 +34,7 @@ import {
   type Foliage,
   type Weave,
 } from './look';
+import { material } from '../materials';
 
 /*
  * Parametric furniture. Each piece is drawn in its own frame: origin at the centre of its
@@ -480,7 +481,9 @@ function Hanging({ w, d, top, seed }: { w: number; d: number; top: number; seed:
 function Wardrobe({ it }: { it: FurnitureItem }) {
   const { w, d, h } = it;
   const oak = it.variant === 'oak';
-  const front = oak ? wood('oakBrushed') : lacquer(it.colour ?? '#f1efea', 0.5);
+  // 'taupe' reuses the kitchen's handleless taupe fronts and plinth
+  const taupe = it.variant === 'taupe';
+  const front = oak ? wood('oakBrushed') : taupe ? material('taupe') : lacquer(it.colour ?? '#f1efea', 0.5);
   const inside = oak ? wood('oakBrushed') : lacquer('#f4f3ef', 0.6);
   const doors = Math.max(2, Math.round(w / 0.5));
   const dw = w / doors;
@@ -497,7 +500,7 @@ function Wardrobe({ it }: { it: FurnitureItem }) {
   const folded = gym ? ['#d0622f', '#2f3236', '#5b8a72', '#e9e3d6'] : ['#dcd3c4', '#8a9fab', '#a7b494', '#e9e3d6'];
   return (
     <group>
-      <Box w={w - 0.04} h={0.08} d={d - 0.08} z={-0.04} m={lacquer('#bdb7ae', 0.7)} r={0} />
+      <Box w={w - 0.04} h={0.08} d={d - 0.08} z={-0.04} m={taupe ? material('plinth') : lacquer('#bdb7ae', 0.7)} r={0} />
       {/* the carcass: back, sides, top, bottom and a divider between each pair of doors */}
       <Box w={w} h={body} d={0.012} y={0.08} z={-d / 2 + 0.006} m={inside} r={0} />
       {Array.from({ length: pairs + 1 }, (_, i) => (
@@ -544,7 +547,7 @@ function Wardrobe({ it }: { it: FurnitureItem }) {
         return (
           <Opens key={i} swing={-sign * 1.75} at={[hx, 0, d / 2 - 0.01]}>
             <Box w={dw - 0.004} h={h - 0.09} d={t} x={(sign * dw) / 2} y={0.085} m={front} r={0.003} grain={oak} />
-            {it.variant !== 'flush' && <Box w={0.02} h={0.3} d={0.025} x={sign * (dw - 0.05)} y={1.0} z={0.022} m={oak ? metal('#2b2b2a') : wood()} r={0.006} />}
+            {it.variant !== 'flush' && !taupe && <Box w={0.02} h={0.3} d={0.025} x={sign * (dw - 0.05)} y={1.0} z={0.022} m={oak ? metal('#2b2b2a') : wood()} r={0.006} />}
           </Opens>
         );
       })}
