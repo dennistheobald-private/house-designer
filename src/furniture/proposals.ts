@@ -171,7 +171,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Teak', hex: '#9a6b47' },
     ],
     view: { x: 3.7, y: 1.3, facing: 2.3 },
-    summary: 'A barrel sauna in thermowood with black end rings in the corner, with the pine planter behind it, and the teak ice bath beside it; planters of mountain pine and birch along the edge, and a lounge of an outdoor sofa, two lounge chairs and a teak coffee table.',
+    summary: 'A cube sauna clad in black-stained boards with a flat roof and a full-height glass door in the corner, with the pine planter behind it, and the teak ice bath beside it; planters of mountain pine and birch along the edge, and a lounge of an outdoor sofa, two lounge chairs and a teak coffee table.',
   },
   {
     room: 'street-terrace',
@@ -422,8 +422,8 @@ const roofTerrace: FurnitureItem[] = [
   ...[0.9, 2.85, 4.8].map((y, i) =>
     item('roof-terrace', `planter-${i}`, i === 1 ? 'Planter with birch and ferns' : 'Planter with mountain pine', 'planter', 0.05, y, 1.6, 0.45, 0.55, { rot: 90, variant: i === 1 ? 'birch' : 'pine' }),
   ),
-  // The barrel sauna in the corner, its back to the pine planter and its door towards the house.
-  item('roof-terrace', 'sauna', 'Barrel sauna, thermowood with black end rings, 190 cm across, 200 cm long', 'sauna', 1.35, 4.7, 1.9, 2.0, 2.0, { rot: 90, variant: 'barrel' }),
+  // The cube sauna in the corner (after Dennis's photo), its back to the pine planter and its door towards the house.
+  item('roof-terrace', 'sauna', 'Cube sauna, black-stained horizontal cladding, flat roof, glass door, 155 x 160 cm, 225 cm high', 'sauna', 1.15, 4.84, 1.55, 1.6, 2.25, { rot: 90, variant: 'cube' }),
   item('roof-terrace', 'ice-bath', 'Ice bath, teak tub, 100 cm', 'iceBath', 2.95, 5.15, 1.0, 1.0, 0.9),
   // Lounge at the north end
   item('roof-terrace', 'lounge-sofa', 'Outdoor sofa, teak with oat cushions, 200 cm', 'sofa', 1.6, 0.48, 2.0, 0.85, 0.75, { colour: '#d8d0c0', accent: C.pine, variant: 'linen' }),

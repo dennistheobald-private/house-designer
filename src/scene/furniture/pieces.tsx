@@ -1869,6 +1869,89 @@ function BikeHoop({ it }: { it: FurnitureItem }) {
 }
 
 /**
+ * A cube sauna after Dennis's photo: a small cabin clad in black-stained horizontal boards
+ * under a thin flat roof that overhangs on every side, with a full-height black-framed glass
+ * door on the right of the front and a long vertical bar handle. Inside, two cedar benches
+ * along the back and a stove in the front corner. The front faces +z.
+ */
+function CubeSauna({ it, lit }: { it: FurnitureItem; lit: boolean }) {
+  const { w, d, h } = it;
+  const clad = wood('blackStain');
+  const black = lacquer('#1a1a1a', 0.5);
+  const cedar = wood('cedar');
+  const ov = 0.06; // roof overhang at the sides and back
+  const ovFront = 0.12;
+  const roofT = 0.07;
+  const bw = w - 2 * ov;
+  const bd = d - ov - ovFront;
+  const bh = h - roofT;
+  const zf = d / 2 - ovFront; // front face of the body
+  const zb = zf - bd; // back face
+  const zc = (zf + zb) / 2;
+  const plinth = 0.06;
+  const board = 0.135;
+  const rows = Math.floor((bh - plinth) / board);
+  const bt = 0.022; // board thickness
+  const frame = 0.05;
+  const door = { w: bw * 0.52, x1: bw / 2 - frame };
+  const doorX0 = door.x1 - door.w;
+  const doorTop = bh - 0.14;
+  const boards = merged(`cubeSauna${w},${d},${h}`, () => {
+    const parts: { g: THREE.BufferGeometry; m: THREE.Matrix4 }[] = [];
+    const leftW = doorX0 - frame + bw / 2 + bt;
+    for (let i = 0; i < rows; i++) {
+      const y = plinth + board * (i + 0.5);
+      const g = (len: number) => roundedBox(len, board - 0.012, bt, 0.003);
+      // back, and the two sides running front to back
+      parts.push({ g: g(bw), m: mat4([0, y, zb - bt / 2]) });
+      for (const sx of [-1, 1]) parts.push({ g: g(bd + bt), m: mat4([sx * (bw / 2 + bt / 2), y, zc - bt / 2], [0, Math.PI / 2, 0]) });
+      // front, beside the door, and above it
+      parts.push({ g: g(leftW), m: mat4([-bw / 2 - bt + leftW / 2, y, zf + bt / 2]) });
+      if (y > doorTop + frame) parts.push({ g: g(door.w + frame * 2 + bt), m: mat4([(doorX0 + door.x1 + bt) / 2, y, zf + bt / 2]) });
+    }
+    return parts;
+  });
+  const glass = cached('cube-sauna-glass', () => new THREE.MeshPhysicalMaterial({ color: '#141412', roughness: 0.03, transparent: true, opacity: 0.6, metalness: 0.2 }));
+  const handleX = doorX0 + 0.1;
+  return (
+    <group>
+      {/* Black inner shell behind the boards, a plinth and the flat roof */}
+      <Box w={bw} h={bh} d={0.03} z={zb + 0.015} m={black} r={0} />
+      {[-1, 1].map((sx) => (
+        <Box key={sx} w={0.03} h={bh} d={bd} x={sx * (bw / 2 - 0.015)} z={zc} m={black} r={0} />
+      ))}
+      <Box w={doorX0 - frame + bw / 2} h={bh} d={0.03} x={(-bw / 2 + doorX0 - frame) / 2} z={zf - 0.015} m={black} r={0} />
+      <Box w={bw} h={bh - doorTop - frame} d={0.03} y={doorTop + frame} z={zf - 0.015} m={black} r={0} />
+      <Box w={bw + 2 * bt} h={plinth} d={bd + 2 * bt} z={zc} m={black} r={0.003} />
+      <Box w={bw - 0.06} h={0.03} d={bd - 0.06} y={plinth} z={zc} m={cedar} r={0.003} grain />
+      <M g={boards} m={clad} />
+      <Box w={w} h={roofT} d={d} y={bh} m={black} r={0.006} rot={[0.012, 0, 0]} />
+      {/* Inside: a lower and an upper bench along the back, a stove in the front-left corner */}
+      <Box w={bw - 0.08} h={0.04} d={0.4} y={0.45} z={zb + 0.24} m={cedar} r={0.005} grain />
+      <Box w={bw - 0.08} h={0.04} d={0.45} y={0.95} z={zb + 0.265} m={cedar} r={0.005} grain />
+      <Box w={bw - 0.08} h={0.4} d={0.02} y={0.07} z={zb + 0.43} m={cedar} r={0.003} grain />
+      <Box w={0.36} h={0.7} d={0.3} x={-bw / 2 + 0.25} y={plinth + 0.03} z={zf - 0.25} m={metal('#1e1e1e', 0.6)} r={0.01} />
+      <Box w={0.3} h={0.1} d={0.24} x={-bw / 2 + 0.25} y={plinth + 0.73} z={zf - 0.25} m={stone()} r={0.03} />
+      {lit && <pointLight position={[0, bh - 0.35, zc]} color="#ffb347" intensity={1.3} distance={2.4} decay={2} />}
+      {/* Door: black frame, dark glass leaf, hinges on the right, long bar handle on the left */}
+      <Box w={door.w + 2 * frame} h={frame} d={0.05} x={(doorX0 + door.x1) / 2} y={doorTop} z={zf + 0.01} m={black} r={0.004} />
+      <Box w={door.w + 2 * frame} h={0.04} d={0.05} x={(doorX0 + door.x1) / 2} y={plinth} z={zf + 0.01} m={black} r={0.004} />
+      {[doorX0 - frame / 2, door.x1 + frame / 2].map((x) => (
+        <Box key={x} w={frame} h={doorTop - plinth} d={0.05} x={x} y={plinth} z={zf + 0.01} m={black} r={0.004} />
+      ))}
+      <Box w={door.w} h={doorTop - plinth - 0.04} d={0.01} x={(doorX0 + door.x1) / 2} y={plinth + 0.04} z={zf + 0.02} m={glass} r={0} />
+      {[plinth + 0.25, doorTop - 0.3].map((y) => (
+        <Box key={y} w={0.03} h={0.07} d={0.02} x={door.x1 - 0.02} y={y} z={zf + 0.035} m={metal('#b8b8b4', 0.35)} r={0.003} />
+      ))}
+      <Box w={0.03} h={0.85} d={0.025} x={handleX} y={0.62} z={zf + 0.075} m={black} r={0.006} />
+      {[0.7, 1.39].map((y) => (
+        <M key={y} g={cylinder(0.008, 0.008, 0.05, 10)} m={black} p={[handleX, y, zf + 0.045]} r={[Math.PI / 2, 0, 0]} />
+      ))}
+    </group>
+  );
+}
+
+/**
  * A barrel sauna after Dennis's photo, to match the ice bath: thermowood staves around a
  * round body, black end rings, vertical boards at the ends and a glass door at the front.
  * The barrel's axis runs along z; the door faces +z.
@@ -3488,7 +3571,7 @@ export function Piece({ it, lit }: { it: FurnitureItem; lit: boolean }) {
     case 'dryingRack':
       return <DryingRack it={it} />;
     case 'sauna':
-      return it.variant === 'barrel' ? <BarrelSauna it={it} lit={lit} /> : <Sauna it={it} lit={lit} />;
+      return it.variant === 'barrel' ? <BarrelSauna it={it} lit={lit} /> : it.variant === 'cube' ? <CubeSauna it={it} lit={lit} /> : <Sauna it={it} lit={lit} />;
     case 'iceBath':
       return <IceBath it={it} />;
     case 'bikeRack':

@@ -125,6 +125,7 @@ function surface(key: string): SurfaceMaps {
       teak: () => woodGrain(43, [168, 118, 78], [128, 86, 54]),
       walnut: () => woodGrain(47, [112, 76, 46], [74, 48, 28]),
       cedar: () => woodGrain(53, [196, 138, 92], [156, 102, 64]),
+      blackStain: () => woodGrain(57, [52, 49, 46], [26, 25, 24]),
       boucle: () => fabricMaps('boucle', 3),
       linen: () => fabricMaps('linen', 5),
       wool: () => fabricMaps('wool', 7),
@@ -145,7 +146,7 @@ function surface(key: string): SurfaceMaps {
   return maps[key];
 }
 
-export type Wood = 'oak' | 'oakBrushed' | 'birch' | 'teak' | 'walnut' | 'cedar';
+export type Wood = 'oak' | 'oakBrushed' | 'birch' | 'teak' | 'walnut' | 'cedar' | 'blackStain';
 
 export const wood = (kind: Wood = 'oak') =>
   cached(`wood-${kind}`, () => new THREE.MeshPhysicalMaterial({ ...surface(kind), roughness: 1, clearcoat: 0.08, clearcoatRoughness: 0.6 }));
