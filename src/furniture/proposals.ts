@@ -60,7 +60,7 @@ export const proposals: RoomProposal[] = [
       { name: 'Pine', hex: C.pine },
     ],
     summary:
-      "Dennis's grey-blue corner sofa with its chaise on the right, a light oak organic coffee table on a greige shaggy rug, a birch bentwood armchair, a black arc lamp, a tall dracaena in a yellow pot, and an oak table for six under a cloud-like linen pendant.",
+      "Dennis's grey-blue corner sofa with its chaise on the right, a light oak organic coffee table on a greige shaggy rug, a birch bentwood armchair, a black arc lamp, a tall dracaena in a yellow pot, and an oak table for six under a black Philips Hue Amaze pendant.",
   },
   {
     room: 'kitchen',
@@ -288,7 +288,8 @@ const mainFloor: FurnitureItem[] = [
     living(`chair-w${i}`, 'Chair, black with steel frame', 'diningChair', 3.8, y, 0.56, 0.58, 0.82, { rot: 90, variant: 'cantilever' }),
     living(`chair-e${i}`, 'Chair, black with steel frame', 'diningChair', 5.4, y, 0.56, 0.58, 0.82, { rot: -90, variant: 'cantilever' }),
   ]),
-  living('pendant', 'Cloud pendant, linen', 'pendant', 4.6, 4.15, 1.0, 0.55, 0.32, { z: 1.62, variant: 'cloud', colour: C.linen }),
+  // Dennis's lamp: Philips Hue Amaze pendant, black, about 75 cm above the table top.
+  living('pendant', 'Pendant lamp, Philips Hue Amaze, black, about 39 cm across', 'pendant', 4.6, 4.15, 0.39, 0.39, 0.08, { z: 1.5, variant: 'dome' }),
   living('table-vase', 'Stoneware jug with pine sprigs', 'vase', 4.6, 4.15, 0.14, 0.14, 0.4, { z: 0.75, colour: C.snow, variant: 'sprigs' }),
 ];
 

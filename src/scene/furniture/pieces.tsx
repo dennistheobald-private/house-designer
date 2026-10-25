@@ -695,7 +695,55 @@ function LampLight({ y, intensity, distance = 6 }: { y: number; intensity: numbe
   return <pointLight position={[0, y, 0]} color={LAMP_COLOUR} intensity={intensity} distance={distance} decay={2} userData={{ lamp: true }} />;
 }
 
+/**
+ * Dennis's Philips Hue Amaze: a shallow black dome, white inside, with an opal ring diffuser
+ * underneath, on three thin wires from a round black canopy and a loose, curling power cable.
+ */
+function DomePendant({ it, lit }: { it: FurnitureItem; lit: boolean }) {
+  const R = it.w / 2;
+  const H = it.h;
+  const drop = Math.max(0.05, 2.5 - (it.z ?? 2) - H);
+  const top = H + drop;
+  const dome = (r: number, hh: number) =>
+    Array.from({ length: 11 }, (_, i): [number, number] => {
+      const a = (i / 10) * (Math.PI / 2);
+      return [Math.max(0.001, Math.cos(a) * r), Math.sin(a) * hh];
+    });
+  const black = cached('amaze-shell', () => new THREE.MeshPhysicalMaterial({ color: '#1c1c1c', roughness: 0.55, side: THREE.DoubleSide }));
+  const wireR = R * 0.4;
+  const wireBase = H * Math.sin(Math.acos(0.4));
+  const cable = useMemo(() => {
+    const c = new THREE.CatmullRomCurve3([
+      new THREE.Vector3(0, top - 0.04, 0),
+      new THREE.Vector3(R * 0.5, top - drop * 0.3, R * 0.2),
+      new THREE.Vector3(-R * 0.6, top - drop * 0.55, -R * 0.1),
+      new THREE.Vector3(R * 0.4, top - drop * 0.8, -R * 0.3),
+      new THREE.Vector3(0, H, 0),
+    ]);
+    return new THREE.TubeGeometry(c, 60, 0.0018, 5, false);
+  }, [top, drop, R, H]);
+  return (
+    <group>
+      <M g={cylinder(0.065, 0.065, 0.04, 32)} m={black} p={[0, top - 0.02, 0]} shadow={false} />
+      {[0, 1, 2].map((i) => {
+        const a = (i / 3) * Math.PI * 2;
+        const len = top - 0.04 - wireBase;
+        return <M key={i} g={cylinder(0.0008, 0.0008, len, 4)} m={metal('#9a9a9a', 0.3)} p={[Math.cos(a) * wireR, wireBase + len / 2, Math.sin(a) * wireR]} shadow={false} />;
+      })}
+      <M g={cable} m={lacquer('#f1f1f1', 0.5)} shadow={false} />
+      <M g={lathe(dome(R, H), 64)} m={black} />
+      <M g={lathe(dome(R - 0.006, H - 0.006), 64)} m={shade('#f7f6f2')} shadow={false} />
+      {/* The opal ring diffuser round the open centre, and the small sensor dot in the middle. */}
+      <M g={lathe([[R * 0.33, 0.012], [R - 0.012, 0.012]], 64)} m={shade('#ffffff')} shadow={false} />
+      <M g={cylinder(0.008, 0.008, 0.006, 12)} m={black} p={[0, H * 0.5, 0]} shadow={false} />
+      <M g={sphere(0.03, 2)} m={bulb()} p={[0, H * 0.6, 0]} shadow={false} />
+      {lit && <LampLight y={-0.02} intensity={3} />}
+    </group>
+  );
+}
+
 function Pendant({ it, lit }: { it: FurnitureItem; lit: boolean }) {
+  if (it.variant === 'dome') return <DomePendant it={it} lit={lit} />;
   const cord = Math.max(0.05, 2.5 - (it.z ?? 2) - it.h);
   const m = it.variant === 'rattan' ? rattan() : it.variant === 'metal' ? metal(it.colour ?? '#2b2b2a', 0.5) : it.variant === 'veneer' ? wood() : shade(it.colour ?? '#e9e3d6');
   const glow = it.variant === 'rattan' || it.variant === 'metal' || it.variant === 'veneer';
