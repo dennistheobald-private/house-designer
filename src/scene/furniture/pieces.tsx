@@ -2808,8 +2808,8 @@ function Pampas({ it }: { it: FurnitureItem }) {
  * A flush door in its frame. Double-click opens or closes it. The default is the warm grey
  * door to the basement stair, with a plastered panel above it up to the ceiling; 'front' is
  * the front door, set in the facade, which opens inwards; 'glass' is the hall door to the
- * living room after Dennis's photo: a slim black steel leaf with clear glass in 2 x 3 panes
- * and a black lever handle on a narrow plate.
+ * living room after Dennis's photo: a slim steel leaf in its colour with clear glass in 2 x 3 panes
+ * and a dark lever handle on a narrow plate.
  */
 function Door({ it }: { it: FurnitureItem }) {
   const { w, d, h } = it;
