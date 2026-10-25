@@ -273,6 +273,9 @@ const mainFloor: FurnitureItem[] = [
   living('dracaena', 'Dracaena, 2 m, in a yellow pot', 'plant', 3.85, 0.42, 0.56, 0.56, 2.0, { variant: 'dracaena', accent: '#e7b52f' }),
   // The door at the top of the basement flight, beside the stair wall.
   living('basement-door', 'Door to the basement stair, warm grey, 93 x 208 cm', 'door', 4.935, 1.82, 1.03, 0.1, 2.48, { colour: '#8c8378', accent: '#2a2a2a' }),
+  // Between the hall and the living room, in line with the stair wall: Dennis's black steel door with clear glass.
+  // It opens into the living room and folds back towards the kitchen wall, clear of the stair and the coat hooks.
+  living('hall-door', 'Glass door to the hall, black steel, clear glass in 6 panes, 102 x 210 cm', 'door', 6.745, 2.28, 1.02, 0.15, 2.5, { rot: -90, variant: 'glass', colour: '#1c1c1c', accent: '#1c1c1c' }),
   living('olive', 'Olive tree in a clay pot', 'plant', 0.45, 5.15, 0.6, 0.6, 1.9, { variant: 'olive', accent: C.clay }),
   living('lowboard', 'Lowboard, oak, 200 cm', 'lowboard', 2.2, 5.48, 2.0, 0.42, 0.48, { rot: 180 }),
   living('tv', 'Television, 65 inch', 'tv', 2.2, 5.675, 1.45, 0.04, 0.84, { rot: 180, z: 0.82 }),
