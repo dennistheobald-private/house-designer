@@ -450,9 +450,10 @@ function BedsideTable({ it }: { it: FurnitureItem }) {
         <Box key={sx} w={0.02} h={0.14} d={d} x={sx * (w / 2 - 0.01)} y={h - 0.16} m={oak} r={0} />
       ))}
       <Box w={w - 0.04} h={0.14} d={0.01} y={h - 0.16} z={-d / 2 + 0.005} m={oak} r={0} />
-      <Opens slide={d * 0.6} at={[0, h - 0.02, d / 2 - 0.0095]}>
+      {/* the drawer sits centred in the opening between the shelf and the top */}
+      <Opens slide={d * 0.6} at={[0, h - 0.09, d / 2 - 0.0095]}>
         <Drawer w={w - 0.045} h={0.135} depth={d - 0.04} front={oak} seed={Math.round(it.x * 10)} />
-        <Box w={w * 0.4} h={0.004} d={0.004} y={-0.07} z={0.011} m={metal('#1e1e1e', 0.6)} r={0} />
+        <Box w={w * 0.4} h={0.004} d={0.004} y={0.04} z={0.011} m={metal('#1e1e1e', 0.6)} r={0} />
       </Opens>
       <Box w={0.16} h={0.04} d={0.12} x={-w / 4} y={h} z={0.06} m={fabric('#6b5242', 'linen')} r={0.006} />
     </group>
@@ -568,7 +569,7 @@ function Dresser({ it }: { it: FurnitureItem }) {
       <Box w={w} h={body} d={d - 0.02} y={0.1} z={-0.01} m={oak} r={0.006} grain />
       {Array.from({ length: rows }, (_, r) =>
         Array.from({ length: cols }, (_, c) => (
-          <Opens key={`${r}${c}`} slide={d * 0.65} at={[-w / 2 + 0.01 + cw * (c + 0.5), 0.1 + 0.01 + rh * (rows - r), d / 2 - 0.0095]}>
+          <Opens key={`${r}${c}`} slide={d * 0.65} at={[-w / 2 + 0.01 + cw * (c + 0.5), 0.1 + 0.01 + rh * (rows - r - 0.5), d / 2 - 0.0095]}>
             <Drawer w={cw - 0.006} h={rh - 0.006} depth={d - 0.06} front={oak} seed={r * 3 + c + 1} />
             <Box w={cw - 0.04} h={0.006} d={0.004} y={-0.02} z={0.0105} m={metal('#3b2f25', 0.8)} r={0} />
           </Opens>
