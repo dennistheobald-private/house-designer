@@ -10,6 +10,7 @@ import type { House } from '../house/types';
 import { lampMaterials } from './furniture/look';
 import type { PickHandler } from './furniture/Furnishings';
 import { HouseModel } from './HouseModel';
+import { setLiveCamera } from '../export/liveView';
 import { WalkControls, type WalkPosition, type WalkTarget } from './WalkControls';
 
 export type TimeOfDay = 'day' | 'evening';
@@ -22,9 +23,9 @@ export type TimeOfDay = 'day' | 'evening';
 export type Quality = 'fast' | 'quality';
 
 /* The garden side (plan x < 0) faces south, so the sun comes from -x. */
-const SUN_DAY: [number, number, number] = [-14, 16, 6];
+export const SUN_DAY: [number, number, number] = [-14, 16, 6];
 /* Blue hour: the sun just below the western horizon. */
-const SUN_EVENING: [number, number, number] = [-6, -0.4, 14];
+export const SUN_EVENING: [number, number, number] = [-6, -0.4, 14];
 
 const NO_TRACE = { noTrace: true };
 
@@ -195,6 +196,16 @@ function PhotoRender({ onProgress }: { onProgress: (samples: number) => void }) 
   return null;
 }
 
+/** Shares the view's camera with the Blender export, for a photo of the current view. */
+function LiveCamera() {
+  const camera = useThree((s) => s.camera);
+  useEffect(() => {
+    setLiveCamera(camera as THREE.PerspectiveCamera);
+    return () => setLiveCamera(null);
+  }, [camera]);
+  return null;
+}
+
 function PostEffects({ evening }: { evening: boolean }) {
   return (
     <EffectComposer multisampling={0} enableNormalPass={false}>
@@ -264,6 +275,7 @@ export function Scene({
       <LampShades on={evening} />
       {/* The path tracer lights rooms only through their windows, as a camera sees them, so it needs the exposure a photographer would use indoors. */}
       <TextureReady />
+      <LiveCamera />
       <Exposure value={photo ? (evening ? 1.8 : 2.6) : walking ? (evening ? 1.3 : 1.0) : evening ? 1.2 : 0.85} />
       <HouseModel house={house} visibleFloors={visible} showRoof={walking || roof} showSurroundings={walking} furnished={furnished} litFloors={lit} litRoom={fast ? (litRoom ?? '') : null} onPick={onPick} />
       {walking ? (

@@ -44,6 +44,16 @@ npm test        # checks the traced rooms against the plan areas, the stair and 
   sharpens for about a minute on a desktop graphics card; moving the view starts it over.
   "Save image" downloads it as a PNG.
 
+- **Render in Blender**: one click downloads a package (a zip) for a photo-realistic render in
+  [Blender](https://www.blender.org/download/), which is free: the furnished house as glTF, a photo of
+  every room from its viewpoint (and the view on screen), and a video, either a room tour that pans
+  slowly through every room or a walk you recorded. Unzip it and double-click the starter for your
+  computer ("Render on Windows", "Render on Mac" or `render-linux.sh`): Blender renders with Cycles on
+  the graphics card by itself, with nothing to set up, and opens the `renders` folder when done. A
+  browser cannot start a program, so this double-click is the one step outside the app. Interrupted
+  renders carry on where they stopped. The package's README gives render times.
+- **Record walk** (in Walk): records your route, up to three minutes, for the video.
+
 Links can open a view directly: `?mode=walk&room=kitchen`, `?mode=plan&floor=2`,
 `?mode=dollhouse&floor=3`, `&time=evening`, `&furnished=0`, `&photo=1`, and `&at=x,y,facing` to stand at a plan
 point in that room's floor, facing in degrees (0 looks towards the street, 90 south). Floors are numbered
@@ -62,6 +72,8 @@ point in that room's floor, facing in degrees (0 looks towards the street, 90 so
 | `src/scene/furniture/` | Parametric furniture and its materials |
 | `src/scene/textures.ts` | Procedural wood, fabric, stone and plaster maps, and the nature prints |
 | `src/ui/PlanView.tsx` | The 2D plan |
+| `src/export/` | The Blender package: glTF export, camera shots, the room tour and walk recording |
+| `blender/` | The Blender render script and the starters that go into the package |
 
 Plan coordinates: x runs from the garden facade (0) to the street facade (10.15 m),
 y from the north party wall (0) to the south party wall (5.70 m).

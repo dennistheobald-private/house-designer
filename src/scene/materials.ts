@@ -239,6 +239,10 @@ function build() {
 export type MaterialKey = FloorFinish | FixtureMaterial | 'facade' | 'slab' | 'frame' | 'neighbour' | 'hedge' | 'soil' | 'ground' | 'sedum' | 'solar';
 
 export function material(key: MaterialKey): THREE.Material {
-  cache ??= build();
+  if (!cache) {
+    cache = build();
+    // Named after their key, so a render in Blender can recognise the glass, mirrors and lamps.
+    for (const [name, m] of Object.entries(cache)) m.name = name;
+  }
   return cache[key];
 }
