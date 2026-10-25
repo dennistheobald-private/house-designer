@@ -5,6 +5,7 @@ import { collisionRects, contains, moveWithCollisions, stairGuide, stairHeight, 
 import { furnitureByFloor } from '../furniture/proposals';
 import { BLOCKING, footprints } from '../furniture/types';
 import type { House } from '../house/types';
+import { recordCamera } from '../export/walkRecording';
 
 export const EYE_HEIGHT = 1.65;
 const WALK_SPEED = 1.4;
@@ -166,6 +167,7 @@ export function WalkControls({
     const eyeTarget = ground + EYE_HEIGHT;
     s.eye += (eyeTarget - s.eye) * Math.min(1, dt * 12);
     camera.position.set(s.x, s.eye, s.y);
+    recordCamera(camera);
 
     // On-demand rendering: keep drawing while a key is held or the eye is still settling.
     if (k.size > 0 || Math.abs(eyeTarget - s.eye) > 0.001) invalidate();

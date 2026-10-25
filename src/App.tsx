@@ -8,6 +8,8 @@ import type { WalkPosition, WalkTarget } from './scene/WalkControls';
 import { PlanView } from './ui/PlanView';
 import { ItemInfo } from './ui/ItemInfo';
 import { ProposalCard, ProposalList } from './ui/Proposal';
+import { RecordWalkButton, RenderExport } from './ui/RenderExport';
+import { floorGroup, ROOF_GROUP, SURROUNDINGS_GROUP } from './export/shots';
 
 type Mode = 'dollhouse' | 'plan' | 'walk';
 
@@ -70,6 +72,7 @@ export function App() {
   const [picked, setPicked] = useState<{ item: FurnitureItem; at: { x: number; y: number } } | null>(null);
   // The room you are looking at in 3D or the plan, so Walk can start there.
   const [focusRoom, setFocusRoom] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
   const pick = useCallback((item: FurnitureItem, at: { x: number; y: number }) => {
     setPicked({ item, at });
     setFocusRoom(item.room);
@@ -136,6 +139,13 @@ export function App() {
 
   const here = roomAt(position);
   const shownFloor = mode === 'walk' ? position.floor : floorIndex;
+  // What the 3D view on screen leaves out, so its photo in Blender matches it.
+  const currentView =
+    mode === 'walk'
+      ? { hide: [] }
+      : mode === 'dollhouse'
+        ? { hide: [...house.floors.map((_, i) => i).filter((i) => i > floorIndex).map(floorGroup), ...(roof ? [] : [ROOF_GROUP]), SURROUNDINGS_GROUP] }
+        : null;
 
   return (
     <div className="app">
@@ -191,6 +201,7 @@ export function App() {
             </select>
           </label>
         )}
+        {mode === 'walk' && <RecordWalkButton />}
         <div className="bar-end">
           <nav className="tabs" aria-label="Furniture">
             <button className={furnished ? 'active' : ''} onClick={() => setFurnished(true)}>
@@ -223,6 +234,9 @@ export function App() {
               </button>
             </>
           )}
+          <button className="photo-button" onClick={() => (setPhoto(false), setExporting(true))} title="Download the house for a photo-realistic render of every room and a video in Blender (free)">
+            Render in Blender
+          </button>
         </div>
       </header>
 
@@ -277,6 +291,7 @@ export function App() {
         )}
         {mode === 'dollhouse' && !photo && <p className="help">Drag to orbit · scroll to zoom · right-drag to pan · click a piece for its size · P for a photo</p>}
         {picked && <ItemInfo item={picked.item} at={picked.at} onClose={unpick} />}
+        {exporting && <RenderExport house={house} time={time} furnished={furnished} currentView={currentView} onClose={() => setExporting(false)} />}
       </main>
     </div>
   );

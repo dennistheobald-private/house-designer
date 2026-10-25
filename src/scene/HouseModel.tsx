@@ -171,7 +171,7 @@ const PARAPET = 0.2;
 const TAP_PARTS = ['Tap', 'Tap spout', 'Sink'];
 
 /** The flat roof: a green sedum roof inside a low parapet, with two long rows of solar panels running from party wall to party wall. */
-function Roof({ house }: { house: House }) {
+export function Roof({ house }: { house: House }) {
   const top = house.floors[house.floors.length - 1];
   const z = top.level + top.clearHeight + SLAB;
   const outline = useMemo(() => rectOutline(ROOF), []);
@@ -217,7 +217,7 @@ function Roof({ house }: { house: House }) {
  * the plots, for daylight and views. The ground leaves out the plot and the house, so it never
  * covers the stairwell or the basement.
  */
-function Neighbours({ house }: { house: House }) {
+export function Neighbours({ house }: { house: House }) {
   const { plot } = house;
   const width = plot.rect.y1 - plot.rect.y0;
   const blocks = [-1, 1].flatMap((side) => {

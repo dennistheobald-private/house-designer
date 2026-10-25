@@ -110,7 +110,10 @@ export function lathe(points: [number, number][], segments = 40) {
 const matCache = new Map<string, THREE.Material>();
 export const cached = <T extends THREE.Material>(key: string, make: () => T): T => {
   let m = matCache.get(key);
-  if (!m) matCache.set(key, (m = make()));
+  if (!m) {
+    matCache.set(key, (m = make()));
+    m.name ||= key;
+  }
   return m as T;
 };
 
