@@ -8,7 +8,8 @@ import { lampMaterials } from '../scene/furniture/look';
 import { HouseModel, Neighbours, Roof } from '../scene/HouseModel';
 import { SUN_DAY, SUN_EVENING, type TimeOfDay } from '../scene/Scene';
 import { liveCamera } from './liveView';
-import { floorGroup, roomShots, ROOF_GROUP, SURROUNDINGS_GROUP, tourVideo, walkVideo, type Shot, type Video, type WalkSample } from './shots';
+import { saveFile } from './saveFile';
+import { floorGroup, markOutdoor, outdoorAt, roomShots, ROOF_GROUP, SURROUNDINGS_GROUP, tourVideo, walkVideo, type Shot, type Video, type WalkSample } from './shots';
 import renderScript from '../../blender/render_house.py?raw';
 import readme from '../../blender/README.txt?raw';
 import windowsRunner from '../../blender/render-windows.bat?raw';
@@ -107,17 +108,20 @@ export async function exportModel(house: House, { furnished, evening }: { furnis
 }
 
 /** The view on screen as a photo. */
-function currentShot(hide: string[]): Shot | null {
+function currentShot(house: House, hide: string[]): Shot | null {
   const camera = liveCamera();
   if (!camera) return null;
   const p = camera.position;
   const q = camera.quaternion;
-  return { id: 'current-view', name: 'Current view', fov: camera.fov, position: [p.x, p.y, p.z], quaternion: [q.x, q.y, q.z, q.w], hide };
+  const shot: Shot = { id: 'current-view', name: 'Current view', fov: camera.fov, position: [p.x, p.y, p.z], quaternion: [q.x, q.y, q.z, q.w], hide };
+  // A dollhouse view (it leaves out the surroundings) looks at the house from outside.
+  return { ...shot, outdoor: hide.includes(SURROUNDINGS_GROUP) || outdoorAt(house, shot.position) };
 }
 
 export function renderJob(house: House, o: ExportOptions): RenderJob {
-  const current = o.currentView ? currentShot(o.currentView.hide) : null;
-  const video = o.video === 'tour' ? tourVideo(house, o.furnished) : o.video === 'walk' && o.walk?.length ? walkVideo(o.walk) : null;
+  const current = o.currentView ? currentShot(house, o.currentView.hide) : null;
+  const walk = o.video === 'walk' && o.walk?.length ? walkVideo(o.walk) : null;
+  const video = o.video === 'tour' ? tourVideo(house, o.furnished) : walk && { ...walk, frames: markOutdoor(house, walk.frames) };
   return {
     format: 1,
     house: house.name,
@@ -156,17 +160,12 @@ export function packageZip(glb: ArrayBuffer, job: RenderJob, folder: string): Ui
   return zipSync(files, { level: 6 });
 }
 
-/** Builds the render package and hands it to the browser as a download. */
+/** Builds the render package and hands it to the viewer as a download. */
 export async function downloadRenderPackage(house: House, o: ExportOptions) {
   const glb = await exportModel(house, { furnished: o.furnished, evening: o.time === 'evening' });
   const job = renderJob(house, o);
   const folder = `house-k-render-${stamp(new Date())}`;
   const zip = packageZip(glb, job, folder);
-  const url = URL.createObjectURL(new Blob([zip as BlobPart], { type: 'application/zip' }));
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${folder}.zip`;
-  a.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  return { bytes: zip.byteLength, stills: job.stills.length, frames: job.video?.frames.length ?? 0 };
+  const saved = await saveFile(`${folder}.zip`, new Blob([zip as BlobPart], { type: 'application/zip' }));
+  return { saved, bytes: zip.byteLength, stills: job.stills.length, frames: job.video?.frames.length ?? 0 };
 }

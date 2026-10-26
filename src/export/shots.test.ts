@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { houseK } from '../house/houseK';
 import { contains } from '../house/geometry';
-import { CAMERA_HEIGHT, poseAt, roomShots, roomViews, tourVideo, walkVideo, type WalkSample } from './shots';
+import { CAMERA_HEIGHT, outdoorAt, poseAt, roomShots, roomViews, tourVideo, walkVideo, type WalkSample } from './shots';
 
 const forward = (q: number[]) => new THREE.Vector3(0, 0, -1).applyQuaternion(new THREE.Quaternion().fromArray(q));
 
@@ -28,6 +28,15 @@ describe('render camera work', () => {
     }
     const kitchen = shots.find((s) => s.id === 'kitchen');
     expect(kitchen?.position[1]).toBeCloseTo(houseK.floors[1].level + CAMERA_HEIGHT);
+  });
+
+  it('knows which shots stand outside, for their exposure', () => {
+    const shots = roomShots(houseK, true);
+    const outside = shots.filter((s) => s.outdoor).map((s) => s.id);
+    const outdoorRooms = houseK.floors.filter((f) => f.level >= 0).flatMap((f) => f.outdoor.filter((r) => r.spawn).map((r) => r.id));
+    expect(outside.sort()).toEqual(outdoorRooms.sort());
+    // Beyond the plot, a long way out in the street.
+    expect(outdoorAt(houseK, [30, houseK.floors[1].level + 1.5, 2])).toBe(true);
   });
 
   it('gives the tour the same number of frames in every room', () => {
