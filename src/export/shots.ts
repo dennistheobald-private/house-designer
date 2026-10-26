@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { proposalFor } from '../furniture/proposals';
+import { contains } from '../house/geometry';
 import type { House } from '../house/types';
 import { yawFor } from '../scene/WalkControls';
 
@@ -16,6 +17,8 @@ export type Quat = [number, number, number, number];
 export interface CameraPose {
   position: Vec3;
   quaternion: Quat;
+  /** Outside the house: Blender exposes it for the bright daylight instead of a room. */
+  outdoor?: boolean;
 }
 
 export interface Shot extends CameraPose {
@@ -54,6 +57,21 @@ export function poseAt(level: number, x: number, y: number, facing: number, heig
   return { position: tuple([x, level + height, y]), quaternion: tuple([q.x, q.y, q.z, q.w]) };
 }
 
+/** Whether a camera stands outside in daylight: on a terrace, in the garden, or beyond the plot. */
+export function outdoorAt(house: House, [x, y, z]: Vec3) {
+  // The floor whose level the camera stands on (it is between 1 and 2 m above it).
+  const floor = [...house.floors].reverse().find((f) => y - f.level > 0.5) ?? house.floors[0];
+  // Below ground the parking is under the shared garage's roof: lit like a room.
+  if (floor.level < 0) return false;
+  if (floor.outdoor.some((r) => r.rects.some((rect) => contains(rect, x, z)))) return true;
+  return !floor.rooms.some((r) => r.rects.some((rect) => contains(rect, x, z))) && !contains(house.stair.shaft, x, z);
+}
+
+/** Marks the poses that stand outside, for their exposure. */
+export function markOutdoor<T extends CameraPose>(house: House, poses: T[]): T[] {
+  return poses.map((p) => (outdoorAt(house, p.position) ? { ...p, outdoor: true } : p));
+}
+
 /** The rooms Walk can go to, each with the viewpoint that shows it best. */
 export function roomViews(house: House, furnished: boolean) {
   return house.floors.flatMap((f, floor) =>
@@ -65,7 +83,10 @@ export function roomViews(house: House, furnished: boolean) {
 
 /** A photo of every room from its viewpoint. */
 export function roomShots(house: House, furnished: boolean): Shot[] {
-  return roomViews(house, furnished).map((v) => ({ id: v.id, name: v.name, fov: ROOM_FOV, ...poseAt(v.level, v.x, v.y, v.facing) }));
+  return markOutdoor(
+    house,
+    roomViews(house, furnished).map((v) => ({ id: v.id, name: v.name, fov: ROOM_FOV, ...poseAt(v.level, v.x, v.y, v.facing) })),
+  );
 }
 
 const smooth = (t: number) => t * t * (3 - 2 * t);
@@ -85,7 +106,7 @@ export function tourVideo(house: House, furnished: boolean, { fps = 25, secondsP
       return poseAt(v.level, v.x + Math.cos(v.facing) * step, v.y + Math.sin(v.facing) * step, facing);
     }),
   );
-  return { name: 'room-tour', fps, fov: ROOM_FOV, frames };
+  return { name: 'room-tour', fps, fov: ROOM_FOV, frames: markOutdoor(house, frames) };
 }
 
 /** A camera sample from a recorded walk, at `t` seconds. */

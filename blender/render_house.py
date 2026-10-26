@@ -37,6 +37,12 @@ AXES = Matrix(((1, 0, 0), (0, 0, -1), (0, 1, 0)))
 # like warm 2700 K bulbs of about 40 W.
 LAMP_WATTS = 45.0
 
+# Exposure in stops. Rooms lit through their windows need about three stops more than open
+# daylight, as a photographer would give them; outside by day takes them back so the terraces
+# and the garden are not washed out.
+EXPOSURE = {'day': 1.3, 'evening': 1.3}
+OUTDOOR_STOPS = {'day': 2.8, 'evening': 0.0}
+
 
 def log(*parts):
     print('[house-k]', *parts, flush=True)
@@ -166,12 +172,10 @@ def light(job):
         scene.collection.objects.link(obj)
         obj.rotation_mode = 'QUATERNION'
         obj.rotation_quaternion = (-sun_dir).to_track_quat('-Z', 'Y')
-        scene.view_settings.exposure = 1.3
     else:
         # Blue hour: a deep blue sky outside, the house lit by its lamps.
         background.inputs['Color'].default_value = (0.05, 0.08, 0.16, 1)
         background.inputs['Strength'].default_value = 0.6
-        scene.view_settings.exposure = 1.3
 
 
 def settings(scene, resolution, samples):
@@ -263,6 +267,10 @@ def hide_parts(names):
             o.hide_render = o in hidden
 
 
+def expose(scene, job, pose):
+    scene.view_settings.exposure = EXPOSURE[job['time']] - (OUTDOOR_STOPS[job['time']] if pose.get('outdoor') else 0)
+
+
 def done(path):
     return os.path.exists(path) and os.path.getsize(path) > 0
 
@@ -288,6 +296,7 @@ def render_photos(scene, job, quality):
         cam = camera(scene, shot['fov'])
         place(cam, shot)
         hide_parts(shot.get('hide'))
+        expose(scene, job, shot)
         started = time.time()
         scene.render.filepath = path
         bpy.ops.render.render(write_still=True)
@@ -336,13 +345,25 @@ def render_video(scene, job, quality):
         per = (time.time() - started) / count[0]
         log(f'Video frame {count[0]}/{left}: about {per * (left - count[0]) / 60:.0f} min left')
 
+    # Each frame takes the exposure for where the camera stands, inside or out.
+    def exposure(scene, *_):
+        expose(scene, job, frames[min(max(scene.frame_current, 1), len(frames)) - 1])
+
+    expose(scene, job, frames[0])
     bpy.app.handlers.render_post.append(progress)
+    bpy.app.handlers.frame_change_pre.append(exposure)
     try:
         if left:
             bpy.ops.render.render(animation=True)
     finally:
         bpy.app.handlers.render_post.remove(progress)
-    return encode(video, folder, len(frames), QUALITY[quality]['video'], job['time'])
+        bpy.app.handlers.frame_change_pre.remove(exposure)
+    try:
+        return encode(video, folder, len(frames), QUALITY[quality]['video'], job['time'])
+    except Exception as err:  # noqa: BLE001 - the frames are kept whatever went wrong
+        log(f'Could not join the frames into a video: {err}')
+        log(f'The frames are in {folder}; run the starter again to retry.')
+        return None
 
 
 def encode(video, folder, count, resolution, time_of_day):
