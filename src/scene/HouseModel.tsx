@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
+import * as THREE from 'three';
 import type { ThreeEvent } from '@react-three/fiber';
 import type { FurnitureItem } from '../furniture/types';
 import { furnitureByFloor } from '../furniture/proposals';
 import { fittingsByFloor, fixturesByFloor, showersByFloor } from '../house/fixtures';
 import { Fittings } from './BathFittings';
 import { type Block, runsAlongX, stairTreads, STAIR_TURN_X, wallBlocks } from '../house/geometry';
-import type { Floor, House, Opening, Wall } from '../house/types';
+import type { Floor, House, Opening, Rect, Wall } from '../house/types';
+import { material, type MaterialKey } from './materials';
 import { Furnishings, type PickHandler } from './furniture/Furnishings';
 import { BlockMesh, FloorPlane, PlanSlab, rectOutline } from './meshes';
 import { Shower } from './Shower';
@@ -60,9 +62,36 @@ function Window({ wall, opening, level }: { wall: Wall; opening: Opening; level:
   );
 }
 
+/**
+ * An outer wall is facade render outside and painted plaster inside: only the face away from
+ * the house and the ends at the building's corners are facade; the inner face and the window
+ * and door reveals are plaster. Garden walls standing off the slab are facade all round.
+ */
+function exteriorFaces(wall: Wall, b: Block, slab: Rect): MaterialKey[] {
+  const { x0, y0, x1, y1 } = wall.rect;
+  const cx = (x0 + x1) / 2;
+  const cy = (y0 + y1) / 2;
+  if (cx <= slab.x0 || cx >= slab.x1 || cy <= slab.y0 || cy >= slab.y1) return Array(6).fill('facade');
+  const faces: MaterialKey[] = Array(6).fill('wall');
+  const end = (face: number, atCorner: boolean) => atCorner && (faces[face] = 'facade');
+  if (runsAlongX(wall)) {
+    faces[cy < (slab.y0 + slab.y1) / 2 ? 5 : 4] = 'facade';
+    end(0, b.x1 === x1);
+    end(1, b.x0 === x0);
+  } else {
+    faces[cx < (slab.x0 + slab.x1) / 2 ? 1 : 0] = 'facade';
+    end(4, b.y1 === y1);
+    end(5, b.y0 === y0);
+  }
+  return faces;
+}
+
 function FloorStructure({ house, floor, index, onPick }: { house: House; floor: Floor; index: number; onPick?: PickHandler }) {
   const blocks = useMemo(
-    () => floor.walls.flatMap((w) => wallBlocks(w, floor.openings, floor.clearHeight).map((b) => ({ b, mat: w.hedge ? ('hedge' as const) : w.exterior ? ('facade' as const) : ('wall' as const) }))),
+    () =>
+      floor.walls.flatMap((w) =>
+        wallBlocks(w, floor.openings, floor.clearHeight).map((b) => ({ b, mat: w.hedge ? ('hedge' as const) : w.exterior ? exteriorFaces(w, b, floor.slab) : ('wall' as const) })),
+      ),
     [floor],
   );
   const { shaft, core } = house.stair;
@@ -170,6 +199,12 @@ const PARAPET = 0.2;
 /** The kitchen fixtures a double-click runs the tap from. */
 const TAP_PARTS = ['Tap', 'Tap spout', 'Sink'];
 
+/** A painted ceiling, facing down. */
+function Ceiling({ rect, height }: { rect: Rect; height: number }) {
+  const geo = useMemo(() => new THREE.PlaneGeometry(rect.x1 - rect.x0, rect.y1 - rect.y0).rotateX(Math.PI / 2), [rect]);
+  return <mesh geometry={geo} material={material('slab')} position={[(rect.x0 + rect.x1) / 2, height, (rect.y0 + rect.y1) / 2]} receiveShadow />;
+}
+
 /** The flat roof: a green sedum roof inside a low parapet, with two long rows of solar panels running from party wall to party wall. */
 export function Roof({ house }: { house: House }) {
   const top = house.floors[house.floors.length - 1];
@@ -186,6 +221,8 @@ export function Roof({ house }: { house: House }) {
   return (
     <group>
       <PlanSlab outline={outline} top={z} thickness={SLAB} mat="facade" />
+      {/* The top floor's ceiling: painted plaster under the roof slab. */}
+      <Ceiling rect={ROOF} height={z - SLAB - 0.002} />
       <BlockMesh block={{ x0: x0 + p, y0: y0 + p, x1: x1 - p, y1: y1 - p, z0: 0, z1: 0.08 }} level={z} mat="sedum" />
       {[
         { x0, x1, y0, y1: y0 + p },

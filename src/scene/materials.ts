@@ -220,10 +220,10 @@ function build() {
     roseGold: new THREE.MeshPhysicalMaterial({ color: '#e9bba8', roughness: 0.28, metalness: 1 }),
     forest: std({ map: tiles([52, 82, 64], 0.25, 'rgba(30,45,36,0.9)', 0.12), roughness: 0.3 }),
     // Building
-    // Pure white walls and ceilings, as Dennis asked.
-    wall: std({ color: '#fafafa', ...plaster, normalScale: new THREE.Vector2(0.35, 0.35), roughness: 1 }),
+    // Walls and ceilings in a neutral, very slightly off-white paint, as Dennis asked.
+    wall: std({ color: '#f4f3ef', ...plaster, normalScale: new THREE.Vector2(0.35, 0.35), roughness: 1 }),
     facade: std({ color: '#d6cfc4', roughness: 0.95 }),
-    slab: std({ color: '#fbfbfa', roughness: 0.95 }),
+    slab: std({ color: '#f4f3ef', roughness: 0.95 }),
     frame: std({ color: '#4a4744', roughness: 0.5, metalness: 0.3 }),
     neighbour: std({ color: '#d2cbc0', roughness: 0.95 }),
     hedge: std({ map: speckle([62, 92, 56], 0.35, 17), roughness: 1 }),

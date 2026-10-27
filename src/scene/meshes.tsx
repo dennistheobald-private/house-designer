@@ -29,7 +29,8 @@ function boxGeometry(w: number, h: number, d: number) {
   return geo;
 }
 
-export function BlockMesh({ block, level, mat, shadows = true }: { block: Block; level: number; mat: MaterialKey; shadows?: boolean }) {
+/** `mat` is one material, or one per box face in the order +x, -x, top, bottom, +plan y, -plan y. */
+export function BlockMesh({ block, level, mat, shadows = true }: { block: Block; level: number; mat: MaterialKey | MaterialKey[]; shadows?: boolean }) {
   const w = block.x1 - block.x0;
   const d = block.y1 - block.y0;
   const h = block.z1 - block.z0;
@@ -37,7 +38,7 @@ export function BlockMesh({ block, level, mat, shadows = true }: { block: Block;
   return (
     <mesh
       geometry={geo}
-      material={material(mat)}
+      material={Array.isArray(mat) ? mat.map(material) : material(mat)}
       position={[(block.x0 + block.x1) / 2, level + (block.z0 + block.z1) / 2, (block.y0 + block.y1) / 2]}
       castShadow={shadows}
       receiveShadow

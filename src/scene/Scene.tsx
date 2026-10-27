@@ -51,17 +51,19 @@ function Lighting({ time, quality }: { time: TimeOfDay; quality: Quality }) {
       </group>
       {/*
         Image-based light, white-balanced for interiors: a soft, near-neutral sky dome, the
-        sun's glow, and the warm bounce from the ground and the neighbours' facades. The
+        sun's glow, and a near-neutral bounce from the ground, so white ceilings stay white. The
         visible blue sky above is for the view out of the windows only.
       */}
       <Environment resolution={256} frames={1} key={time}>
         <color attach="background" args={[day ? '#d8d6d0' : '#1b1f2a']} />
         <Lightformer form="ring" intensity={day ? 4 : 0.6} color={day ? '#fff2df' : '#9aa8c8'} scale={8} position={[sun[0], Math.max(sun[1], 3), sun[2]]} target={[0, 0, 0]} />
         <Lightformer form="rect" intensity={day ? 1.4 : 0.2} color={day ? '#f4f6f8' : '#5c6a8a'} scale={[40, 40, 1]} position={[0, 20, 0]} target={[0, 0, 0]} />
-        <Lightformer form="rect" intensity={day ? 0.6 : 0.05} color={day ? '#c9bba5' : '#2a2622'} scale={[60, 60, 1]} position={[0, -6, 0]} target={[0, 0, 0]} />
+        <Lightformer form="rect" intensity={day ? 0.6 : 0.05} color={day ? '#cdc9c1' : '#2a2622'} scale={[60, 60, 1]} position={[0, -6, 0]} target={[0, 0, 0]} />
       </Environment>
       <group userData={NO_TRACE}>
-        <hemisphereLight args={[day ? '#f1f4f8' : '#55607a', day ? '#d8cbb6' : '#2a2622', day ? 0.35 : 0.08]} />
+        <hemisphereLight args={[day ? '#f1f4f8' : '#55607a', day ? '#d6d3cc' : '#2a2622', day ? 0.35 : 0.08]} />
+        {/* Daylight bounced up off the floors: it shines straight up, so it only lights ceilings and keeps them white rather than grey. */}
+        <directionalLight position={[0, -1, 0]} target-position={[0, 0, 0]} intensity={day ? 0.9 : 0.04} color="#ffffff" />
       </group>
       <directionalLight
         position={[sun[0] + 5, Math.max(sun[1], 2), sun[2] + 3]}
