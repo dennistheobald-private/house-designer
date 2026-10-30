@@ -113,10 +113,10 @@ const mainFloor: Floor = {
     { wall: 'm-kitchen-hall', kind: 'door', from: 8.6, to: 9.44, sill: 0, head: 2.1 },
   ],
   rooms: [
-    { id: 'living', name: 'Living and dining', planArea: 33.5, rects: [r(0, 0, 4.27, 5.7), r(4.27, 1.77, 6.45, 5.7), r(6.45, 3.51, 6.57, 5.7)], finish: 'parquet', spawn: { x: 6.1, y: 4.6, facing: Math.PI } },
-    { id: 'kitchen', name: 'Kitchen', planArea: 8.2, rects: [r(6.57, 2.91, 8.48, 5.7), r(8.48, 3.26, 10.15, 5.7)], finish: 'stoneTile', spawn: { x: 6.9, y: 4.3, facing: 0 } },
-    { id: 'entrance', name: 'Entrance', planArea: 8.2, rects: [r(6.82, 0, 8.8, 1.77), r(6.45, 1.77, 10.15, 2.79), r(8.6, 2.79, 10.15, 3.11)], finish: 'stoneTile', spawn: { x: 9.7, y: 2.4, facing: Math.PI } },
-    { id: 'wc', name: 'WC', planArea: 1.8, rects: [r(8.95, 0, 10.15, 1.62)], finish: 'tile', spawn: { x: 9.3, y: 0.9, facing: 0 } },
+    { id: 'living', name: 'Living and dining', planArea: 33.5, rects: [r(0, 0, 4.27, 5.7), r(4.27, 1.77, 6.45, 5.7), r(6.45, 3.51, 6.57, 5.7)], finish: 'woodTile', spawn: { x: 6.1, y: 4.6, facing: Math.PI } },
+    { id: 'kitchen', name: 'Kitchen', planArea: 8.2, rects: [r(6.57, 2.91, 8.48, 5.7), r(8.48, 3.26, 10.15, 5.7)], finish: 'woodTile', spawn: { x: 6.9, y: 4.3, facing: 0 } },
+    { id: 'entrance', name: 'Entrance', planArea: 8.2, rects: [r(6.82, 0, 8.8, 1.77), r(6.45, 1.77, 10.15, 2.79), r(8.6, 2.79, 10.15, 3.11)], finish: 'woodTile', spawn: { x: 9.7, y: 2.4, facing: Math.PI } },
+    { id: 'wc', name: 'WC', planArea: 1.8, rects: [r(8.95, 0, 10.15, 1.62)], finish: 'bathTile', spawn: { x: 9.3, y: 0.9, facing: 0 } },
   ],
   outdoor: [
     { id: 'garden-terrace', name: 'Garden terrace', planArea: 14.8, rects: [r(TERRACE_EDGE, 0, -0.35, 5.7)], finish: 'terrace', spawn: { x: -1.5, y: 3.9, facing: -Math.PI / 2 } },

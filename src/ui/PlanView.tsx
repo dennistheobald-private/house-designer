@@ -7,6 +7,7 @@ import type { FloorFinish, House, Rect } from '../house/types';
 
 const FINISH_FILL: Record<FloorFinish, string> = {
   parquet: '#e8d6bb',
+  woodTile: '#e6d3b6',
   tile: '#e4e2dd',
   stoneTile: '#ddd6ca',
   bathTile: '#e6dccb',
