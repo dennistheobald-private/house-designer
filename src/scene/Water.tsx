@@ -83,3 +83,44 @@ export function Rain({ w, d, drop, count = 260 }: { w: number; d: number; drop: 
   });
   return <instancedMesh ref={mesh} args={[geo, water(), count]} frustumCulled={false} />;
 }
+
+/**
+ * A hand shower's spray: drops leaving a round head of radius `r` at the origin along `dir`,
+ * fanning out a little and falling under gravity until they reach the floor `drop` metres down.
+ */
+export function Spray({ dir, r, drop, count = 180 }: { dir: THREE.Vector3; r: number; drop: number; count?: number }) {
+  const mesh = useRef<THREE.InstancedMesh>(null);
+  const invalidate = useThree((s) => s.invalidate);
+  const drops = useMemo(() => {
+    const rand = rng(11);
+    const n = dir.clone().normalize();
+    // Two axes across the face to place the nozzles and fan the jets.
+    const a = new THREE.Vector3().crossVectors(n, Math.abs(n.y) < 0.9 ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(1, 0, 0)).normalize();
+    const b = new THREE.Vector3().crossVectors(n, a);
+    return Array.from({ length: count }, () => {
+      const ang = rand() * Math.PI * 2;
+      const rad = Math.sqrt(rand()) * r;
+      const start = a.clone().multiplyScalar(Math.cos(ang) * rad).addScaledVector(b, Math.sin(ang) * rad);
+      // Outer nozzles point a little further out, so the jet widens.
+      const v = n.clone().addScaledVector(start, 0.2 / r).normalize().multiplyScalar(1.9 + rand() * 0.4);
+      // Time to fall from the head to the floor: y(t) = start.y + v.y t - g t² / 2 = -drop.
+      const g = 9.81;
+      const life = (v.y + Math.sqrt(v.y * v.y + 2 * g * (drop + start.y))) / g;
+      return { start, v, life, phase: rand() };
+    });
+  }, [dir, r, drop, count]);
+  const geo = useMemo(() => new THREE.CylinderGeometry(0.0015, 0.0015, 0.04, 4), []);
+  const m = useMemo(() => new THREE.Matrix4(), []);
+  useFrame(({ clock }) => {
+    if (!mesh.current) return;
+    const t = clock.getElapsedTime();
+    drops.forEach((p, i) => {
+      const s = ((t * 1.4 + p.phase) % 1) * p.life;
+      m.makeTranslation(p.start.x + p.v.x * s, p.start.y + p.v.y * s - 4.905 * s * s, p.start.z + p.v.z * s);
+      mesh.current!.setMatrixAt(i, m);
+    });
+    mesh.current.instanceMatrix.needsUpdate = true;
+    invalidate();
+  });
+  return <instancedMesh ref={mesh} args={[geo, water(), count]} frustumCulled={false} />;
+}

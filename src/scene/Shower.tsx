@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import type { ShowerSystem } from '../house/fixtures';
 import { cylinder, fabric, metal, roundedBox } from './furniture/look';
 import { material } from './materials';
-import { Rain, useRunning } from './Water';
+import { Rain, Spray, useRunning } from './Water';
 
 /*
  * A shower system after the photo Dennis chose (a square-profile showerpipe with a
@@ -14,6 +14,14 @@ import { Rain, useRunning } from './Water';
 
 const RAIL = 0.025;
 const RAIL_Z = 0.045;
+
+// The hand shower on its holder: where its grip sits and how it is tilted, and where its round
+// head's spray face is in the shower's frame, with the way the spray points.
+const HAND_AT = new THREE.Vector3(0.02, 1.62, RAIL_Z + 0.07);
+const HAND_TILT = new THREE.Euler(0.25, 0, -0.12);
+const HEAD_TILT = new THREE.Euler(Math.PI / 2 - 0.3, 0, 0);
+const HAND_FACE = new THREE.Vector3(0, 0.114, 0.026).applyEuler(HAND_TILT).add(HAND_AT);
+const HAND_DIR = new THREE.Vector3(0, 1, 0).applyEuler(HEAD_TILT).applyEuler(HAND_TILT);
 
 const blackFace = () => metal('#1d1d1d', 0.55);
 const hoseMaterial = () => fabric('#c8b39b', 'knit');
@@ -38,13 +46,19 @@ export function Shower({ shower, level }: { shower: ShowerSystem; level: number 
   }, []);
   const top = 2.2;
   const arm = 0.42;
-  // Double-click the shower to turn the rain on or off.
+  // Double-click the shower to turn the rain on or off, and the hand shower for its own spray.
   const [running, toggle] = useRunning();
+  const [handRunning, toggleHand] = useRunning();
   return (
     <group position={[shower.x, level, shower.y]} onDoubleClick={toggle}>
       {running && (
         <group position={[0, top - 0.025, RAIL_Z + arm - 0.04]}>
           <Rain w={0.32} d={0.22} drop={top - 0.03} />
+        </group>
+      )}
+      {handRunning && (
+        <group position={HAND_FACE}>
+          <Spray dir={HAND_DIR} r={0.05} drop={HAND_FACE.y} />
         </group>
       )}
       {/* Wall rail and the arm to the rain head */}
@@ -61,10 +75,10 @@ export function Shower({ shower, level }: { shower: ShowerSystem; level: number 
       <mesh geometry={cylinder(0.024, 0.024, 0.04, 32)} material={gold} position={[0.17, 1.05, 0.07]} rotation={[Math.PI / 2, 0, 0]} castShadow />
       {/* Hand shower on its holder */}
       <Part g={roundedBox(0.045, 0.04, 0.05, 0.006)} m={gold} p={[0, 1.5, RAIL_Z + 0.03]} />
-      <group position={[0.02, 1.62, RAIL_Z + 0.07]} rotation={[0.25, 0, -0.12]}>
+      <group position={HAND_AT} rotation={HAND_TILT} onDoubleClick={toggleHand}>
         <mesh geometry={cylinder(0.014, 0.012, 0.2, 20)} material={gold} position={[0, -0.04, 0]} castShadow />
-        <mesh geometry={cylinder(0.065, 0.065, 0.025, 40)} material={gold} position={[0, 0.11, 0.012]} rotation={[Math.PI / 2 - 0.3, 0, 0]} castShadow />
-        <mesh geometry={cylinder(0.058, 0.058, 0.004, 40)} material={blackFace()} position={[0, 0.112, 0.026]} rotation={[Math.PI / 2 - 0.3, 0, 0]} />
+        <mesh geometry={cylinder(0.065, 0.065, 0.025, 40)} material={gold} position={[0, 0.11, 0.012]} rotation={HEAD_TILT} castShadow />
+        <mesh geometry={cylinder(0.058, 0.058, 0.004, 40)} material={blackFace()} position={[0, 0.112, 0.026]} rotation={HEAD_TILT} />
       </group>
       <mesh geometry={hose} material={hoseMaterial()} castShadow />
     </group>
