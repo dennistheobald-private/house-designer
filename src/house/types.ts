@@ -8,7 +8,7 @@ export interface Rect {
   y1: number;
 }
 
-export type FloorFinish = 'parquet' | 'tile' | 'bathTile' | 'stoneTile' | 'screed' | 'carpet' | 'stair' | 'terrace' | 'pebble' | 'lawn';
+export type FloorFinish = 'parquet' | 'woodTile' | 'tile' | 'bathTile' | 'stoneTile' | 'screed' | 'carpet' | 'stair' | 'terrace' | 'pebble' | 'lawn';
 
 export interface Wall {
   id: string;

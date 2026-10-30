@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { FloorFinish } from '../house/types';
 import type { FixtureMaterial } from '../house/fixtures';
 import tilePhoto from '../assets/bath-tile.jpg';
-import { parquetMaps, plasterMaps } from './textures';
+import { parquetMaps, plasterMaps, woodTileMaps, type SurfaceMaps } from './textures';
 
 /*
  * Procedural textures, so the app needs no image downloads. Each texture covers
@@ -185,12 +185,20 @@ function walnutBoards() {
 
 let cache: Record<string, THREE.Material> | null = null;
 
+/** Maps drawn over `metres` instead of TEXTURE_METRES, scaled to the metre UVs. */
+function covering(maps: SurfaceMaps, metres: number) {
+  for (const t of Object.values(maps)) t?.repeat.set(TEXTURE_METRES / metres, TEXTURE_METRES / metres);
+  return maps;
+}
+
 function build() {
   const std = (params: THREE.MeshStandardMaterialParameters) => new THREE.MeshStandardMaterial(params);
   const plaster = plasterMaps(4);
   return {
     // Floors
     parquet: new THREE.MeshPhysicalMaterial({ ...parquetMaps(), roughness: 1, clearcoat: 0.12, clearcoatRoughness: 0.45 }),
+    // Wood-look porcelain planks on the whole main floor; the texture covers 2.4 m.
+    woodTile: std({ ...covering(woodTileMaps(), 2.4), roughness: 1 }),
     tile: std({ map: tiles([214, 210, 202], 0.4, 'rgba(150,145,138,0.8)'), roughness: 0.35 }),
     // Dennis's beige stone-look 60 x 60 cm porcelain in both bathrooms, floors and walls.
     bathTile: std({ map: bathTileMap(), roughness: 0.45 }),

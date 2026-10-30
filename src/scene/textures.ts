@@ -568,6 +568,56 @@ export function parquetMaps(size = 1024, metres = 2): SurfaceMaps {
   return { map: toTexture(c), normalMap: normalMap(height, size, 2.5), roughnessMap: greyMap(rough, size, 0.35, 0.7) };
 }
 
+/**
+ * Wood-look porcelain floor tiles: 20 x 120 cm planks laid in thirds, with a printed oak
+ * grain, a matte glaze and fine light grout joints. One texture covers `metres` square.
+ */
+export function woodTileMaps(size = 1024, metres = 2.4): SurfaceMaps {
+  const rand = rng(31);
+  const cols = Math.round(metres / 0.2);
+  const plankPx = size / cols;
+  const lengthPx = (size * 1.2) / metres;
+  const joint = (size * 0.003) / metres; // 3 mm grout
+  const grain = fbm(size, { seed: 83, cells: 2, octaves: 5, stretchX: 14, stretchY: 0.3 });
+  const pores = fbm(size, { seed: 89, cells: 48, octaves: 2, stretchX: 3, stretchY: 0.15 });
+  const colour = new Uint8ClampedArray(size * size * 4);
+  const height = new Float32Array(size * size);
+  const rough = new Float32Array(size * size);
+  for (let col = 0; col < cols; col++) {
+    const offset = (((col * 2) % 3) / 3) * lengthPx;
+    const tones = [0, 1].map(() => 0.92 + rand() * 0.12);
+    const shifts = [0, 1].map(() => Math.floor(rand() * size));
+    for (let py = 0; py < size; py++) {
+      const along = (py - offset + size) % size;
+      const k = Math.floor(along / lengthPx) % 2;
+      const fromJoint = Math.min(along % lengthPx, lengthPx - (along % lengthPx));
+      for (let px = Math.floor(col * plankPx); px < Math.floor((col + 1) * plankPx); px++) {
+        const i = py * size + px;
+        const edge = Math.min(px - col * plankPx, (col + 1) * plankPx - px, fromJoint);
+        if (edge < joint) {
+          colour.set([176, 166, 152, 255], i * 4);
+          height[i] = 0;
+          rough[i] = 1;
+          continue;
+        }
+        const gi = ((py + shifts[k]) % size) * size + ((px + shifts[k] * 7) % size);
+        const rings = 0.5 + 0.5 * Math.sin(grain[gi] * 46 + px * 0.02);
+        const g = 0.62 * rings + 0.38 * pores[gi];
+        const t = tones[k];
+        colour[i * 4] = (204 - 34 * g) * t;
+        colour[i * 4 + 1] = (174 - 36 * g) * t;
+        colour[i * 4 + 2] = (134 - 34 * g) * t;
+        colour[i * 4 + 3] = 255;
+        height[i] = edge < joint + 1.5 ? 0.6 : 0.9 + 0.1 * pores[gi];
+        rough[i] = 0.5 + 0.2 * g;
+      }
+    }
+  }
+  const { c, ctx } = canvas(size);
+  ctx.putImageData(new ImageData(colour, size, size), 0, 0);
+  return { map: toTexture(c), normalMap: normalMap(height, size, 2), roughnessMap: greyMap(rough, size, 0.5, 0.75) };
+}
+
 /* ---------------------------------------------------------------- woodland animals, for the children's room */
 
 const FOX = '#c8743f';
